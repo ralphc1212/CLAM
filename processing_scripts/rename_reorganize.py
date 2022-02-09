@@ -1,4 +1,5 @@
 import os
+import csv
 
 post_fix = 'h5'
 
@@ -13,14 +14,23 @@ for name in training_names:
 	num, _ = post.split('.')
 
 	num_int = int(num) - 1 if type_ == 'normal' else int(num)+159
-	print(type_, 'slide_' + str(num_int) + '.' + post_fix)
+	# print(type_, 'slide_' + str(num_int) + '.' + post_fix)
 
-	rows.append([num_int, 'slide_' + str(num_int), type_, ])
+	rows.append([num_int, 'slide_' + str(num_int), type_])
 	count += 1
+	os.rename('/media/hdd/CAMELYON16/feats_resnet50/training/' + post_fix + '_files/' + name,
+	 '/media/hdd/CAMELYON16/feats_resnet50/training/' + post_fix + '_files/slide_' + str(num_int) + '.' + post_fix)
 
 # def takeSecond(elem):
     # return elem[3]
 
 rows.sort(key=lambda x: x[0])
 
-print(rows)
+for row in rows:
+	row[0] = 'patient_' + str(row[0])
+
+rows.insert(0, ['case_id', 'slide_id', 'label'])
+
+with open('training_cases.csv', 'w') as file:
+	writer = csv.writer(file)
+	writer.writerows(rows)
