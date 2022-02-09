@@ -43,7 +43,7 @@
 import os
 import csv
 
-post_fix = 'pt'
+post_fix = 'h5'
 
 rows = []
 with open('/media/hdd/CAMELYON16/testing/reference.csv', 'r') as file:
