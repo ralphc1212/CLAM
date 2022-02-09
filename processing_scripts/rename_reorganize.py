@@ -14,12 +14,12 @@ for name in training_names:
 	num_int = int(num) if type_ == 'normal' else int(num)+160
 	print(type_, 'slide_' + str(num_int) + '.' + post_fix)
 
-	rows = ['patient_' + str(count), 'slide_' + str(num_int), type_, num_int]
+	rows.append(['patient_' + str(count), 'slide_' + str(num_int), type_, num_int])
 
 
-def takeSecond(elem):
-    return elem[3]
+# def takeSecond(elem):
+    # return elem[3]
 
-rows.sort(key=takeSecond)
+rows.sort(key=lambda x: x[3])
 
 print(rows)
