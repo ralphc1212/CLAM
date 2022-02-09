@@ -12,4 +12,5 @@ for name in training_names:
 	num, _ = post.split('.')
 
 	num_int = int(num) if type_ == 'normal' else int(num)+160
-	print(type_, 'slide_' + str(int(num)+160) + '.' + post_fix)
+	print(type_, 'slide_' + str(num_int) + '.' + post_fix)
+
