@@ -16,6 +16,7 @@ for name in training_names:
 
 	rows = ['patient_' + str(count), 'slide_' + str(num_int), type_, num_int]
 
-rows.sort(key=lambda x: x[3])
+f = lambda x: x[3]
+rows.sort(key=f)
 
 print(rows)
