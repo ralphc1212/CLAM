@@ -5,6 +5,10 @@ import pdb
 import os
 import math
 
+import sys
+sys.path
+sys.path.append('/home/nandcui/projects/CLAM/')
+
 # internal imports
 from utils.file_utils import save_pkl, load_pkl
 from utils.utils import *
