@@ -158,7 +158,7 @@ if args.task == 'task_1_tumor_vs_normal':
                             shuffle = False, 
                             seed = args.seed, 
                             print_info = True,
-                            label_dict = {'normal_tissue':0, 'tumor_tissue':1},
+                            label_dict = {'normal':0, 'tumor':1},
                             patient_strat=False,
                             ignore=[])
 
