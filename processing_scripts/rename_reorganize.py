@@ -60,13 +60,13 @@ for row in rows:
 	os.rename('/media/hdd/CAMELYON16/feats_resnet50/testing/' + post_fix + '_files/test_' + row[0].split('_')[1] + '.' + post_fix,
 	 '/media/hdd/CAMELYON16/feats_resnet50/testing/' + post_fix + '_files/slide_' + str(num_int) + '.' + post_fix)
 
-new_rows.sort(key=lambda x: x[0])
+# new_rows.sort(key=lambda x: x[0])
 
-for new_row in new_rows:
-	new_row[0] = 'patient_' + str(new_row[0])
+# for new_row in new_rows:
+# 	new_row[0] = 'patient_' + str(new_row[0])
 
-print(new_rows)
+# print(new_rows)
 
-with open('testing_cases.csv', 'w') as file:
-	writer = csv.writer(file)
-	writer.writerows(new_rows)
+# with open('testing_cases.csv', 'w') as file:
+# 	writer = csv.writer(file)
+# 	writer.writerows(new_rows)
