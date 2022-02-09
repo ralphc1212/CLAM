@@ -43,7 +43,7 @@
 import os
 import csv
 
-with open('/media/hdd/CAMELYON16/testing_patched/images/process_list_autogen.csv', 'r') as file:
+with open('/media/hdd/CAMELYON16/testing/reference.csv', 'r') as file:
 	reader = csv.reader(file)
 
 	for row in reader:
