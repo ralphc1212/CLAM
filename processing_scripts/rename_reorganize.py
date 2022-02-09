@@ -1,7 +1,7 @@
 import os
 import csv
 
-post_fix = 'h5'
+post_fix = 'pt'
 
 training_names = os.listdir('/media/hdd/CAMELYON16/feats_resnet50/training/' + post_fix + '_files')
 
@@ -24,13 +24,13 @@ for name in training_names:
 # def takeSecond(elem):
     # return elem[3]
 
-rows.sort(key=lambda x: x[0])
+# rows.sort(key=lambda x: x[0])
 
-for row in rows:
-	row[0] = 'patient_' + str(row[0])
+# for row in rows:
+# 	row[0] = 'patient_' + str(row[0])
 
-rows.insert(0, ['case_id', 'slide_id', 'label'])
+# rows.insert(0, ['case_id', 'slide_id', 'label'])
 
-with open('training_cases.csv', 'w') as file:
-	writer = csv.writer(file)
-	writer.writerows(rows)
+# with open('training_cases.csv', 'w') as file:
+# 	writer = csv.writer(file)
+# 	writer.writerows(rows)
