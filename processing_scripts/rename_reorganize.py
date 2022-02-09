@@ -43,8 +43,22 @@
 import os
 import csv
 
+rows = []
 with open('/media/hdd/CAMELYON16/testing/reference.csv', 'r') as file:
 	reader = csv.reader(file)
 
 	for row in reader:
-		print(row)
+		rows.append(row)
+
+new_rows = []
+
+for row in rows:
+	num_int = int(row[0].split('_')[1]) + 269
+	new_rows.append([num_int, 'slide_'+str(num_int), 'normal' if row[1] == 'Normal' else 'tumor'])
+
+new_rows.sort(key=lambda x: x[0])
+
+for new_row in new_rows:
+	new_row[0] = 'patient_' + str(new_row[0])
+
+print(new_rows)
