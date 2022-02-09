@@ -10,9 +10,9 @@ import math
 # sys.path.append('/home/nandcui/projects/CLAM/')
 
 # internal imports
-from .utils.file_utils import save_pkl, load_pkl
-from .utils.utils import *
-from .utils.core_utils import train
+from utils.file_utils import save_pkl, load_pkl
+from utils.utils import *
+from utils.core_utils import train
 from datasets.dataset_generic import Generic_WSI_Classification_Dataset, Generic_MIL_Dataset
 
 # pytorch imports
