@@ -4,6 +4,7 @@ post_fix = 'h5'
 
 training_names = os.listdir('/media/hdd/CAMELYON16/feats_resnet50/training/' + post_fix + '_files')
 
+rows = []
 # rows = [['case_id', 'slide_id', 'label']]
 
 count = 0
