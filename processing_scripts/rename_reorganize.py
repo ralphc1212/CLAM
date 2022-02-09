@@ -16,7 +16,10 @@ for name in training_names:
 
 	rows = ['patient_' + str(count), 'slide_' + str(num_int), type_, num_int]
 
-f = lambda x: x[3]
-rows.sort(key=f)
+
+def takeSecond(elem):
+    return elem[3]
+
+rows.sort(key=takeSecond)
 
 print(rows)
