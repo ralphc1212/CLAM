@@ -46,5 +46,5 @@ import csv
 with open('/media/hdd/CAMELYON16/testing_patched/images/process_list_autogen.csv', 'r') as file:
 	reader = csv.reader(file)
 
-for row in reader:
-	print(row)
+	for row in reader:
+		print(row)
