@@ -57,7 +57,7 @@ new_rows = []
 for row in rows:
 	num_int = int(row[0].split('_')[1]) + 269
 	new_rows.append([num_int, 'slide_'+str(num_int), 'normal' if row[1] == 'Normal' else 'tumor'])
-	os.rename('/media/hdd/CAMELYON16/feats_resnet50/testing/' + post_fix + '_files/test_' + str(num_int - 269) + '.' + post_fix,
+	os.rename('/media/hdd/CAMELYON16/feats_resnet50/testing/' + post_fix + '_files/test_' + row[0].split('_')[1] + '.' + post_fix,
 	 '/media/hdd/CAMELYON16/feats_resnet50/testing/' + post_fix + '_files/slide_' + str(num_int) + '.' + post_fix)
 
 new_rows.sort(key=lambda x: x[0])
