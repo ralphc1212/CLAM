@@ -9,7 +9,7 @@ for name in training_names:
 	num, _ = post.split('.')
 
 	if type_ is 'normal':
-		print('normal', 'slide'+num+'.'+post_fix)
+		print(type_, 'slide'+num+'.'+post_fix)
 	else:
 		print(type_, 'slide'+str(int(num)+160)+'.'+post_fix)
 
