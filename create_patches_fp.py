@@ -14,7 +14,7 @@ def stitching(file_path, wsi_object, downscale = 64):
 	start = time.time()
 	heatmap = StitchCoords(file_path, wsi_object, downscale=downscale, bg_color=(0,0,0), alpha=-1, draw_grid=False)
 	total_time = time.time() - start
-	
+
 	return heatmap, total_time
 
 def segment(WSI_object, seg_params, filter_params):
@@ -35,7 +35,6 @@ def patching(WSI_object, **kwargs):
 	# Patch
 	file_path = WSI_object.process_contours(**kwargs)
 
-
 	### Stop Patch Timer
 	patch_time_elapsed = time.time() - start_time
 	return file_path, patch_time_elapsed
@@ -53,7 +52,7 @@ def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_d
 				  seg = False, save_mask = True, 
 				  stitch= False, 
 				  patch = False, auto_skip=True, process_list = None):
-	
+
 
 
 	slides = sorted(os.listdir(source))

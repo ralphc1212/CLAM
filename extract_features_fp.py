@@ -46,7 +46,7 @@ def compute_w_loader(file_path, output_path, wsi, model,
 			if count % print_every == 0:
 				print('batch {}/{}, {} files processed'.format(count, len(loader), count * batch_size))
 			batch = batch.to(device, non_blocking=True)
-			
+
 			features = model(batch)
 			features = features.cpu().numpy()
 
