@@ -8,8 +8,8 @@ for name in training_names:
 	type_, post = name.split('_')
 	num, _ = post.split('.')
 
-	if type_ is 'normal':
-		print(type_, 'slide'+num+'.'+post_fix)
+	if type_ == 'normal':
+		print(type_, 'slide_' + num + '.' + post_fix)
 	else:
-		print(type_, 'slide'+str(int(num)+160)+'.'+post_fix)
+		print(type_, 'slide_' + str(int(num)+160) + '.' + post_fix)
 
