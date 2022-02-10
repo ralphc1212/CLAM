@@ -159,7 +159,7 @@ print('\nLoad Dataset')
 
 if args.task == 'task_1_tumor_vs_normal':
     args.n_classes=2
-    dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/training_cases.csv',
+    dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/all_cases.csv',
                             data_dir= os.path.join(args.data_root_dir, 'feats_resnet50'),
                             shuffle = False, 
                             seed = args.seed, 
