@@ -180,7 +180,7 @@ elif args.task == 'task_2_tumor_subtyping':
                             ignore=[])
 
     if args.model_type in ['clam_sb', 'clam_mb']:
-        assert args.subtyping 
+        assert args.subtyping
 
 else:
     raise NotImplementedError
@@ -215,5 +215,3 @@ if __name__ == "__main__":
     results = main(args)
     print("finished!")
     print("end script")
-
-

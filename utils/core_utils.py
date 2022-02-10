@@ -24,7 +24,7 @@ class Accuracy_Logger(object):
         Y = int(Y)
         self.data[Y]["count"] += 1
         self.data[Y]["correct"] += (Y_hat == Y)
-    
+
     def log_batch(self, Y_hat, Y):
         Y_hat = np.array(Y_hat).astype(int)
         Y = np.array(Y).astype(int)
@@ -32,7 +32,7 @@ class Accuracy_Logger(object):
             cls_mask = Y == label_class
             self.data[label_class]["count"] += cls_mask.sum()
             self.data[label_class]["correct"] += (Y_hat[cls_mask] == Y[cls_mask]).sum()
-    
+
     def get_summary(self, c):
         count = self.data[c]["count"] 
         correct = self.data[c]["correct"]
