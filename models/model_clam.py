@@ -4,6 +4,10 @@ import torch.nn.functional as F
 from utils.utils import initialize_weights
 import numpy as np
 
+
+#*-*# for the original code
+
+
 """
 Attention Network without Gating (2 fc layers)
 args:
@@ -53,7 +57,33 @@ class Attn_Net_Gated(nn.Module):
 
         self.attention_a = nn.Sequential(*self.attention_a)
         self.attention_b = nn.Sequential(*self.attention_b)
+
+        self.attention_c = nn.Linear(D, n_classes)
+
+    def forward(self, x):
+        a = self.attention_a(x)
+        b = self.attention_b(x)
+        A = a.mul(b)
+        A = self.attention_c(A)  # N x n_classes
+        return A, x
+
+
+class MLP(nn.Module):
+    def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
+        super(MLP, self).__init__()
+        self.attention_a = [
+            nn.Linear(L, D),
+            nn.Tanh()]
         
+        self.attention_b = [nn.Linear(L, D),
+                            nn.Sigmoid()]
+        if dropout:
+            self.attention_a.append(nn.Dropout(0.25))
+            self.attention_b.append(nn.Dropout(0.25))
+
+        self.attention_a = nn.Sequential(*self.attention_a)
+        self.attention_b = nn.Sequential(*self.attention_b)
+
         self.attention_c = nn.Linear(D, n_classes)
 
     def forward(self, x):
@@ -146,7 +176,8 @@ class CLAM_SB(nn.Module):
 
     def forward(self, h, label=None, instance_eval=False, return_features=False, attention_only=False):
         device = h.device
-        A, h = self.attention_net(h)  # NxK        
+        #*-*# A, h = self.attention_net(h)  # NxK        
+        A, h = self.attention_net(h)
         A = torch.transpose(A, 1, 0)  # KxN
         if attention_only:
             return A
@@ -176,7 +207,7 @@ class CLAM_SB(nn.Module):
 
             if self.subtyping:
                 total_inst_loss /= len(self.instance_classifiers)
-                
+
         M = torch.mm(A, h) 
         logits = self.classifiers(M)
         Y_hat = torch.topk(logits, 1, dim = 1)[1]
