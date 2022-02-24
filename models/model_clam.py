@@ -177,7 +177,11 @@ class CLAM_SB(nn.Module):
     def forward(self, h, label=None, instance_eval=False, return_features=False, attention_only=False):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK        
+        print(h.shape)
         A, h = self.attention_net(h)
+        print(h.shape)
+        print(A.shape)
+        exit()
         A = torch.transpose(A, 1, 0)  # KxN
         if attention_only:
             return A
