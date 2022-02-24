@@ -157,7 +157,12 @@ def train(datasets, cur, args):
             model = MIL_fc_mc(**model_dict)
         else:
             model = MIL_fc(**model_dict)
-    
+    elif args.model_type == 'msa':
+        model = MIL_fc(**model_dict)
+    else:
+        print('Not implemented model type...')
+        exit()
+
     model.relocate()
     print('Done!')
     print_network(model)
