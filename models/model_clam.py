@@ -181,7 +181,8 @@ class CLAM_SB(nn.Module):
         A, h = self.attention_net(h)
         print(h.shape)
         print(A.shape)
-        exit()
+        print('---------')
+
         A = torch.transpose(A, 1, 0)  # KxN
         if attention_only:
             return A
