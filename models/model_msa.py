@@ -63,23 +63,18 @@ class MultiheadAttention(nn.Module):
 
 class MIL_msa(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes = 2, top_k=1):
-        super(MIL_fc, self).__init__()
-        assert n_classes == 2
-        self.size_dict = {"small": [1024, 512]}
-        size = self.size_dict[size_arg]
-        fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
-        if dropout:
-            fc.append(nn.Dropout(0.25))
+        super(MIL_msa, self).__init__()
 
-        fc.append(nn.Linear(size[1], n_classes))
+        assert n_classes == 2
+        layers = [ MultiheadAttention(1024, 1024, num_heads=8), nn.ReLU()]
+        if dropout:
+            layers.append(nn.Dropout(0.25))
+        layers.append(nn.Linear(1024, n_classes))
+
         self.classifier= nn.Sequential(*fc)
+
         initialize_weights(self)
         self.top_k=top_k
-
-        assert n_classes == 2
-        self.msa = MultiheadAttention(1024, 1024, num_heads=8)
-
-        
 
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
