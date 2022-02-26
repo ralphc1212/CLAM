@@ -85,8 +85,12 @@ if __name__ == '__main__':
 	dest_files = os.listdir(os.path.join(args.feat_dir, 'pt_files'))
 
 	print('loading model checkpoint')
+	import time
 	model = resnet50_baseline(pretrained=True)
+	start = time.time()
+	print('start loading')
 	model = model.to(device)
+	print('end loading, time: ', time.time() - start)
 
 	print_network(model)
 	if torch.cuda.device_count() > 1:
