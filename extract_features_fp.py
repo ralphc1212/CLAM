@@ -87,11 +87,11 @@ if __name__ == '__main__':
 	print('loading model checkpoint')
 	model = resnet50_baseline(pretrained=True)
 	model = model.to(device)
-	
-	# print_network(model)
+
+	print_network(model)
 	if torch.cuda.device_count() > 1:
 		model = nn.DataParallel(model)
-		
+
 	model.eval()
 	total = len(bags_dataset)
 
