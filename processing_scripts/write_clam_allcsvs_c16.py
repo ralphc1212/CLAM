@@ -90,11 +90,11 @@ splits_0_descriptor.append(normal_counter)
 splits_0_descriptor.append(tumor_counter)
 
 
-print(all_cases)
-print(splits_0_bool)
-print(splits_0_descriptor)
-print(patient_counter)
-print(splits_0)
+# print(all_cases)
+# print(splits_0_bool)
+# print(splits_0_descriptor)
+# print(patient_counter)
+# print(splits_0)
 
 to_write = [
 [all_cases, 'all_cases.csv'],
