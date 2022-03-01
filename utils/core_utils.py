@@ -121,7 +121,7 @@ def train(datasets, cur, args):
     else:
         loss_fn = nn.CrossEntropyLoss()
     print('Done!')
-    
+
     print('\nInit Model...', end=' ')
     model_dict = {"dropout": args.drop_out, 'n_classes': args.n_classes}
     if args.model_type == 'clam' and args.subtyping:
@@ -151,7 +151,7 @@ def train(datasets, cur, args):
             model = CLAM_MB(**model_dict, instance_loss_fn=instance_loss_fn)
         else:
             raise NotImplementedError
-    
+
     elif args.model_type == 'mil': # args.model_type == 'mil'
         if args.n_classes > 2:
             model = MIL_fc_mc(**model_dict)
