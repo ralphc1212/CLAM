@@ -37,4 +37,4 @@ for name in te_names:
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], get_label_by_test_id(name[:-3])])
 	patient_counter += 1
 
-print(all_cases)
+print(all_cases.__len__())
