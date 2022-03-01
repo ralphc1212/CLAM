@@ -12,6 +12,11 @@ with open('/data1/camelyon_data/CAMELYON16/testing/reference.csv') as f:
 	for row in reader:
 		te_info.append(row)
 
+with open('./transmil_val_id.txt') as f:
+	val_names = f.readlines()
+print(val_names)
+exit()
+
 all_cases = [['case_id', 'slide_id', 'label']]
 splits_0_bool = [['', 'train', 'val', 'test']]
 splits_0_descriptor = [['', 'train', 'val', 'test']]
@@ -20,6 +25,7 @@ splits_0 = [['', 'train', 'val', 'test']]
 patient_counter = 0
 for name in normal_names:
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], 'normal'])
+	splits_0_bool.append([])
 	patient_counter += 1
 
 for name in tumor_names:
@@ -37,3 +43,5 @@ for name in te_names:
 	patient_counter += 1
 
 print(all_cases)
+
+
