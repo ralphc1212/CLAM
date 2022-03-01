@@ -22,7 +22,7 @@ splits_0_bool = [['', 'train', 'val', 'test']]
 splits_0_descriptor = [['', 'train', 'val', 'test']]
 splits_0 = [['', 'train', 'val', 'test']]
 
-for i in range(240):
+for i in range(216):
 	splits_0.append([i, '', '', ''])
 
 patient_counter = 0
@@ -31,6 +31,7 @@ tumor_counter = ['tumor', 0, 0, 0]
 
 
 independent_index = [1, 1, 1]
+
 for name in normal_names:
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], 'normal'])
 	if name[:-3] not in val_names:
