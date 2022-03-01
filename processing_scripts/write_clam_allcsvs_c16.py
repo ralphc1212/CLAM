@@ -14,6 +14,8 @@ with open('/data1/camelyon_data/CAMELYON16/testing/reference.csv') as f:
 
 with open('./transmil_val_id.txt') as f:
 	val_names = f.readlines()
+
+val_names = [val_name[:-1] for val_name in val_names]
 print(val_names)
 exit()
 
