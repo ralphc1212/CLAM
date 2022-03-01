@@ -29,7 +29,7 @@ for name in tumor_names:
 
 def get_label_by_test_id(id):
 	for elem in te_info:
-		if elemp[0] is id:
+		if elem[0] is id:
 			return elem[1]
 for name in te_names:
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], get_label_by_test_id(name[:-3])])
