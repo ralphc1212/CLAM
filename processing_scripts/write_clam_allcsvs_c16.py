@@ -28,7 +28,7 @@ tumor_counter = [0, 0, 0]
 
 for name in normal_names:
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], 'normal'])
-	if name not in val_names:
+	if name[:-3] not in val_names:
 		splits_0_bool.append([name[:-3], 'TRUE', 'FALSE', 'FALSE'])
 		normal_counter[0] += 1
 	else:
@@ -38,7 +38,7 @@ for name in normal_names:
 
 for name in tumor_names:
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], 'tumor'])
-	if name not in val_names:
+	if name[:-3] not in val_names:
 		splits_0_bool.append([name[:-3], 'TRUE', 'FALSE', 'FALSE'])
 		tumor_counter[0] += 1
 	else:
