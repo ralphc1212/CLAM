@@ -104,7 +104,7 @@ to_write = [
 [splits_0, 'splits_0.csv']]
 
 for i in range(len(to_write)):
-	with open(to_write[i][1], 'wb') as f:
+	with open(to_write[i][1], 'w') as f:
 		writer = csv.writer(f)
 		writer.writerows(to_write[i][0])
 
