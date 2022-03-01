@@ -73,8 +73,10 @@ for name in te_names:
 
 	if label == 'Normal':
 		normal_counter[3] += 1
+		label = normal
 	elif label == 'Tumor':
 		tumor_counter[3] += 1
+		label = 'tumor'
 
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], label])
 
@@ -108,8 +110,3 @@ for i in range(len(to_write)):
 	with open(to_write[i][1], 'w') as f:
 		writer = csv.writer(f)
 		writer.writerows(to_write[i][0])
-
-
-
-
-
