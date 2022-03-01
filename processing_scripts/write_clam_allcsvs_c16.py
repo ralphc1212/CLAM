@@ -36,12 +36,12 @@ for name in normal_names:
 	if name[:-3] not in val_names:
 		splits_0_bool.append([name[:-3], 'TRUE', 'FALSE', 'FALSE'])
 		normal_counter[1] += 1
-		splits_0[independent_index[0]][1] = name[:3]
+		splits_0[independent_index[0]][1] = name[:-3]
 		independent_index[0] += 1
 	else:
 		splits_0_bool.append([name[:-3], 'FALSE', 'TRUE', 'FALSE'])
 		normal_counter[2] += 1
-		splits_0[independent_index[1]][2] = name[:3]
+		splits_0[independent_index[1]][2] = name[:-3]
 		independent_index[1] += 1
 
 	patient_counter += 1
@@ -52,12 +52,12 @@ for name in tumor_names:
 	if name[:-3] not in val_names:
 		splits_0_bool.append([name[:-3], 'TRUE', 'FALSE', 'FALSE'])
 		tumor_counter[1] += 1
-		splits_0[independent_index[0]][1] = name[:3]
+		splits_0[independent_index[0]][1] = name[:-3]
 		independent_index[0] += 1
 	else:
 		splits_0_bool.append([name[:-3], 'FALSE', 'TRUE', 'FALSE'])
 		tumor_counter[2] += 1
-		splits_0[independent_index[1]][2] = name[:3]
+		splits_0[independent_index[1]][2] = name[:-3]
 		independent_index[1] += 1
 
 	patient_counter += 1
@@ -77,7 +77,7 @@ for name in te_names:
 
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], label])
 
-	splits_0[independent_index[2]][3] = name[:3]
+	splits_0[independent_index[2]][3] = name[:-3]
 	independent_index[2] += 1
 
 	splits_0_bool.append([name[:-3], 'FALSE', 'FALSE', 'TRUE'])
