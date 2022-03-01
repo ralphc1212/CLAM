@@ -30,3 +30,4 @@ for name in te_names:
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], elem[1] for elem in te_info if elemp[0] is name[:-3]])
 	patient_counter += 1
 
+print(all_cases)
