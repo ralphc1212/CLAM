@@ -54,10 +54,10 @@ def get_label_by_test_id(id):
 
 for name in te_names:
 	label = get_label_by_test_id(name[:-3])
-	print(label)
-	if label == 'normal':
+
+	if label == 'Normal':
 		normal_counter[2] += 1
-	elif label == 'tumor':
+	elif label == 'Numor':
 		tumor_counter[2] += 1
 
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], label])
