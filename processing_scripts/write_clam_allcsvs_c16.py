@@ -100,7 +100,6 @@ to_write = [
 [all_cases, 'all_cases.csv'],
 [splits_0_bool, 'splits_0_bool.csv'],
 [splits_0_descriptor, 'splits_0_descriptor.csv'],
-[patient_counter, 'patient_counter.csv'],
 [splits_0, 'splits_0.csv']]
 
 for i in range(len(to_write)):
