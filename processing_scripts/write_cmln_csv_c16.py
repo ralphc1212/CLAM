@@ -7,7 +7,7 @@ te_names = os.listdir('/data1/camelyon_data/CAMELYON16/training_patch/tumor/patc
 
 te_info = []
 with open('/data1/camelyon_data/CAMELYON16/testing/reference.csv') as f:
-	reader = csv.reader(file)
+	reader = csv.reader(f)
 
 	for row in reader:
 		te_info.append(row)
