@@ -73,7 +73,7 @@ for name in te_names:
 
 	if label == 'Normal':
 		normal_counter[3] += 1
-		label = normal
+		label = 'normal'
 	elif label == 'Tumor':
 		tumor_counter[3] += 1
 		label = 'tumor'
