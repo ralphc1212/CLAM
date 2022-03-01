@@ -95,3 +95,20 @@ print(splits_0_bool)
 print(splits_0_descriptor)
 print(patient_counter)
 print(splits_0)
+
+to_write = [
+[all_cases, 'all_cases.csv'],
+[splits_0_bool, 'splits_0_bool.csv'],
+[splits_0_descriptor, 'splits_0_descriptor.csv'],
+[patient_counter, 'patient_counter.csv'],
+[splits_0, 'splits_0.csv']]
+
+for i in range(len(to_write)):
+	with open(to_write[i][1], 'wb') as f:
+		writer = csv.writer(f)
+		writer.writerows(to_write[i][0])
+
+
+
+
+
