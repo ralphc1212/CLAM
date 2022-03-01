@@ -106,6 +106,7 @@ to_write = [
 for i in range(len(to_write)):
 	with open(to_write[i][1], 'w') as f:
 		writer = csv.writer(f)
+		print(to_write[i][0])
 		writer.writerows(to_write[i][0])
 
 
