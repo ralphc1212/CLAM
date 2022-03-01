@@ -1,9 +1,9 @@
 import os
 import csv
 
-normal_names = os.listdir('/data1/camelyon_data/CAMELYON16/training_patched/normal/patches')
-tumor_names = os.listdir('/data1/camelyon_data/CAMELYON16/training_patched/tumor/patches')
-te_names = os.listdir('/data1/camelyon_data/CAMELYON16/training_patched/tumor/patches')
+normal_names = os.listdir('/data1/camelyon_data/CAMELYON16/training_patch/normal/patches')
+tumor_names = os.listdir('/data1/camelyon_data/CAMELYON16/training_patch/tumor/patches')
+te_names = os.listdir('/data1/camelyon_data/CAMELYON16/training_patch/tumor/patches')
 
 te_info = []
 with open('/data1/camelyon_data/CAMELYON16/testing/reference.csv') as f:
