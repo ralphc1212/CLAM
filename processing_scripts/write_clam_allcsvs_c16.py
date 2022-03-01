@@ -57,7 +57,7 @@ for name in te_names:
 
 	if label == 'Normal':
 		normal_counter[2] += 1
-	elif label == 'Numor':
+	elif label == 'Tumor':
 		tumor_counter[2] += 1
 
 	all_cases.append(['parient_'+str(patient_counter), name[:-3], label])
