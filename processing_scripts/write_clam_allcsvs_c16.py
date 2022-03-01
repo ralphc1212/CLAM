@@ -66,9 +66,11 @@ for name in te_names:
 
 	patient_counter += 1
 
+
 splits_0_descriptor.append(normal_counter)
 splits_0_descriptor.append(tumor_counter)
 
 print(all_cases)
 print(splits_0_bool)
 print(splits_0_descriptor)
+print(patient_counter)
