@@ -93,7 +93,7 @@ class probabilistic_MIL(nn.Module):
         self.n_classes = n_classes
         self.print_sample_trigger = False
         self.num_samples = 16
-        
+
         initialize_weights(self)
         self.top_k=top_k
 
@@ -122,7 +122,7 @@ class probabilistic_MIL(nn.Module):
         if self.print_sample_trigger:
             exit()
         asample /= self.num_samples
-        M = torch.mm(asample, H)  # KxL
+        M = torch.mm(asample, h)  # KxL
 
         # M = torch.mm(A, h) 
         logits = self.classifiers(M)
