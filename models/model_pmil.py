@@ -114,8 +114,6 @@ class probabilistic_MIL(nn.Module):
         # A_raw = A
         # A = F.softmax(A, dim=1)  # softmax over N
 
-        print(A.shape)
-        exit()
         dist = torch.distributions.relaxed_categorical.RelaxedOneHotCategorical(self.temperature, A)
         sample = dist.rsample([16])
         asample = sample.mean(dim=0)
