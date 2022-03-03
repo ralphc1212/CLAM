@@ -94,7 +94,7 @@ class probabilistic_MIL(nn.Module):
 
         initialize_weights(self)
         self.top_k=top_k
-        
+
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.attention_net = self.attention_net.to(device)
@@ -107,8 +107,7 @@ class probabilistic_MIL(nn.Module):
         A, h = self.attention_net(h)
 
         A = torch.transpose(A, 1, 0)  # KxN
-        if attention_only:
-            return A
+
         A_raw = A
         A = F.softmax(A, dim=1)  # softmax over N
 
