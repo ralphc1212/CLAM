@@ -71,7 +71,7 @@ class MIL_msa(nn.Module):
             layers.append(nn.Dropout(0.25))
         layers.append(nn.Linear(1024, n_classes))
 
-        self.classifier= nn.Sequential(*fc)
+        self.classifier= nn.Sequential(*layers)
 
         initialize_weights(self)
         self.top_k=top_k
