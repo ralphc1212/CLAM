@@ -180,31 +180,18 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
 
     def forward(self, h, return_features=False):
         device = h.device
-        #*-*# A, h = self.attention_net(h)  # NxK        
+        #*-*# A, h = self.attention_net(h)  # NxK
 
-        A, h = self.attention_net(h)
+        A = self.cd1(h, self.fc)
+        A = self.attention_net(A)
 
         A = torch.transpose(A, 1, 0)  # KxN
 
-        # A_raw = A
-        # A = F.softmax(A, dim=1)  # softmax over N
+        A = F.softmax(A, dim=1)  # softmax over N
 
-        dist = torch.distributions.relaxed_categorical.RelaxedOneHotCategorical(self.temperature, logits = A)
-        sample = dist.rsample([16])
-        asample = sample.mean(dim=0)
+        M = torch.mm(A, h)  # KxL
 
-        M = torch.mm(asample, h)  # KxL
-
-        # M = torch.mm(A, h) 
         logits = self.classifiers(M)
-        # Y_hat = torch.topk(logits, 1, dim = 1)[1]
-        # Y_prob = F.softmax(logits, dim = 1)
-
-        # results_dict = {}
-
-        # if return_features:
-        #     results_dict.update({'features': M})
-        # return logits, Y_prob, Y_hat, A_raw, results_dict
 
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
@@ -220,5 +207,5 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
 
 pMIL_model_dict = {
                     'V': probabilistic_MIL_vanilla,
-                    # 'C': probabilistic_MIL_concrete_dropout
+                    'C': probabilistic_MIL_concrete_dropout
 }
