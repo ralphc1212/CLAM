@@ -102,6 +102,7 @@ class probabilistic_MIL(nn.Module):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
+        self.temperature = self.temperature.to(device)
 
     def forward(self, h, return_features=False):
         device = h.device
