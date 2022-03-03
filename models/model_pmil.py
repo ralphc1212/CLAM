@@ -120,8 +120,7 @@ class probabilistic_MIL(nn.Module):
         asample = sample.mean(dim=0)
 
         M = torch.mm(asample, h)  # KxL
-        print(M.shape)
-        exit()
+
         # M = torch.mm(A, h) 
         logits = self.classifiers(M)
         # Y_hat = torch.topk(logits, 1, dim = 1)[1]
