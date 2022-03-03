@@ -66,7 +66,7 @@ class MIL_msa(nn.Module):
         super(MIL_msa, self).__init__()
 
         assert n_classes == 2
-        layers = [ MultiheadAttention(1024, 1024, num_heads=8), nn.ReLU()]
+        layers = [MultiheadAttention(1024, 1024, num_heads=8), nn.ReLU()]
         if dropout:
             layers.append(nn.Dropout(0.25))
         layers.append(nn.Linear(1024, n_classes))
@@ -81,12 +81,14 @@ class MIL_msa(nn.Module):
         self.classifier.to(device)
 
     def forward(self, h, return_features=False):
+        print(h.shape)
+        exit()
         if return_features:
             h = self.classifier.module[:3](h)
             logits = self.classifier.module[3](h)
         else:
             logits  = self.classifier(h) # K x 1
-        
+
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
