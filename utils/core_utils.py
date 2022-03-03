@@ -158,6 +158,8 @@ def train(datasets, cur, args):
             model = MIL_fc_mc(**model_dict)
         else:
             model = MIL_fc(**model_dict)
+    elif args.model_type == 'pmil':
+        model = probabilistic_MIL(**model_dict)
     elif args.model_type == 'msa':
         model = MIL_msa(**model_dict)
     elif args.model_type == 'mlp':
