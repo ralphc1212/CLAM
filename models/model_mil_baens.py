@@ -22,10 +22,7 @@ class dense_baens(nn.Module):
         # w = self.S * self.U * self.R
         # act = torch.einsum('bnd, ndl -> bnl', x, w)
 
-        print(x.shape)
-        print(self.U.shape)
-        exit()
-        act = torch.einsum('bnd, ndl -> bnl', x, self.U)
+        act = torch.einsum('ndk, nkl -> ndl', x, self.U)
 
         if torch.sum(torch.isnan(act)) != 0:
             print('act nan')
