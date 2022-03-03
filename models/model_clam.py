@@ -67,32 +67,6 @@ class Attn_Net_Gated(nn.Module):
         A = self.attention_c(A)  # N x n_classes
         return A, x
 
-
-class MLP(nn.Module):
-    def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
-        super(MLP, self).__init__()
-        self.attention_a = [
-            nn.Linear(L, D),
-            nn.Tanh()]
-        
-        self.attention_b = [nn.Linear(L, D),
-                            nn.Sigmoid()]
-        if dropout:
-            self.attention_a.append(nn.Dropout(0.25))
-            self.attention_b.append(nn.Dropout(0.25))
-
-        self.attention_a = nn.Sequential(*self.attention_a)
-        self.attention_b = nn.Sequential(*self.attention_b)
-
-        self.attention_c = nn.Linear(D, n_classes)
-
-    def forward(self, x):
-        a = self.attention_a(x)
-        b = self.attention_b(x)
-        A = a.mul(b)
-        A = self.attention_c(A)  # N x n_classes
-        return A, x
-
 """
 args:
     gate: whether to use gated attention network
@@ -141,7 +115,7 @@ class CLAM_SB(nn.Module):
     @staticmethod
     def create_negative_targets(length, device):
         return torch.full((length, ), 0, device=device).long()
-    
+
     #instance-level evaluation for in-the-class attention branch
     def inst_eval(self, A, h, classifier): 
         device=h.device
@@ -160,7 +134,7 @@ class CLAM_SB(nn.Module):
         all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
         instance_loss = self.instance_loss_fn(logits, all_targets)
         return instance_loss, all_preds, all_targets
-    
+
     #instance-level evaluation for out-of-the-class attention branch
     def inst_eval_out(self, A, h, classifier):
         device=h.device
@@ -210,6 +184,9 @@ class CLAM_SB(nn.Module):
             if self.subtyping:
                 total_inst_loss /= len(self.instance_classifiers)
 
+        print(A.shape)
+        print(h.shape)
+        exit()
         M = torch.mm(A, h) 
         logits = self.classifiers(M)
         Y_hat = torch.topk(logits, 1, dim = 1)[1]

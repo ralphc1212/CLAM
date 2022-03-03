@@ -314,7 +314,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         train_loss += loss_value
         if (batch_idx + 1) % 20 == 0:
             print('batch {}, loss: {:.4f}, label: {}, bag_size: {}'.format(batch_idx, loss_value, label.item(), data.size(0)))
-           
+        
         error = calculate_error(Y_hat, label)
         train_error += error
         
@@ -367,7 +367,6 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
             val_loss += loss.item()
             error = calculate_error(Y_hat, label)
             val_error += error
-            
 
     val_error /= len(loader)
     val_loss /= len(loader)
