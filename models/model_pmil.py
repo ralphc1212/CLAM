@@ -7,10 +7,6 @@ import numpy as np
 
 #*-*# for the original code
 
-pMIL_model_dict = {
-                    'V': probabilistic_MIL_vanilla,
-                    # 'C': probabilistic_MIL_concrete_dropout
-}
 
 """
 Attention Network without Gating (2 fc layers)
@@ -222,4 +218,7 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
             results_dict.update({'features': top_features})
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
-
+pMIL_model_dict = {
+                    'V': probabilistic_MIL_vanilla,
+                    # 'C': probabilistic_MIL_concrete_dropout
+}
