@@ -91,7 +91,9 @@ class probabilistic_MIL(nn.Module):
         self.attention_net = nn.Sequential(*fc)
         self.classifiers = nn.Linear(size[1], n_classes)
         self.n_classes = n_classes
-
+        self.print_sample_trigger = False
+        self.num_samples = 16
+        
         initialize_weights(self)
         self.top_k=top_k
 
@@ -108,10 +110,21 @@ class probabilistic_MIL(nn.Module):
 
         A = torch.transpose(A, 1, 0)  # KxN
 
-        A_raw = A
-        A = F.softmax(A, dim=1)  # softmax over N
+        # A_raw = A
+        # A = F.softmax(A, dim=1)  # softmax over N
 
-        M = torch.mm(A, h) 
+        asample = 0
+        for i in range(self.num_samples):
+            sample = torch.nn.functional.gumbel_softmax(A, tau=1, hard=False)
+            if self.print_sample_trigger:
+                print(sample)
+            asample += sample
+        if self.print_sample_trigger:
+            exit()
+        asample /= self.num_samples
+        M = torch.mm(asample, H)  # KxL
+
+        # M = torch.mm(A, h) 
         logits = self.classifiers(M)
         # Y_hat = torch.topk(logits, 1, dim = 1)[1]
         # Y_prob = F.softmax(logits, dim = 1)
