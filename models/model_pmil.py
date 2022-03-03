@@ -248,6 +248,7 @@ class probabilistic_MIL_vanilla(nn.Module):
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
 
+
     def forward(self, h, return_features=False):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK        
@@ -320,6 +321,8 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
+        self.fc = self.fc.to(device)
+        self.cd1 = self.cd1.to(device)
 
     def forward(self, h, return_features=False):
         device = h.device
