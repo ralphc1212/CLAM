@@ -93,7 +93,7 @@ class probabilistic_MIL(nn.Module):
         self.n_classes = n_classes
         self.print_sample_trigger = False
         self.num_samples = 16
-        self.temperature = torch.tensor([0.2])
+        self.temperature = torch.tensor([1.0])
 
         initialize_weights(self)
         self.top_k=top_k
