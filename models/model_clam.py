@@ -184,9 +184,6 @@ class CLAM_SB(nn.Module):
             if self.subtyping:
                 total_inst_loss /= len(self.instance_classifiers)
 
-        print(A.shape)
-        print(h.shape)
-        exit()
         M = torch.mm(A, h) 
         logits = self.classifiers(M)
         Y_hat = torch.topk(logits, 1, dim = 1)[1]
