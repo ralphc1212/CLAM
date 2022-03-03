@@ -7,6 +7,7 @@ from models.model_mil import MIL_fc, MIL_fc_mc
 from models.model_clam import CLAM_MB, CLAM_SB
 from models.model_msa import MIL_msa
 from models.model_mlp import MIL_mlp 
+from models.model_pmil import probabilistic_MIL
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
