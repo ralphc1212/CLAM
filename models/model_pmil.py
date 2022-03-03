@@ -331,6 +331,8 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
         A = self.cd1(h, self.fc)
         A = self.attention_net(A)
 
+        print(A.shape)
+        exit()
         A = torch.transpose(A, 1, 0)  # KxN
 
         A = F.softmax(A, dim=1)  # softmax over N
