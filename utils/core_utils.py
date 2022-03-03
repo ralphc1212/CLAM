@@ -6,6 +6,7 @@ from datasets.dataset_generic import save_splits
 from models.model_mil import MIL_fc, MIL_fc_mc
 from models.model_clam import CLAM_MB, CLAM_SB
 from models.model_msa import MIL_msa
+from models.model_mlp import MIL_mlp 
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
@@ -158,10 +159,11 @@ def train(datasets, cur, args):
         else:
             model = MIL_fc(**model_dict)
     elif args.model_type == 'msa':
-        model = MIL_fc(**model_dict)
+        model = MIL_msa(**model_dict)
+    elif args.model_type == 'mlp':
+        model = MIL_mlp(**model_dict)
     else:
-        print('Not implemented model type...')
-        exit()
+        raise NotImplementedError
 
     model.relocate()
     print('Done!')
