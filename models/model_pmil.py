@@ -93,6 +93,7 @@ class probabilistic_MIL(nn.Module):
         self.n_classes = n_classes
         self.print_sample_trigger = False
         self.num_samples = 16
+        self.temperature = torch.tensor([0.2])
 
         initialize_weights(self)
         self.top_k=top_k
@@ -113,15 +114,10 @@ class probabilistic_MIL(nn.Module):
         # A_raw = A
         # A = F.softmax(A, dim=1)  # softmax over N
 
-        asample = 0
-        for i in range(self.num_samples):
-            sample = torch.nn.functional.gumbel_softmax(A, tau=1, hard=False)
-            if self.print_sample_trigger:
-                print(sample)
-            asample += sample
-        if self.print_sample_trigger:
-            exit()
-        asample /= self.num_samples
+        dist = torch.distributions.relaxed_categorical.RelaxedOneHotCategorical(self.temperature, A)
+        sample = dist.rsample([16])
+        asample = sample.mean(dim=0)
+
         M = torch.mm(asample, h)  # KxL
 
         # M = torch.mm(A, h) 
