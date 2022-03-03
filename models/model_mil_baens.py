@@ -24,6 +24,7 @@ class dense_baens(nn.Module):
 
         print(x.shape)
         print(self.U.shape)
+        exit()
         act = torch.einsum('bnd, ndl -> bnl', x, self.U)
 
         if torch.sum(torch.isnan(act)) != 0:
@@ -57,7 +58,6 @@ class MIL_fc_baens(nn.Module):
     def forward(self, h, return_features=False):
         h = h.unsqueeze(0).expand(self.N, -1, -1)
         print(h.shape)
-        exit()
         if return_features:
             h = self.classifier.module[:3](h)
             logits = self.classifier.module[3](h)
