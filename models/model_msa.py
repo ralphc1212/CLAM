@@ -81,14 +81,15 @@ class MIL_msa(nn.Module):
         self.classifier.to(device)
 
     def forward(self, h, return_features=False):
-        print(h.shape)
-        exit()
+
         if return_features:
             h = self.classifier.module[:3](h)
             logits = self.classifier.module[3](h)
         else:
-            logits  = self.classifier(h) # K x 1
+            logits  = self.classifier(h.unsqueeze(0)) # K x 1
 
+        print(logits.shape)
+        exit()
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
