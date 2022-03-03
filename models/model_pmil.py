@@ -153,7 +153,7 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
         super(probabilistic_MIL_concrete_dropout, self).__init__()
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
-        self.fc = nn.sequential(*[nn.Linear(size[0], size[1]), nn.ReLU()])
+        self.fc = nn.Sequential(*[nn.Linear(size[0], size[1]), nn.ReLU()])
 
         w, d = 1e-6, 1e-3
         self.cd1 = ConcreteDropout(weight_regulariser=w, dropout_regulariser=d)
