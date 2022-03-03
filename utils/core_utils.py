@@ -8,6 +8,7 @@ from models.model_clam import CLAM_MB, CLAM_SB
 from models.model_msa import MIL_msa
 from models.model_mlp import MIL_mlp 
 # from models.model_pmil import probabilistic_MIL
+from models.model_mil_baens import MIL_fc_baens
 from models.model_pmil import pMIL_model_dict
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
@@ -162,6 +163,8 @@ def train(datasets, cur, args):
             model = MIL_fc(**model_dict)
     elif args.model_type == 'pmil':
         model = pMIL_model_dict['V'](**model_dict)
+    elif args.model_type == 'MIL_fc_baens':
+        model = MIL_fc_baens(**model_dict)
     elif args.model_type == 'msa':
         model = MIL_msa(**model_dict)
     elif args.model_type == 'mlp':
