@@ -161,8 +161,8 @@ def train(datasets, cur, args):
             model = MIL_fc_mc(**model_dict)
         else:
             model = MIL_fc(**model_dict)
-    elif args.model_type == 'pmil':
-        model = pMIL_model_dict['V'](**model_dict)
+    elif args.model_type.startswith('pMIL'):
+        model = pMIL_model_dict[model_type.split('-')[1]](**model_dict)
     elif args.model_type == 'mil_baens':
         model = MIL_fc_baens(**model_dict)
     elif args.model_type == 'msa':

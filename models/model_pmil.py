@@ -209,3 +209,4 @@ pMIL_model_dict = {
                     'V': probabilistic_MIL_vanilla,
                     'C': probabilistic_MIL_concrete_dropout
 }
+
