@@ -38,7 +38,7 @@ class MIL_fc_baens(nn.Module):
         super(MIL_fc_baens, self).__init__()
         assert n_classes == 2
         self.size_dict = {"small": [1024, 512]}
-        self.N = 6
+        self.N = 8
         size = self.size_dict[size_arg]
         self.fc_1 = nn.Sequential(dense_baens(N=self.N, D1=size[0], D2=size[1]), nn.ReLU())
         self.fc_2 = nn.Sequential(dense_baens(N=self.N, D1=size[1], D2=n_classes))
