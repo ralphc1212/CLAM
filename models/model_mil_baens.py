@@ -61,7 +61,9 @@ class MIL_fc_baens(nn.Module):
 
         h = self.fc_1(h)
 
-        h = self.bn_1((h + h_).permute(1, 0, 2)).permute(1, 0, 2)
+        # h = self.bn_1((h + h_).permute(1, 0, 2)).permute(1, 0, 2)
+
+        h = self.bn_1(h + h_)
 
         logits = self.fc_2(h).mean(dim=0)
 
