@@ -13,7 +13,7 @@ class dense_baens(nn.Module):
         self.D1 = D1
         self.D2 = D2
 
-        self.U = nn.Parameter(torch.normal(0, 1, (D1, N, D2)), requires_grad=True)
+        self.U = nn.Parameter(torch.normal(0, 1, (N, D1, D2)), requires_grad=True)
         torch.nn.init.kaiming_normal_(self.U)
 
     def forward(self, x):
@@ -22,10 +22,10 @@ class dense_baens(nn.Module):
         # w = self.S * self.U * self.R
         # act = torch.einsum('bnd, ndl -> bnl', x, w)
 
-        print(x.shape)
-        print(self.U.shape)
-        act = torch.einsum('dnk, nkl -> dnl', x, self.U)
-
+        # torch.Size([8, 93829, 1024])
+        # torch.Size([8, 1024, 1024])
+        # act = torch.einsum('ndk, nkl -> nkl', x, self.U)
+        act = torch.bmm(x, self.U)
         if torch.sum(torch.isnan(act)) != 0:
             print('act nan')
             print(act)
@@ -55,13 +55,13 @@ class MIL_fc_baens(nn.Module):
         self.bn_1.to(device)
 
     def forward(self, h, return_features=False):
-        h = h.unsqueeze(1).expand(-1, self.N, -1)
+        h = h.unsqueeze(0).expand(self.N, -1, -1)
 
         h_ = h
 
         h = self.fc_1(h)
 
-        h = self.bn1(h + h_)
+        h = self.bn1((h + h_).permute(1, 0, 2)).permute(1, 0, 2)
 
         logits = self.fc_2(h).mean(dim=0)
 
