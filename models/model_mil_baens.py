@@ -59,13 +59,13 @@ class MIL_fc_baens(nn.Module):
 
         h = self.bn1(h + h_)
 
-        logits = self.fc_2(h)
+        logits = self.fc_2(h).mean(dim=0)
 
-        if return_features:
-            h = self.classifier.module[:3](h)
-            logits = self.classifier.module[3](h)
-        else:
-            logits  = self.classifier(h).mean(dim=0) # K x 1
+        # if return_features:
+        #     h = self.classifier.module[:3](h)
+        #     logits = self.classifier.module[3](h)
+        # else:
+        #     logits  = self.classifier(h).mean(dim=0) # K x 1
 
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
