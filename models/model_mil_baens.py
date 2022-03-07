@@ -42,7 +42,7 @@ class MIL_fc_baens(nn.Module):
         size = self.size_dict[size_arg]
         self.fc_1 = nn.Sequential(dense_baens(N=self.N, D1=size[0], D2=size[1]), nn.ReLU())
         self.fc_2 = nn.Sequential(dense_baens(N=self.N, D1=size[1], D2=n_classes))
-        self.bn_1 = nn.BatchNorm1d(self.N)
+        # self.bn_1 = nn.BatchNorm1d(self.N)
 
         initialize_weights(self)
         self.top_k=top_k
@@ -52,14 +52,14 @@ class MIL_fc_baens(nn.Module):
         # self.classifier.to(device)
         self.fc_1.to(device)
         self.fc_2.to(device)
-        self.bn_1.to(device)
+        # self.bn_1.to(device)
 
     def forward(self, h, return_features=False):
         h = h.unsqueeze(0).expand(self.N, -1, -1)
 
         h = self.fc_1(h)
 
-        h = self.bn_1((h).permute(1, 0, 2)).permute(1, 0, 2)
+        # h = self.bn_1((h).permute(1, 0, 2)).permute(1, 0, 2)
 
         # h = h + h_
 
