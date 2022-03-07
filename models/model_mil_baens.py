@@ -41,7 +41,7 @@ class MIL_fc_baens(nn.Module):
         self.N = 8
         size = self.size_dict[size_arg]
         self.fc_1 = nn.Sequential(dense_baens(N=self.N, D1=size[0], D2=size[1]), nn.ReLU())
-        self.fc_2 = nn.Sequential(dense_baens(N=self.N, D1=size[1], D2=n_classes))
+        self.fc_2 = dense_baens(N=self.N, D1=size[1], D2=n_classes)
         # self.bn_1 = nn.BatchNorm1d(self.N)
 
         initialize_weights(self)
