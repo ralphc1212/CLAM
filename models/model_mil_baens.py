@@ -40,15 +40,17 @@ class MIL_fc_baens(nn.Module):
         size = self.size_dict[size_arg]
         self.fc_1 = nn.Sequential(dense_baens(N=self.N, D1=size[0], D2=size[1]), nn.ReLU())
         self.fc_2 = nn.Sequential(dense_baens(N=self.N, D1=size[1], D2=n_classes))
-        self.bn1 = nn.BatchNorm1d(self.N)
+        self.bn_1 = nn.BatchNorm1d(self.N)
 
-        self.classifier= nn.Sequential(*fc)
         initialize_weights(self)
         self.top_k=top_k
 
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.classifier.to(device)
+        # self.classifier.to(device)
+        self.fc_1.to(device)
+        self.fc_2.to(device)
+        self.bn_1.to(device)
 
     def forward(self, h, return_features=False):
         h = h.unsqueeze(1).expand(-1, self.N, -1)
