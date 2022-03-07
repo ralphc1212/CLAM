@@ -24,8 +24,8 @@ class dense_baens(nn.Module):
 
         # torch.Size([8, 93829, 1024])
         # torch.Size([8, 1024, 1024])
-        # act = torch.einsum('ndk, nkl -> nkl', x, self.U)
-        act = torch.bmm(x, self.U)
+        act = torch.einsum('ndk, nkl -> ndl', x, self.U)
+
         if torch.sum(torch.isnan(act)) != 0:
             print('act nan')
             print(act)
