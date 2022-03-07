@@ -40,7 +40,12 @@ class MIL_fc_baens(nn.Module):
         self.size_dict = {"small": [1024, 512]}
         self.N = 8
         size = self.size_dict[size_arg]
-        self.fc_1 = nn.Sequential(dense_baens(N=self.N, D1=size[0], D2=size[1]), nn.ReLU())
+        fc_1 = [dense_baens(N=self.N, D1=size[0], D2=size[1]), nn.ReLU()]
+
+        if dropout:
+            fc_1.append(nn.Dropout(0.25))
+        self.fc_1 = nn.Sequential(*fc_1)
+
         self.fc_2 = dense_baens(N=self.N, D1=size[1], D2=n_classes)
         # self.bn_1 = nn.BatchNorm1d(self.N)
 
