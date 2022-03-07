@@ -13,7 +13,7 @@ class dense_baens(nn.Module):
         self.D1 = D1
         self.D2 = D2
 
-        self.U = nn.Parameter(torch.normal(0, 1, (N, D1, D2)), requires_grad=True)
+        self.U = nn.Parameter(torch.normal(0, 1, (D1, N, D2)), requires_grad=True)
         torch.nn.init.kaiming_normal_(self.U)
 
     def forward(self, x):
@@ -22,7 +22,7 @@ class dense_baens(nn.Module):
         # w = self.S * self.U * self.R
         # act = torch.einsum('bnd, ndl -> bnl', x, w)
 
-        act = torch.einsum('ndk, nkl -> ndl', x, self.U)
+        act = torch.einsum('dnk, nkl -> dnl', x, self.U)
 
         if torch.sum(torch.isnan(act)) != 0:
             print('act nan')
@@ -35,14 +35,12 @@ class MIL_fc_baens(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes = 2, top_k=1):
         super(MIL_fc_baens, self).__init__()
         assert n_classes == 2
-        self.size_dict = {"small": [1024, 512]}
+        self.size_dict = {"small": [1024, 1024]}
         self.N = 8
         size = self.size_dict[size_arg]
-        fc = [dense_baens(N=self.N, D1=size[0], D2=size[1]), nn.ReLU()]
-        if dropout:
-            fc.append(nn.Dropout(0.25))
-
-        fc.append(dense_baens(N=self.N, D1=size[1], D2=n_classes))
+        self.fc_1 = nn.Sequential(dense_baens(N=self.N, D1=size[0], D2=size[1]), nn.ReLU())
+        self.fc_2 = nn.Sequential(dense_baens(N=self.N, D1=size[1], D2=n_classes))
+        self.bn1 = nn.BatchNorm1d(self.N)
 
         self.classifier= nn.Sequential(*fc)
         initialize_weights(self)
@@ -53,7 +51,15 @@ class MIL_fc_baens(nn.Module):
         self.classifier.to(device)
 
     def forward(self, h, return_features=False):
-        h = h.unsqueeze(0).expand(self.N, -1, -1)
+        h = h.unsqueeze(1).expand(-1, self.N, -1)
+
+        h_ = h
+
+        h = self.fc_1(h)
+
+        h = self.bn1(h + h_)
+
+        logits = self.fc_2(h)
 
         if return_features:
             h = self.classifier.module[:3](h)

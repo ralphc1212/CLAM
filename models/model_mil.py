@@ -15,9 +15,9 @@ class MIL_fc(nn.Module):
             fc.append(nn.Dropout(0.25))
 
         fc.append(nn.Linear(size[1], n_classes))
-        self.classifier= nn.Sequential(*fc)
+        self.classifier = nn.Sequential(*fc)
         initialize_weights(self)
-        self.top_k=top_k
+        self.top_k = top_k
 
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -29,7 +29,7 @@ class MIL_fc(nn.Module):
             logits = self.classifier.module[3](h)
         else:
             logits  = self.classifier(h) # K x 1
-        
+
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
@@ -64,7 +64,7 @@ class MIL_fc_mc(nn.Module):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.fc = self.fc.to(device)
         self.classifiers = self.classifiers.to(device)
-    
+
     def forward(self, h, return_features=False):
         device = h.device
        
