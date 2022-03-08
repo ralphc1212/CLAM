@@ -72,7 +72,7 @@ class probabilistic_MIL_Bayes(nn.Module):
         super(probabilistic_MIL_Bayes, self).__init__()
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
-        fc = [LinearVDO(size[0], size[1]), nn.ReLU()]
+        fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
         if dropout:
             fc.append(nn.Dropout(0.25))
         if gate:
