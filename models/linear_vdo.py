@@ -45,6 +45,7 @@ class LinearVDO(nn.Module):
         var = in2.matmul(((exp_ * w2) + eps).t())
 
         si = torch.sqrt(var)
+        print('1111111')
 
         activation = mu + torch.normal(torch.zeros_like(mu), torch.ones_like(mu)) * si
         return activation + self.bias
@@ -92,6 +93,7 @@ class LinearVDO(nn.Module):
         k2 = 0.2026
         k3 = 0.7126
 
+        print('2222222')
         log_alp = self.log_alp
 
         element_wise_kl = -.5 * torch.log(1 + 1. / (torch.exp(log_alp))) \
