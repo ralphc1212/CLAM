@@ -120,3 +120,13 @@ class probabilistic_MIL_Bayes(nn.Module):
             top_features = torch.index_select(h, dim=0, index=top_instance_idx)
             results_dict.update({'features': top_features})
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
+
+def get_ard_reg_vdo(module, reg=0):
+    """
+    :param module: model to evaluate ard regularization for
+    :param reg: auxilary cumulative variable for recursion
+    :return: total regularization for module
+    """
+    if isinstance(module, LinearVDO): return reg + module.get_reg()
+    if hasattr(module, 'children'): return reg + sum([get_ard_reg_vdo(submodule) for submodule in module.children()])
+    return reg

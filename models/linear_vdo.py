@@ -118,13 +118,3 @@ class LinearVDO(nn.Module):
     def log_alpha(self):
         eps = 1e-8
         return self.log_sigma2 - 2 * torch.log(torch.abs(self.weight) + eps)
-
-def get_ard_reg_vdo(module, reg=0):
-    """
-    :param module: model to evaluate ard regularization for
-    :param reg: auxilary cumulative variable for recursion
-    :return: total regularization for module
-    """
-    if isinstance(module, LinearVDO): return reg + module.get_reg()
-    if hasattr(module, 'children'): return reg + sum([get_ard_reg_vdo(submodule) for submodule in module.children()])
-    return reg

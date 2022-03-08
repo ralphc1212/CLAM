@@ -10,7 +10,7 @@ from models.model_mlp import MIL_mlp
 # from models.model_pmil import probabilistic_MIL
 from models.model_mil_baens import MIL_fc_baens
 from models.model_pmil import pMIL_model_dict
-from models.model_bmil import probabilistic_MIL_Bayes
+from models.model_bmil import probabilistic_MIL_Bayes, get_ard_reg_vdo
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
@@ -136,6 +136,8 @@ def train(datasets, cur, args):
     if args.model_size is not None and args.model_type != 'mil':
         model_dict.update({"size_arg": args.model_size})
     
+    bayes_reg = None
+
     if args.model_type in ['clam_sb', 'clam_mb']:
         if args.subtyping:
             model_dict.update({'subtyping': True})
@@ -171,6 +173,9 @@ def train(datasets, cur, args):
         model = MIL_msa(**model_dict)
     elif args.model_type == 'mlp':
         model = MIL_mlp(**model_dict)
+    elif args.model_type == 'bmil':
+        bayes_reg = (get_ard_reg_vdo, 1e-5)
+        model = probabilistic_MIL_Bayes(**model_dict)
     else:
         raise NotImplementedError
 
@@ -203,7 +208,7 @@ def train(datasets, cur, args):
                 early_stopping, writer, loss_fn, args.results_dir)
         
         else:
-            train_loop(epoch, model, train_loader, optimizer, args.n_classes, writer, loss_fn)
+            train_loop(epoch, model, train_loader, optimizer, args.n_classes, writer, loss_fn, bayes_reg)
             stop = validate(cur, epoch, model, val_loader, args.n_classes, 
                 early_stopping, writer, loss_fn, args.results_dir)
         
@@ -305,7 +310,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         writer.add_scalar('train/error', train_error, epoch)
         writer.add_scalar('train/clustering_loss', train_inst_loss, epoch)
 
-def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_fn = None):   
+def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_fn = None, bayes_reg=None):   
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     model.train()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
@@ -320,6 +325,8 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits, label)
+        if bayes_reg:
+            loss += bayes_reg[1] * bayes_reg[0](model)
         loss_value = loss.item()
         
         train_loss += loss_value
@@ -387,7 +394,6 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
     
     else:
         auc = roc_auc_score(labels, prob, multi_class='ovr')
-    
     
     if writer:
         writer.add_scalar('val/loss', val_loss, epoch)
