@@ -10,7 +10,7 @@ from models.model_mlp import MIL_mlp
 # from models.model_pmil import probabilistic_MIL
 from models.model_mil_baens import MIL_fc_baens
 from models.model_pmil import pMIL_model_dict
-from models.modle_bmil import probabilistic_MIL_Bayes
+from models.model_bmil import probabilistic_MIL_Bayes
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
