@@ -62,11 +62,13 @@ class MIL_fc_baens(nn.Module):
     def forward(self, h, return_features=False):
         h = h.unsqueeze(0).expand(self.N, -1, -1)
 
+        h_ = h
+
         h = self.fc_1(h)
 
         # h = self.bn_1((h).permute(1, 0, 2)).permute(1, 0, 2)
 
-        # h = h + h_
+        h = h + h_
 
         logits = self.fc_2(h).mean(dim=0)
 
