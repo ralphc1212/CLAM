@@ -12,7 +12,7 @@ class LinearVDO(nn.Module):
     Dense layer implementation with weights ARD-prior (arxiv:1701.05369)
     """
 
-    def __init__(self, in_features, out_features, bias=True, thresh=3, ard_init=-1.):
+    def __init__(self, in_features, out_features, bias=True, thresh=3, ard_init=-8.):
         super(LinearVDO, self).__init__()
         self.in_features = in_features
         self.out_features = out_features

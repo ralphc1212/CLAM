@@ -81,7 +81,7 @@ class probabilistic_MIL_Bayes(nn.Module):
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
         self.attention_net = nn.Sequential(*fc)
-        self.classifiers = LinearVDO(size[1], n_classes)
+        self.classifiers = LinearVDO(size[1], n_classes, ard_init=-1.)
         self.n_classes = n_classes
         self.print_sample_trigger = False
         self.num_samples = 16
