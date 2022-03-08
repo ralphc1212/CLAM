@@ -72,7 +72,7 @@ class probabilistic_MIL_Bayes(nn.Module):
         super(probabilistic_MIL_Bayes, self).__init__()
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
-        fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
+        fc = [LinearVDO(size[0], size[1]), nn.ReLU()]
         if dropout:
             fc.append(nn.Dropout(0.25))
         if gate:
@@ -81,7 +81,7 @@ class probabilistic_MIL_Bayes(nn.Module):
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
         self.attention_net = nn.Sequential(*fc)
-        self.classifiers = nn.Linear(size[1], n_classes)
+        self.classifiers = LinearVDO(size[1], n_classes)
         self.n_classes = n_classes
         self.print_sample_trigger = False
         self.num_samples = 16
