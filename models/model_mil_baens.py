@@ -48,7 +48,7 @@ class MIL_fc_baens(nn.Module):
 
         self.fc_2 = dense_baens(N=self.N, D1=size[1], D2=n_classes)
 
-        self.sc = nn.Sequential([nn.Dropout(0.25)])
+        self.sc = nn.Sequential(*[nn.Dropout(0.25)])
 
         # self.bn_1 = nn.BatchNorm1d(self.N)
 
