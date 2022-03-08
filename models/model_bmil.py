@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 from utils.utils import initialize_weights
+from models.linear_vdo import LinearVDO
 import numpy as np
 
 
@@ -44,10 +45,10 @@ class Attn_Net_Gated(nn.Module):
     def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
         super(Attn_Net_Gated, self).__init__()
         self.attention_a = [
-            nn.Linear(L, D),
+            LinearVDO(L, D),
             nn.Tanh()]
         
-        self.attention_b = [nn.Linear(L, D),
+        self.attention_b = [LinearVDO(L, D),
                             nn.Sigmoid()]
         if dropout:
             self.attention_a.append(nn.Dropout(0.25))
@@ -56,7 +57,7 @@ class Attn_Net_Gated(nn.Module):
         self.attention_a = nn.Sequential(*self.attention_a)
         self.attention_b = nn.Sequential(*self.attention_b)
 
-        self.attention_c = nn.Linear(D, n_classes)
+        self.attention_c = LinearVDO(D, n_classes)
 
     def forward(self, x):
         a = self.attention_a(x)
@@ -66,9 +67,9 @@ class Attn_Net_Gated(nn.Module):
         return A, x
 
 
-class probabilistic_MIL_nothing(nn.Module):
+class probabilistic_MIL_Bayes(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
-        super(probabilistic_MIL_nothing, self).__init__()
+        super(probabilistic_MIL_Bayes, self).__init__()
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
         fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
