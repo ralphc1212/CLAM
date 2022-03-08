@@ -48,7 +48,7 @@ class MIL_fc_baens(nn.Module):
 
         self.fc_2 = dense_baens(N=self.N, D1=size[1], D2=n_classes)
 
-        self.sc = nn.Sequential(*[nn.Dropout(0.25)])
+        # self.sc = nn.Sequential(*[nn.Dropout(0.25)])
 
         # self.bn_1 = nn.BatchNorm1d(self.N)
 
@@ -60,20 +60,20 @@ class MIL_fc_baens(nn.Module):
         # self.classifier.to(device)
         self.fc_1.to(device)
         self.fc_2.to(device)
-        self.sc.to(device)
+        # self.sc.to(device)
 
         # self.bn_1.to(device)
 
     def forward(self, h, return_features=False):
         h = h.unsqueeze(0).expand(self.N, -1, -1)
 
-        h_ = self.sc(h)
+        # h_ = self.sc(h)
 
         h = self.fc_1(h)
 
         # h = self.bn_1((h).permute(1, 0, 2)).permute(1, 0, 2)
 
-        h = h + h_
+        # h = h + h_
 
         logits = self.fc_2(h).mean(dim=0)
 
