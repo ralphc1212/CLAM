@@ -10,6 +10,7 @@ from models.model_mlp import MIL_mlp
 # from models.model_pmil import probabilistic_MIL
 from models.model_mil_baens import MIL_fc_baens
 from models.model_pmil import pMIL_model_dict
+from models.model_bmil import bMIL_model_dict
 from models.model_bmil import probabilistic_MIL_Bayes, get_ard_reg_vdo
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
@@ -165,7 +166,7 @@ def train(datasets, cur, args):
             model = MIL_fc_mc(**model_dict)
         else:
             model = MIL_fc(**model_dict)
-    elif args.model_type.startswith('pMIL'):
+    elif args.model_type.startswith('pmil'):
         model = pMIL_model_dict[args.model_type.split('-')[1]](**model_dict)
     elif args.model_type == 'mil_baens':
         model = MIL_fc_baens(**model_dict)
@@ -173,9 +174,9 @@ def train(datasets, cur, args):
         model = MIL_msa(**model_dict)
     elif args.model_type == 'mlp':
         model = MIL_mlp(**model_dict)
-    elif args.model_type == 'bmil':
+    elif args.model_type.startswith('bmil'):
         bayes_reg = (get_ard_reg_vdo, 1e-5)
-        model = probabilistic_MIL_Bayes(**model_dict)
+        model = bMIL_model_dict[args.model_type.split('-')[1]](**model_dict)
     else:
         raise NotImplementedError
 

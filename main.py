@@ -98,8 +98,9 @@ parser.add_argument('--opt', type=str, choices = ['adam', 'sgd'], default='adam'
 parser.add_argument('--drop_out', action='store_true', default=False, help='enabel dropout (p=0.25)')
 parser.add_argument('--bag_loss', type=str, choices=['svm', 'ce'], default='ce',
                      help='slide-level classification loss function (default: ce)')
-parser.add_argument('--model_type', type=str, choices=['clam_sb', 'clam_mb', 'mil', 'msa', 'pMIL-V', 'pMIL-C', 'pMIL-N', 'bmil', 'mil_baens'], default='clam_sb', 
-                    help='type of model (default: clam_sb, clam w/ single attention branch)')
+parser.add_argument('--model_type', type=str, choices=['clam_sb', 'clam_mb', 'mil', 'msa', 'pmil-V', 
+                                                        'pmil-C', 'pmil-N', 'bmil-A', 'bmil-F', 'mil_baens'],
+                    default='clam_sb', help='type of model (default: clam_sb, clam w/ single attention branch)')
 parser.add_argument('--exp_code', type=str, help='experiment code for saving results')
 parser.add_argument('--weighted_sample', action='store_true', default=False, help='enable weighted sampling')
 parser.add_argument('--model_size', type=str, choices=['small', 'big'], default='small', help='size of model, does not affect mil')

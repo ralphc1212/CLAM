@@ -5,7 +5,7 @@ from utils.utils import initialize_weights
 import numpy as np
 
 class MIL_fc(nn.Module):
-    def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes = 2, top_k=1):
+    def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes = 2, top_k = 1):
         super(MIL_fc, self).__init__()
         assert n_classes == 2
         self.size_dict = {"small": [1024, 512]}
