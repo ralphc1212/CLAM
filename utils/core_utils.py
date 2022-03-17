@@ -187,9 +187,6 @@ def train(datasets, cur, args):
     print('Done!')
     print_network(model)
     
-    for name, param in model.named_parameters():
-         print(name, param.size())
-    exit()
     print('\nInit optimizer ...', end=' ')
     optimizer = get_optim(model, args)
     print('Done!')
@@ -339,7 +336,8 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         train_loss += loss_value
         if (batch_idx + 1) % 20 == 0:
             print('batch {}, loss: {:.4f}, label: {}, bag_size: {}'.format(batch_idx, loss_value, label.item(), data.size(0)))
-        
+            print(model.state_dict['attn_thres_r'])
+
         error = calculate_error(Y_hat, label)
         train_error += error
         

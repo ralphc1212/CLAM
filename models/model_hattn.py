@@ -106,7 +106,6 @@ class MIL_hattn(nn.Module):
     def forward(self, h, return_features=False):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK        
-        print(h.shape)
 
         A, h = self.attention_net(h)
 
@@ -120,13 +119,9 @@ class MIL_hattn(nn.Module):
 
         soft_masked_A = A * soft_mask
 
-        print(soft_mask.shape)
         hard_masked_A = soft_masked_A[soft_mask.ge(0.5)]
         hard_masked_h = h[soft_mask.ge(0.5).squeeze(1), :]
         # hard_masked_h = torch.masked_select(h, soft_mask.ge(0.5).expand_as(h))
-
-        print(hard_masked_A.shape)
-        print(hard_masked_h.shape)
 
         h = hard_masked_A.unsqueeze(1) * hard_masked_h
 
