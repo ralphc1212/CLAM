@@ -122,7 +122,7 @@ class MIL_hattn(nn.Module):
         # h = hard_masked_A.unsqueeze(1) * hard_masked_h
 
         hard_masked_A = A[A.ge(0.5)]
-        hard_masked_h = h[A.ge(0.5), :]
+        hard_masked_h = h[A.ge(0.5).squeeze(1), :]
         h = hard_masked_A.unsqueeze(1) * hard_masked_h
         
         A, h = self.s_attn_net(h)
