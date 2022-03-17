@@ -100,7 +100,8 @@ class MIL_hattn(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-        self.attn_thres_r = nn.Parameter(torch.tensor([-5], device=device))
+        self.attn_thres_r = nn.Parameter(torch.tensor([-5.], device=device))
+        self.s_attn_net = self.s_attn_net.to(device)
 
     def forward(self, h, return_features=False):
         device = h.device
