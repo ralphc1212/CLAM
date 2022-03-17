@@ -111,8 +111,9 @@ class MIL_hattn(nn.Module):
         A, h = self.attention_net(h)
 
         A = torch.transpose(A, 1, 0)  # KxN
-
-        # A = F.softmax(A, dim=1)  # softmax over N
+        print(A.shape)
+        exit()
+        A = F.softmax(A, dim=1)  # softmax over N
 
         atten_thres = torch.sigmoid(self.attn_thres_r)
 
@@ -136,7 +137,7 @@ class MIL_hattn(nn.Module):
         M = torch.mm(A, h)
         logits = self.classifiers(M)
 
-        
+
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
