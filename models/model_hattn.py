@@ -81,6 +81,8 @@ class MIL_hattn(nn.Module):
         else:
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
+
+        self.attn_thres_r = nn.Parameter(torch.tensor([0.]))
         self.attention_net = nn.Sequential(*fc)
         self.classifiers = nn.Linear(size[1], n_classes)
         self.n_classes = n_classes
@@ -103,15 +105,22 @@ class MIL_hattn(nn.Module):
 
         A, h = self.attention_net(h)
 
-        print(A.shape)
-        
         A = torch.transpose(A, 1, 0)  # KxN
-
-        print(A.shape)
-        exit()
 
         A = F.softmax(A, dim=1)  # softmax over N
 
+        atten_thres = torch.sigmoid(self.attn_thres_r)
+
+        maintain_mask = df_lt(A, atten_thres, 0.01)
+
+        print(maintain_mask[:100])
+
+        A = A * maintain_mask
+
+        print(A[:100])
+
+        exit()
+        
         M = torch.mm(A, h)
         logits = self.classifiers(M)
 
