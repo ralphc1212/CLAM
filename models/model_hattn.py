@@ -115,7 +115,7 @@ class MIL_hattn(nn.Module):
 
         atten_thres = torch.sigmoid(self.attn_thres_r)
 
-        soft_mask = df_lt(A, atten_thres, 0.1)
+        soft_mask = df_lt(atten_thres, A, 0.1)
 
         soft_masked_A = A * soft_mask
 
