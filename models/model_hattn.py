@@ -82,7 +82,6 @@ class MIL_hattn(nn.Module):
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
 
-        self.attn_thres_r = nn.Parameter(torch.tensor([0.]))
         self.attention_net = nn.Sequential(*fc)
         self.classifiers = nn.Linear(size[1], n_classes)
         self.n_classes = n_classes
@@ -98,7 +97,7 @@ class MIL_hattn(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-        self.attn_thres_r = self.attn_thres_r.to(device)
+        self.attn_thres_r = nn.Parameter(torch.tensor([0.], device=device))
 
     def forward(self, h, return_features=False):
         device = h.device
