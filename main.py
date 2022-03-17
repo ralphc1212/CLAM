@@ -203,7 +203,6 @@ assert os.path.isdir(args.split_dir)
 
 settings.update({'split_dir': args.split_dir})
 
-
 with open(args.results_dir + '/experiment_{}.txt'.format(args.exp_code), 'w') as f:
     print(settings, file=f)
 f.close()
