@@ -103,6 +103,8 @@ class MIL_hattn(nn.Module):
 
         A, h = self.attention_net(h)
 
+        print(A.shape)
+        
         A = torch.transpose(A, 1, 0)  # KxN
 
         print(A.shape)
