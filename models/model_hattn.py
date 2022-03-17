@@ -109,6 +109,8 @@ class MIL_hattn(nn.Module):
 
         A = F.softmax(A, dim=1)  # softmax over N
 
+        print(A[:100])
+
         atten_thres = torch.sigmoid(self.attn_thres_r)
 
         maintain_mask = df_lt(A, atten_thres, 0.01)
