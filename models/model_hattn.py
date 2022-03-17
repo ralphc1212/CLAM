@@ -110,10 +110,9 @@ class MIL_hattn(nn.Module):
 
         A, h = self.attention_net(h)
 
-        A = torch.transpose(A, 1, 0)  # KxN
-        print(A.shape)
-        exit()
-        A = F.softmax(A, dim=1)  # softmax over N
+        # A = torch.transpose(A, 1, 0)  # KxN
+
+        A = F.softmax(A, dim=0)  # softmax over N
 
         atten_thres = torch.sigmoid(self.attn_thres_r)
 
