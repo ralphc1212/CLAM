@@ -124,6 +124,8 @@ class MIL_hattn(nn.Module):
         hard_masked_A = torch.masked_select(soft_masked_A, soft_mask.ge(0.5))
         hard_masked_h = torch.masked_select(h, soft_mask.ge(0.5))
 
+        print(hard_masked_A.shape)
+        print(hard_masked_h.shape)
         h = hard_masked_A * hard_masked_h
 
         print(h.shape)
