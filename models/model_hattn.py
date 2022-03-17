@@ -125,7 +125,6 @@ class MIL_hattn(nn.Module):
 
         h = hard_masked_A.unsqueeze(1) * hard_masked_h
 
-        print(h.shape)
         A, h = self.s_attn_net(h)
 
         A = torch.transpose(A, 1, 0)  # KxN
