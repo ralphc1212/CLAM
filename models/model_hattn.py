@@ -128,7 +128,7 @@ class MIL_hattn(nn.Module):
         print(hard_masked_A.shape)
         print(hard_masked_h.shape)
 
-        h = hard_masked_A * hard_masked_h
+        h = hard_masked_A.unsqueeze(1) * hard_masked_h
 
         print(h.shape)
         A, h = self.s_attn_net(h)
