@@ -186,7 +186,9 @@ def train(datasets, cur, args):
     model.relocate()
     print('Done!')
     print_network(model)
-
+    
+    print(model.parameters())
+    exit()
     print('\nInit optimizer ...', end=' ')
     optimizer = get_optim(model, args)
     print('Done!')
