@@ -83,6 +83,9 @@ class MIL_hattn(nn.Module):
         fc.append(attention_net)
 
         self.attention_net = nn.Sequential(*fc)
+
+        self.s_attn_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+
         self.classifiers = nn.Linear(size[1], n_classes)
         self.n_classes = n_classes
         self.print_sample_trigger = False
@@ -97,7 +100,7 @@ class MIL_hattn(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-        self.attn_thres_r = nn.Parameter(torch.tensor([0.], device=device))
+        self.attn_thres_r = nn.Parameter(torch.tensor([-5], device=device))
 
     def forward(self, h, return_features=False):
         device = h.device
@@ -109,19 +112,22 @@ class MIL_hattn(nn.Module):
 
         A = F.softmax(A, dim=1)  # softmax over N
 
-        print(A[:100])
-
         atten_thres = torch.sigmoid(self.attn_thres_r)
 
-        maintain_mask = df_lt(A, atten_thres, 0.01)
+        soft_mask = df_lt(A, atten_thres, 0.01)
 
-        print(maintain_mask[:100])
+        soft_masked_A = A * soft_mask
 
-        A = A * maintain_mask
+        hard_masked_A = torch.masked_select(soft_masked, soft_mask.ge(0.5))
+        hard_masked_h = torch.masked_select(h, soft_mask.ge(0.5))
 
-        print(A[:100])
+        h = hard_masked_A * hard_masked_h
 
-        exit()
+		A, h = self.s_attn_net(h)
+
+        A = torch.transpose(A, 1, 0)  # KxN
+
+        A = F.softmax(A, dim=1)  # softmax over N
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
