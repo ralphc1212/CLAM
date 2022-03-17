@@ -98,6 +98,7 @@ class MIL_hattn(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
+        self.attn_thres_r = self.attn_thres_r.to(device)
 
     def forward(self, h, return_features=False):
         device = h.device
@@ -120,7 +121,7 @@ class MIL_hattn(nn.Module):
         print(A[:100])
 
         exit()
-        
+
         M = torch.mm(A, h)
         logits = self.classifiers(M)
 
