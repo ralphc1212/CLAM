@@ -12,7 +12,7 @@ from models.model_mil_baens import MIL_fc_baens
 from models.model_pmil import pMIL_model_dict
 from models.model_bmil import bMIL_model_dict
 from models.model_bmil import probabilistic_MIL_Bayes, get_ard_reg_vdo
-from models.MIL_hattn import MIL_hattn
+from models.model_hattn import MIL_hattn
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
