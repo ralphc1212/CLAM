@@ -112,7 +112,7 @@ class MIL_hattn(nn.Module):
 
         # A = torch.transpose(A, 1, 0)  # KxN
 
-        A = F.softmax(A, dim=0)  # softmax over N
+        A = torch.sigmoid(A)
 
         atten_thres = torch.sigmoid(self.attn_thres_r)
 
