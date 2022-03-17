@@ -187,7 +187,8 @@ def train(datasets, cur, args):
     print('Done!')
     print_network(model)
     
-    print(model.parameters())
+    for param in model.parameters():
+        print(type(param), param.size())
     exit()
     print('\nInit optimizer ...', end=' ')
     optimizer = get_optim(model, args)
