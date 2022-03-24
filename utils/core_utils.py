@@ -386,7 +386,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
 
             prob[batch_idx] = Y_prob.cpu().numpy()
             labels[batch_idx] = label.item()
-            
+
             val_loss += loss.item()
             error = calculate_error(Y_hat, label)
             val_error += error

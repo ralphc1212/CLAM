@@ -148,8 +148,6 @@ def concrete_regulariser(model: nn.Module) -> nn.Module:
 
     return model
 
-
-
 """
 Attention Network without Gating (2 fc layers)
 args:

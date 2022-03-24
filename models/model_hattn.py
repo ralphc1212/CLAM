@@ -100,40 +100,9 @@ class MIL_hattn(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-        self.attn_thres_r = nn.Parameter(torch.tensor([0.], device=device))
         self.s_attn_net = self.s_attn_net.to(device)
 
-    def forward(self, h, return_features=False):
-        device = h.device
-        #*-*# A, h = self.attention_net(h)  # NxK        
-
-        A, h = self.attention_net(h)
-
-        # A = torch.transpose(A, 1, 0)  # KxN
-
-        A = torch.sigmoid(A)
-
-        # atten_thres = torch.sigmoid(self.attn_thres_r)
-        # soft_mask = df_lt(atten_thres, A, 0.1)
-        # soft_masked_A = A * soft_mask
-        # hard_masked_A = soft_masked_A[soft_mask.ge(0.5)]
-        # hard_masked_h = h[soft_mask.ge(0.5).squeeze(1), :]
-        # # hard_masked_h = torch.masked_select(h, soft_mask.ge(0.5).expand_as(h))
-        # h = hard_masked_A.unsqueeze(1) * hard_masked_h
-
-        hard_masked_A = A[A.ge(0.5)]
-        hard_masked_h = h[A.ge(0.5).squeeze(1), :]
-        h = hard_masked_A.unsqueeze(1) * hard_masked_h
-        
-        A, h = self.s_attn_net(h)
-
-        A = torch.transpose(A, 1, 0)  # KxN
-
-        A = F.softmax(A, dim=1)  # softmax over N
-
-        M = torch.mm(A, h)
-        logits = self.classifiers(M)
-
+    def classification(logits):
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
@@ -145,3 +114,21 @@ class MIL_hattn(nn.Module):
             top_features = torch.index_select(h, dim=0, index=top_instance_idx)
             results_dict.update({'features': top_features})
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
+
+    def forward(self, h, return_features=False):
+        device = h.device
+        #*-*# A, h = self.attention_net(h)  # NxK
+
+        A, h = self.attention_net(h)
+
+        A = torch.transpose(A, 1, 0)  # KxN
+
+        A = F.softmax(A, dim=1)  # softmax over N
+
+        M = torch.mm(A, h)
+        # logits = self.classifiers(M)
+
+        print(M.shape)
+        exit()
+
+        return 
