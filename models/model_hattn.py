@@ -102,7 +102,7 @@ class MIL_hattn(nn.Module):
         self.temperature = self.temperature.to(device)
         self.s_attn_net = self.s_attn_net.to(device)
 
-    def classification(self, logits):
+    def classification(self, logits, return_features):
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
@@ -139,6 +139,6 @@ class MIL_hattn(nn.Module):
 
         logits = self.classifiers(M)
 
-        top_instance, Y_prob, Y_hat, y_probs, results_dict = self.classification(logits)
+        top_instance, Y_prob, Y_hat, y_probs, results_dict = self.classification(logits, return_features)
 
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
