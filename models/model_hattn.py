@@ -127,7 +127,8 @@ class MIL_hattn(nn.Module):
 
         M = torch.mm(A, h)
         # logits = self.classifiers(M)
-
+        print(A.shape)
+        print(h.shape)
         print(M.shape)
         exit()
 
