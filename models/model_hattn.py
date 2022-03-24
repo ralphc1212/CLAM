@@ -139,6 +139,6 @@ class MIL_hattn(nn.Module):
 
         logits = self.classifiers(M)
 
-        top_instance, Y_prob, Y_hat, y_probs, results_dict = classification(logits)
+        top_instance, Y_prob, Y_hat, y_probs, results_dict = self.classification(logits)
 
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
