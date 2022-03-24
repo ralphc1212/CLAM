@@ -121,15 +121,24 @@ class MIL_hattn(nn.Module):
 
         A, h = self.attention_net(h)
 
+        # A = torch.transpose(A, 1, 0)  # KxN
+
+        A = F.softmax(A, dim=0)  # softmax over N
+
+        # M = torch.mm(A, h)
+        # logits = self.classifiers(M)
+        h = A * h
+
+        A, h = self.s_attn_net(h)
+
         A = torch.transpose(A, 1, 0)  # KxN
 
         A = F.softmax(A, dim=1)  # softmax over N
 
         M = torch.mm(A, h)
-        # logits = self.classifiers(M)
-        print(A.shape)
-        print(h.shape)
-        print(M.shape)
-        exit()
 
-        return 
+        logits = self.classifiers(M)
+
+        top_instance, Y_prob, Y_hat, y_probs, results_dict = classification(logits)
+
+        return top_instance, Y_prob, Y_hat, y_probs, results_dict
