@@ -254,7 +254,7 @@ class probabilistic_MIL_nothing(nn.Module):
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
         Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
-        Y_prob = F.softmax(top_instance, dim = 1) 
+        Y_prob = F.softmax(top_instance, dim = 1)
         results_dict = {}
 
         if return_features:
