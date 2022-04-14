@@ -68,9 +68,9 @@ def df_lt(a, b, temp):
     # if a > b
     return torch.sigmoid((a - b) / temp)
 
-class MIL_smil(nn.Module):
+class MIL_dirichlet(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
-        super(MIL_smil, self).__init__()
+        super(MIL_dirichlet, self).__init__()
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
         fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
@@ -81,11 +81,7 @@ class MIL_smil(nn.Module):
         else:
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
-
         self.attention_net = nn.Sequential(*fc)
-
-        self.s_attn_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
-
         self.classifiers = nn.Linear(size[1], n_classes)
         self.n_classes = n_classes
         self.print_sample_trigger = False
@@ -100,14 +96,27 @@ class MIL_smil(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-        self.s_attn_net = self.s_attn_net.to(device)
 
-    def classification(self, logits, return_features):
+    def forward(self, h, return_features=False):
+        device = h.device
+        #*-*# A, h = self.attention_net(h)  # NxK        
+
+        A, h = self.attention_net(h)
+
+        A = torch.transpose(A, 1, 0)  # KxN
+
+        dirc_sample = torch.distributions.dirichlet.Dirichlet(A).rsample()
+
+        # A = F.softmax(A, dim=1)  # softmax over N
+
+        M = torch.mm(A, h)
+        logits = self.classifiers(M)
+
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
         Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
-        Y_prob = F.softmax(top_instance, dim = 1) 
+        Y_prob = F.softmax(top_instance, dim = 1)
         results_dict = {}
 
         if return_features:
@@ -115,30 +124,3 @@ class MIL_smil(nn.Module):
             results_dict.update({'features': top_features})
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
-    def forward(self, h, return_features=False):
-        device = h.device
-        #*-*# A, h = self.attention_net(h)  # NxK
-
-        A, h = self.attention_net(h)
-
-        # A = torch.transpose(A, 1, 0)  # KxN
-
-        A = F.softmax(A, dim=0)  # softmax over N
-
-        # M = torch.mm(A, h)
-        # logits = self.classifiers(M)
-        h = A * h
-
-        A, h = self.s_attn_net(h)
-
-        A = torch.transpose(A, 1, 0)  # KxN
-
-        A = F.softmax(A, dim=1)  # softmax over N
-
-        M = torch.mm(A, h)
-
-        logits = self.classifiers(M)
-
-        top_instance, Y_prob, Y_hat, y_probs, results_dict = self.classification(logits, return_features)
-
-        return top_instance, Y_prob, Y_hat, y_probs, results_dict

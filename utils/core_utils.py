@@ -13,6 +13,8 @@ from models.model_pmil import pMIL_model_dict
 from models.model_bmil import bMIL_model_dict
 from models.model_bmil import probabilistic_MIL_Bayes, get_ard_reg_vdo
 from models.model_hattn import MIL_hattn
+from models.model_smil import MIL_dirichlet
+
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
@@ -180,6 +182,8 @@ def train(datasets, cur, args):
         model = bMIL_model_dict[args.model_type.split('-')[1]](**model_dict)
     elif args.model_type == 'hmil':
         model = MIL_hattn(**model_dict)
+    elif args.model_type == 'smil-D':
+        model = MIL_dirichlet(**model_dict)
     else:
         raise NotImplementedError
 
