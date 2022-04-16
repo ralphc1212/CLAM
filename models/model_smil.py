@@ -105,8 +105,9 @@ class MIL_dirichlet(nn.Module):
 
         A = torch.transpose(A, 1, 0)  # KxN
 
-        # dirc_sample = torch.distributions.dirichlet.Dirichlet(F.softplus(A)).rsample()
-        dirc_sample = torch.distributions.dirichlet.Dirichlet(torch.exp(A)).rsample()
+        dirc_sample = torch.distributions.dirichlet.Dirichlet(F.softplus(A)).rsample([16])
+        dirc_sample = dirc_sample.mean(dim=0)
+        # dirc_sample = torch.distributions.dirichlet.Dirichlet(torch.exp(A)).rsample()
 
         # A = F.softmax(A, dim=1)  # softmax over N
 
