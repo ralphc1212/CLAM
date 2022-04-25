@@ -45,10 +45,10 @@ class Attn_Net_Gated(nn.Module):
     def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
         super(Attn_Net_Gated, self).__init__()
         self.attention_a = [
-            LinearVDO(L, D, ard_init=-3.),
+            LinearVDO(L, D, ard_init=-1.),
             nn.Tanh()]
 
-        self.attention_b = [LinearVDO(L, D, ard_init=-3.),
+        self.attention_b = [LinearVDO(L, D, ard_init=-1.),
                             nn.Sigmoid()]
         if dropout:
             self.attention_a.append(nn.Dropout(0.25))
@@ -57,7 +57,7 @@ class Attn_Net_Gated(nn.Module):
         self.attention_a = nn.Sequential(*self.attention_a)
         self.attention_b = nn.Sequential(*self.attention_b)
 
-        self.attention_c = LinearVDO(D, n_classes, ard_init=-3.)
+        self.attention_c = LinearVDO(D, n_classes, ard_init=-1.)
 
     def forward(self, x):
         a = self.attention_a(x)
