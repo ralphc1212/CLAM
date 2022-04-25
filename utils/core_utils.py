@@ -209,7 +209,7 @@ def train(datasets, cur, args):
         early_stopping = None
     print('Done!')
 
-    stochastic = if bayes_reg
+    stochastic = bayes_reg != None
 
     for epoch in range(args.max_epochs):
         if args.model_type in ['clam_sb', 'clam_mb'] and not args.no_inst_cluster:     
