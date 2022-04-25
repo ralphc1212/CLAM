@@ -99,7 +99,7 @@ class MIL_dirichlet(nn.Module):
 
     def forward(self, h, return_features=False):
         device = h.device
-        #*-*# A, h = self.attention_net(h)  # NxK        
+        #*-*# A, h = self.attention_net(h)  # NxK
 
         A, h = self.attention_net(h)
 
