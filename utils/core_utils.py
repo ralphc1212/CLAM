@@ -380,7 +380,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
     # loader.dataset.update_mode(True)
     val_loss = 0.
     val_error = 0.
-    
+
     prob = np.zeros((len(loader), n_classes))
     labels = np.zeros(len(loader))
 
@@ -389,9 +389,17 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
             data, label = data.to(device, non_blocking=True), label.to(device, non_blocking=True)
 
             if stochastic:
+                # out_prob = 0
+                # out_atten = 0
+                # out_logits
+                # ens_prob = []
+                # ens_atten = []
+
                 logits, Y_prob, Y_hat, _, A = model(data, validation=True)
                 print(Y_prob.shape)
                 print(A.shape)
+                print(Y_prob)
+                print(Y_hat)
                 exit()
             else:
                 logits, Y_prob, Y_hat, _, _ = model(data)
