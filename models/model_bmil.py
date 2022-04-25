@@ -106,6 +106,8 @@ class probabilistic_MIL_Bayes(nn.Module):
 
         A = F.softmax(A, dim=1)  # softmax over N
 
+        print(A)
+        exit()
         M = torch.mm(A, h)
         logits = self.classifiers(M)
 
@@ -119,7 +121,8 @@ class probabilistic_MIL_Bayes(nn.Module):
         if return_features:
             top_features = torch.index_select(h, dim=0, index=top_instance_idx)
             results_dict.update({'features': top_features})
-        return top_instance, Y_prob, Y_hat, y_probs, results_dict
+        return top_instance, Y_prob, Y_hat, y_probs, A
+
 
 class probabilistic_MIL_Bayes_fc(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes = 2, top_k = 1):

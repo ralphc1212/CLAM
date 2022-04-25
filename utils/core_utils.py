@@ -275,7 +275,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         instance_loss_value = instance_loss.item()
         train_inst_loss += instance_loss_value
         
-        total_loss = bag_weight * loss + (1-bag_weight) * instance_loss 
+        total_loss = bag_weight * loss + (1 - bag_weight) * instance_loss 
 
         inst_preds = instance_dict['inst_preds']
         inst_labels = instance_dict['inst_labels']
@@ -288,7 +288,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
 
         error = calculate_error(Y_hat, label)
         train_error += error
-        
+
         # backward pass
         total_loss.backward()
         # step
@@ -385,7 +385,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
             logits, Y_prob, Y_hat, _, _ = model(data)
 
             acc_logger.log(Y_hat, label)
-            
+
             loss = loss_fn(logits, label)
 
             prob[batch_idx] = Y_prob.cpu().numpy()
@@ -444,13 +444,13 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
             data, label = data.to(device), label.to(device)      
             logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
             acc_logger.log(Y_hat, label)
-            
+
             loss = loss_fn(logits, label)
 
             val_loss += loss.item()
 
             instance_loss = instance_dict['instance_loss']
-            
+
             inst_count+=1
             instance_loss_value = instance_loss.item()
             val_inst_loss += instance_loss_value
