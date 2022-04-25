@@ -209,6 +209,8 @@ def train(datasets, cur, args):
         early_stopping = None
     print('Done!')
 
+    stochastic = if bayes_reg
+
     for epoch in range(args.max_epochs):
         if args.model_type in ['clam_sb', 'clam_mb'] and not args.no_inst_cluster:     
             train_loop_clam(epoch, model, train_loader, optimizer, args.n_classes, args.bag_weight, writer, loss_fn)
@@ -218,7 +220,7 @@ def train(datasets, cur, args):
         else:
             train_loop(epoch, model, train_loader, optimizer, args.n_classes, writer, loss_fn, bayes_reg)
             stop = validate(cur, epoch, model, val_loader, args.n_classes, 
-                early_stopping, writer, loss_fn, args.results_dir)
+                early_stopping, writer, loss_fn, args.results_dir, stochastic)
         
         if stop: 
             break
@@ -386,7 +388,13 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
         for batch_idx, (data, label) in enumerate(loader):
             data, label = data.to(device, non_blocking=True), label.to(device, non_blocking=True)
 
-            logits, Y_prob, Y_hat, _, _ = model(data)
+            if stochastic:
+                logits, Y_prob, Y_hat, _, A = model(data, validation=True)
+                print(Y_prob.shape)
+                print(A.shape)
+                exit()
+            else:
+                logits, Y_prob, Y_hat, _, _ = model(data)
 
             acc_logger.log(Y_hat, label)
 

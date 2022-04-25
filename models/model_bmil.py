@@ -6,6 +6,7 @@ from utils.utils import initialize_weights
 from models.linear_vdo import LinearVDO
 import numpy as np
 
+N_SAMPLES = 16
 
 """
 Attention Network without Gating (2 fc layers)
@@ -96,7 +97,7 @@ class probabilistic_MIL_Bayes(nn.Module):
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
 
-    def forward(self, h, return_features=False):
+    def forward(self, h, validation=False):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK        
 
@@ -106,8 +107,6 @@ class probabilistic_MIL_Bayes(nn.Module):
 
         A = F.softmax(A, dim=1)  # softmax over N
 
-        print(A)
-        exit()
         M = torch.mm(A, h)
         logits = self.classifiers(M)
 
@@ -116,11 +115,11 @@ class probabilistic_MIL_Bayes(nn.Module):
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
         Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
         Y_prob = F.softmax(top_instance, dim = 1) 
-        results_dict = {}
+        # results_dict = {}
 
-        if return_features:
-            top_features = torch.index_select(h, dim=0, index=top_instance_idx)
-            results_dict.update({'features': top_features})
+        # if return_features:
+        #     top_features = torch.index_select(h, dim=0, index=top_instance_idx)
+        #     results_dict.update({'features': top_features})
         return top_instance, Y_prob, Y_hat, y_probs, A
 
 
