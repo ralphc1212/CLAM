@@ -6,7 +6,6 @@ from utils.utils import initialize_weights
 from models.linear_vdo import LinearVDO
 import numpy as np
 
-N_SAMPLES = 16
 
 """
 Attention Network without Gating (2 fc layers)

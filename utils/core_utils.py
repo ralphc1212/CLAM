@@ -19,6 +19,7 @@ from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
 
+N_SAMPLES = 16
 
 class Accuracy_Logger(object):
     """Accuracy logger"""
@@ -384,21 +385,46 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
     prob = np.zeros((len(loader), n_classes))
     labels = np.zeros(len(loader))
 
+    slide_model_uncertainty = []
+    slide_data_uncertainty = []
+
+    attention_model_uncertainty = []
+    attention_data_uncertainty = []
+
     with torch.no_grad():
         for batch_idx, (data, label) in enumerate(loader):
             data, label = data.to(device, non_blocking=True), label.to(device, non_blocking=True)
 
             if stochastic:
-                # out_prob = 0
-                # out_atten = 0
-                # out_logits
-                # ens_prob = []
-                # ens_atten = []
+                out_prob = 0
+                out_atten = 0
+                out_logits = 0
+                Y_hats = []
+                ens_prob = []
+                ens_atten = []
+                for i in range(N_SAMPLES):
+                    logits, Y_prob, Y_hat, _, A = model(data, validation=True)
+                    out_prob += Y_prob
+                    out_atten += A.detach()
+                    out_logits += logits
 
-                logits, Y_prob, Y_hat, _, A = model(data, validation=True)
-                print(Y_prob.shape)
-                print(A.shape)
-                print(Y_prob)
+                    Y_hats.append(Y_hat)
+                    ens_prob.append(torch.sum(- Y_prob * torch.log(Y_prob)).item())
+                    ens_atten.append(torch.sum(- A * torch.log(A)).item())
+
+                out_prob /= N_SAMPLES
+                out_atten /= N_SAMPLES
+                out_logits /= N_SAMPLES
+
+                ens_prob = np.mean(ens_prob)
+                ens_atten = np.mean(ens_atten)
+                Y_hat = torch.mode(torch.cat(Y_hats, dim=1))[0]
+
+                print(out_prob)
+                print(out_atten)
+                print(out_logits)
+                print(ens_prob)
+                print(ens_atten)
                 print(Y_hat)
                 exit()
             else:
