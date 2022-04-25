@@ -47,7 +47,7 @@ class Attn_Net_Gated(nn.Module):
         self.attention_a = [
             LinearVDO(L, D, ard_init=-3.),
             nn.Tanh()]
-        
+
         self.attention_b = [LinearVDO(L, D, ard_init=-3.),
                             nn.Sigmoid()]
         if dropout:
