@@ -416,17 +416,19 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                 out_atten /= N_SAMPLES
                 out_logits /= N_SAMPLES
 
+                out_ens_prob = torch.sum(- out_prob * torch.log(out_prob)).item()
+                out_ens_atten = torch.sum(- out_atten * torch.log(out_atten)).item()
+
                 ens_prob = np.mean(ens_prob)
                 ens_atten = np.mean(ens_atten)
                 Y_hat = torch.mode(torch.cat(Y_hats, dim=1))[0]
 
-                print(out_prob)
-                print(out_atten)
-                print(out_logits)
-                print(ens_prob)
-                print(ens_atten)
-                print(Y_hat)
-                exit()
+                slide_model_uncertainty.append(out_ens_prob - ens_prob)
+                slide_data_uncertainty.append(ens_prob)
+
+                attention_model_uncertainty.append(out_ens_atten - ens_atten)
+                attention_data_uncertainty.append(ens_atten)
+
             else:
                 logits, Y_prob, Y_hat, _, _ = model(data)
 
@@ -443,7 +445,12 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
 
     val_error /= len(loader)
     val_loss /= len(loader)
-
+    if stochastic:
+        slide_model_uncertainty = np.mean(slide_model_uncertainty)
+        slide_data_uncertainty = np.mean(slide_data_uncertainty)
+        attention_model_uncertainty = np.mean(attention_model_uncertainty)
+        attention_data_uncertainty = np.mean(attention_data_uncertainty)
+        
     if n_classes == 2:
         auc = roc_auc_score(labels, prob[:, 1])
     
@@ -456,6 +463,9 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
         writer.add_scalar('val/error', val_error, epoch)
 
     print('\nVal Set, val_loss: {:.4f}, val_error: {:.4f}, auc: {:.4f}'.format(val_loss, val_error, auc))
+    print('\nVal Set, slide_model_unc: {:.4f}, attn_model_unc: {:.4f}, slide_data_unc: {:.4f}, attn_data_unc: {:.4f}'
+        .format(slide_model_uncertainty, attention_model_uncertainty, slide_data_uncertainty, attention_data_uncertainty))
+
     for i in range(n_classes):
         acc, correct, count = acc_logger.get_summary(i)
         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))     
