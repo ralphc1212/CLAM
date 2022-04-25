@@ -367,9 +367,13 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         writer.add_scalar('train/error', train_error, epoch)
 
 
-def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer = None, loss_fn = None, results_dir=None):
+def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
+             writer = None, loss_fn = None, results_dir=None,  stochastic=False):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.eval()
+    if stochastic:
+        model.train()
+    else:
+        model.eval()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
     # loader.dataset.update_mode(True)
     val_loss = 0.
