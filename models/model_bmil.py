@@ -202,6 +202,7 @@ class probabilistic_MIL_Bayes_sigmoid(nn.Module):
 
         print(A.shape)
         exit()
+
         A = F.softmax(A, dim=1)
 
         M = torch.mm(A, h)
@@ -232,6 +233,7 @@ def get_ard_reg_vdo(module, reg=0):
 bMIL_model_dict = {
                     'A': probabilistic_MIL_Bayes,
                     'F': probabilistic_MIL_Bayes_fc,
+                    'S': probabilistic_MIL_Bayes_sigmoid,
 }
 
 
