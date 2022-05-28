@@ -450,7 +450,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
         slide_data_uncertainty = np.mean(slide_data_uncertainty)
         attention_model_uncertainty = np.mean(attention_model_uncertainty)
         attention_data_uncertainty = np.mean(attention_data_uncertainty)
-        
+
     if n_classes == 2:
         auc = roc_auc_score(labels, prob[:, 1])
     
@@ -594,7 +594,7 @@ def summary(model, loader, n_classes):
         probs = Y_prob.cpu().numpy()
         all_probs[batch_idx] = probs
         all_labels[batch_idx] = label.item()
-        
+
         patient_results.update({slide_id: {'slide_id': np.array(slide_id), 'prob': probs, 'label': label.item()}})
         error = calculate_error(Y_hat, label)
         test_error += error
