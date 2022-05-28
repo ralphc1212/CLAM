@@ -200,10 +200,7 @@ class probabilistic_MIL_Bayes_sigmoid(nn.Module):
 
         # A = F.softmax(A, dim=1)  # softmax over N
 
-        print(A.shape)
-        exit()
-
-        A = F.softmax(A, dim=1)
+        A = F.sigmoid(A, dim=1)
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
