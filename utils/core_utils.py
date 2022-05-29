@@ -457,7 +457,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
 
     val_error /= len(loader)
     val_loss /= len(loader)
-    if stochastic:
+    if bayes_args:
         slide_model_uncertainty = np.mean(slide_model_uncertainty)
         slide_data_uncertainty = np.mean(slide_data_uncertainty)
         attention_model_uncertainty = np.mean(attention_model_uncertainty)
