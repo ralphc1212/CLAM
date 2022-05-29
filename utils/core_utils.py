@@ -414,7 +414,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                     Y_hats.append(Y_hat)
                     ens_prob.append(torch.sum(- Y_prob * torch.log(Y_prob)).item())
                     if 'vis' in bayes_args:
-                        A = A.transpose()
+                        A = A.t()
                         A = torch.cat([A, 1 - A], dim = 1)
                         ens_atten.append((- A * torch.log(A)).sum(dim = 1).mean().item())
 
@@ -427,7 +427,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                 out_logits /= N_SAMPLES
 
                 out_ens_prob = torch.sum(- out_prob * torch.log(out_prob)).item()
-                out_atten = out_atten.transpose()
+                out_atten = out_atten.t()
                 out_atten = torch.cat([out_atten, 1 - out_atten], dim = 1)
                 out_ens_atten = (- out_atten * torch.log(out_atten)).sum(dim = 1).mean().item()
 
