@@ -141,7 +141,7 @@ def train(datasets, cur, args):
     if args.model_size is not None and args.model_type != 'mil':
         model_dict.update({"size_arg": args.model_size})
     
-    bayes_reg = None
+    bayes_args = None
 
     if args.model_type in ['clam_sb', 'clam_mb']:
         if args.subtyping:
@@ -179,8 +179,10 @@ def train(datasets, cur, args):
     elif args.model_type == 'mlp':
         model = MIL_mlp(**model_dict)
     elif args.model_type.startswith('bmil'):
-        bayes_reg = (get_ard_reg_vdo, 1e-5)
         model = bMIL_model_dict[args.model_type.split('-')[1]](**model_dict)
+        bayes_args = [get_ard_reg_vdo, 1e-5]
+        if 'vis' in args.model_type.split('-'):
+            bayes_args.append('vis')
     elif args.model_type == 'hmil':
         model = MIL_hattn(**model_dict)
     elif args.model_type == 'smil-D':
@@ -210,7 +212,7 @@ def train(datasets, cur, args):
         early_stopping = None
     print('Done!')
 
-    stochastic = (bayes_reg != None)
+    # stochastic = (bayes_reg != None)
 
     for epoch in range(args.max_epochs):
         if args.model_type in ['clam_sb', 'clam_mb'] and not args.no_inst_cluster:     
@@ -219,11 +221,11 @@ def train(datasets, cur, args):
                 early_stopping, writer, loss_fn, args.results_dir)
         
         else:
-            train_loop(epoch, model, train_loader, optimizer, args.n_classes, writer, loss_fn, bayes_reg)
+            train_loop(epoch, model, train_loader, optimizer, args.n_classes, writer, loss_fn, bayes_args)
             stop = validate(cur, epoch, model, val_loader, args.n_classes, 
-                early_stopping, writer, loss_fn, args.results_dir, stochastic)
-        
-        if stop: 
+                early_stopping, writer, loss_fn, args.results_dir, bayes_args)
+
+        if stop:
             break
 
     if args.early_stopping:
@@ -321,7 +323,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         writer.add_scalar('train/error', train_error, epoch)
         writer.add_scalar('train/clustering_loss', train_inst_loss, epoch)
 
-def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_fn = None, bayes_reg=None):   
+def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_fn = None, bayes_args=None):   
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     model.train()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
@@ -333,11 +335,11 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         data, label = data.to(device), label.to(device)
 
         logits, Y_prob, Y_hat, _, _ = model(data)
-        
+
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits, label)
-        if bayes_reg:
-            loss += bayes_reg[1] * bayes_reg[0](model)
+        if bayes_args:
+            loss += bayes_args[1] * bayes_args[0](model)
         loss_value = loss.item()
         
         train_loss += loss_value
@@ -347,7 +349,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 
         error = calculate_error(Y_hat, label)
         train_error += error
-        
+
         # backward pass
         loss.backward()
         # step
@@ -371,9 +373,9 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 
 
 def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
-             writer = None, loss_fn = None, results_dir=None,  stochastic=False):
+             writer = None, loss_fn = None, results_dir=None,  bayes_args=None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if stochastic:
+    if bayes_args:
         model.train()
     else:
         model.eval()
@@ -395,10 +397,11 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
         for batch_idx, (data, label) in enumerate(loader):
             data, label = data.to(device, non_blocking=True), label.to(device, non_blocking=True)
 
-            if stochastic:
+            if bayes_args:
                 out_prob = 0
                 out_atten = 0
                 out_logits = 0
+
                 Y_hats = []
                 ens_prob = []
                 ens_atten = []
@@ -410,14 +413,23 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
 
                     Y_hats.append(Y_hat)
                     ens_prob.append(torch.sum(- Y_prob * torch.log(Y_prob)).item())
-                    ens_atten.append(torch.sum(- A * torch.log(A)).item())
+                    if 'vis' in bayes_args:
+                        A = A.transpose()
+                        A = torch.cat([A, 1 - A], dim = 1)
+                        ens_atten.append((- A * torch.log(A)).sum(dim = 1).mean().item())
+
+                        # ens_atten.append(torch.sum(- A * torch.log(A)).item())
+                    else:
+                        ens_atten.append(torch.sum(- A * torch.log(A)).item())
 
                 out_prob /= N_SAMPLES
                 out_atten /= N_SAMPLES
                 out_logits /= N_SAMPLES
 
                 out_ens_prob = torch.sum(- out_prob * torch.log(out_prob)).item()
-                out_ens_atten = torch.sum(- out_atten * torch.log(out_atten)).item()
+                out_atten = out_atten.transpose()
+                out_atten = torch.cat([out_atten, 1 - out_atten], dim = 1)
+                out_ens_atten = (- out_atten * torch.log(out_atten)).sum(dim = 1).mean().item()
 
                 ens_prob = np.mean(ens_prob)
                 ens_atten = np.mean(ens_atten)
