@@ -401,6 +401,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                 out_prob = 0
                 out_atten = 0
                 out_logits = 0
+                # EXTRACT DATA UNCERTAINTY: vis_data = 0 
 
                 Y_hats = []
                 ens_prob = []
@@ -417,19 +418,25 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                         A = A.t()
                         A = torch.cat([A, 1 - A], dim = 1)
                         ens_atten.append((- A * torch.log(A)).sum(dim = 1).mean().item())
+                        # EXTRACT DATA UNCERTAINTY: store the vector vis_data += (- A * torch.log(A)).sum(dim = 1)
 
-                        # ens_atten.append(torch.sum(- A * torch.log(A)).item())
                     else:
                         ens_atten.append(torch.sum(- A * torch.log(A)).item())
 
                 out_prob /= N_SAMPLES
                 out_atten /= N_SAMPLES
                 out_logits /= N_SAMPLES
+                # EXTRACT DATA UNCERTAINTY: vis_data /= N_SAMPLES
+                # vis_data size: [number of patches, 1]
 
                 out_ens_prob = torch.sum(- out_prob * torch.log(out_prob)).item()
                 out_atten = out_atten.t()
                 out_atten = torch.cat([out_atten, 1 - out_atten], dim = 1)
                 out_ens_atten = (- out_atten * torch.log(out_atten)).sum(dim = 1).mean().item()
+                # EXTRACT TOTAL UNCERTAINTY: vis_total = (- out_atten * torch.log(out_atten)).sum(dim = 1)
+                # vis_total size: [number of patches, 1]
+
+                # EXTRACT TOTAL UNCERTAINTY: vis_total - vis_data
 
                 ens_prob = np.mean(ens_prob)
                 ens_atten = np.mean(ens_atten)
