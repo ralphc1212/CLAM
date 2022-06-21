@@ -121,18 +121,35 @@ def top_k(scores, k, invert=False):
         top_k_ids=scores.argsort()[::-1][:k]
     return top_k_ids
 
-def to_percentiles(scores):
+def to_percentiles(scores, uncs_type=None):
     from scipy.stats import rankdata
-    scores = rankdata(scores, 'average')/len(scores) * 100   
-    return scores
+    scores = rankdata(scores, 'average')/len(scores) * 100
+    if uncs_type:
+        length_each = len(scores) // 3
+        print(uncs_type*length_each)
+        print((uncs_type+1)*length_each)
+        return scores[uncs_type*length_each:(uncs_type+1)*length_each]
+    else:
+        return scores
 
-def screen_coords(scores, coords, top_left, bot_right):
+def screen_coords(scores, uncs_type, coords, top_left, bot_right):
     bot_right = np.array(bot_right)
     top_left = np.array(top_left)
     mask = np.logical_and(np.all(coords >= top_left, axis=1), np.all(coords <= bot_right, axis=1))
-    scores = scores[mask]
-    coords = coords[mask]
-    return scores, coords
+    if uncs_type:
+        length_each = len(scores) // 3
+        score1 = scores[0:length_each][mask]
+        score2 = scores[length_each:length_each*2][mask]
+        score3 = scores[length_each*2:][mask]
+        scores_final = []
+        scores_final.extend(score1)
+        scores_final.extend(score2)
+        scores_final.extend(score3)
+        return scores_final, coords
+    else:
+        scores = scores[mask]
+        coords = coords[mask]
+        return scores, coords
 
 def sample_rois(scores, coords, k=5, mode='range_sample', seed=1, score_start=0.45, score_end=0.55, top_left=None, bot_right=None):
 

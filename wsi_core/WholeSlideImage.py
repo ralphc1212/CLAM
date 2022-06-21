@@ -483,7 +483,7 @@ class WholeSlideImage(object):
         else:
             return None
 
-    def visHeatmap(self, scores, coords, vis_level=-1, 
+    def visHeatmap(self, scores, uncs_type, coords, vis_level=-1,
                    top_left=None, bot_right=None,
                    patch_size=(256, 256), 
                    blank_canvas=False, canvas_color=(220, 20, 50), alpha=0.4, 
@@ -538,7 +538,7 @@ class WholeSlideImage(object):
 
         ##### calculate size of heatmap and filter coordinates/scores outside specified bbox region #####
         if top_left is not None and bot_right is not None:
-            scores, coords = screen_coords(scores, coords, top_left, bot_right)
+            scores, coords = screen_coords(scores, uncs_type, coords, top_left, bot_right)
             coords = coords - top_left
             top_left = tuple(top_left)
             bot_right = tuple(bot_right)
@@ -561,7 +561,7 @@ class WholeSlideImage(object):
 
         ###### normalize filtered scores ######
         if convert_to_percentiles:
-            scores = to_percentiles(scores) 
+            scores = to_percentiles(scores, uncs_type)
 
         scores /= 100
         

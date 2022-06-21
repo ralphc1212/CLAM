@@ -7,6 +7,8 @@ from models.model_mil import MIL_fc, MIL_fc_mc
 from models.model_clam import CLAM_SB, CLAM_MB
 import pdb
 import os
+from models.model_bmil import bMIL_model_dict
+from models.model_bmil import probabilistic_MIL_Bayes, get_ard_reg_vdo
 import pandas as pd
 from utils.utils import *
 from utils.core_utils import Accuracy_Logger
@@ -25,6 +27,11 @@ def initiate_model(args, ckpt_path):
         model = CLAM_SB(**model_dict)
     elif args.model_type =='clam_mb':
         model = CLAM_MB(**model_dict)
+    elif args.model_type.startswith('bmil'):
+        model = bMIL_model_dict[args.model_type.split('-')[1]](**model_dict)
+        bayes_args = [get_ard_reg_vdo, 1e-5]
+        if 'vis' in args.model_type.split('-'):
+            bayes_args.append('vis')
     else: # args.model_type == 'mil'
         if args.n_classes > 2:
             model = MIL_fc_mc(**model_dict)
@@ -43,7 +50,10 @@ def initiate_model(args, ckpt_path):
 
     model.relocate()
     model.eval()
-    return model
+    if args.model_type.startswith('bmil'):
+        return model, bayes_args
+    else:
+        return model
 
 def eval(dataset, args, ckpt_path):
     model = initiate_model(args, ckpt_path)
