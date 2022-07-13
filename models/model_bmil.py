@@ -273,6 +273,10 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha)  
         + (1 - slide_label) * self.conc_neg * torch.softmax(postr_alpha / 10.)
 
+        print(postr_alpha)
+        print(prior_alpha)
+        exit()
+        
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
         prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
