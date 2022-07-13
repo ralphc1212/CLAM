@@ -60,13 +60,13 @@ def compute_from_patches(wsi_object, clam_pred=None, model=None, feature_extract
     for idx, (roi, coords) in enumerate(roi_loader):
         roi = roi.to(device)
         coords = coords.numpy()
-        
+
         with torch.no_grad():
             features = feature_extractor(roi)
 
             if attn_save_path is not None:
                 A = model(features, attention_only=True)
-           
+
                 if A.size(0) > 1: #CLAM multi-branch attention
                     A = A[clam_pred]
 
@@ -78,7 +78,7 @@ def compute_from_patches(wsi_object, clam_pred=None, model=None, feature_extract
 
                 asset_dict = {'attention_scores': A, 'coords': coords}
                 save_path = save_hdf5(attn_save_path, asset_dict, mode=mode)
-    
+
         if idx % math.ceil(num_batches * 0.05) == 0:
             print('procssed {} / {}'.format(idx, num_batches))
 

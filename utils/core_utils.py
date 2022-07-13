@@ -19,7 +19,9 @@ from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
 
+
 N_SAMPLES = 16
+
 
 class Accuracy_Logger(object):
     """Accuracy logger"""
@@ -55,6 +57,7 @@ class Accuracy_Logger(object):
             acc = float(correct) / count
         
         return acc, correct, count
+
 
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
@@ -157,7 +160,7 @@ def train(datasets, cur, args):
                 instance_loss_fn = instance_loss_fn.cuda()
         else:
             instance_loss_fn = nn.CrossEntropyLoss()
-        
+
         if args.model_type =='clam_sb':
             model = CLAM_SB(**model_dict, instance_loss_fn=instance_loss_fn)
         elif args.model_type == 'clam_mb':
@@ -183,6 +186,8 @@ def train(datasets, cur, args):
         bayes_args = [get_ard_reg_vdo, 1e-5]
         if 'vis' in args.model_type.split('-'):
             bayes_args.append('vis')
+        elif 'enc' in args.model_type.split('-'):
+            bayes_args.append('enc')
     elif args.model_type == 'hmil':
         model = MIL_hattn(**model_dict)
     elif args.model_type == 'smil-D':
@@ -193,11 +198,11 @@ def train(datasets, cur, args):
     model.relocate()
     print('Done!')
     print_network(model)
-    
+
     print('\nInit optimizer ...', end=' ')
     optimizer = get_optim(model, args)
     print('Done!')
-    
+
     print('\nInit Loaders...', end=' ')
     train_loader = get_split_loader(train_split, training=True, testing = args.testing, weighted = args.weighted_sample)
     val_loader = get_split_loader(val_split,  testing = args.testing)
@@ -210,6 +215,7 @@ def train(datasets, cur, args):
 
     else:
         early_stopping = None
+
     print('Done!')
 
     # stochastic = (bayes_reg != None)
@@ -219,7 +225,7 @@ def train(datasets, cur, args):
             train_loop_clam(epoch, model, train_loader, optimizer, args.n_classes, args.bag_weight, writer, loss_fn)
             stop = validate_clam(cur, epoch, model, val_loader, args.n_classes, 
                 early_stopping, writer, loss_fn, args.results_dir)
-        
+
         else:
             train_loop(epoch, model, train_loader, optimizer, args.n_classes, writer, loss_fn, bayes_args)
             stop = validate(cur, epoch, model, val_loader, args.n_classes, 
@@ -276,10 +282,10 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         loss_value = loss.item()
 
         instance_loss = instance_dict['instance_loss']
-        inst_count+=1
+        inst_count += 1
         instance_loss_value = instance_loss.item()
         train_inst_loss += instance_loss_value
-        
+
         total_loss = bag_weight * loss + (1 - bag_weight) * instance_loss 
 
         inst_preds = instance_dict['inst_preds']
@@ -323,6 +329,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         writer.add_scalar('train/error', train_error, epoch)
         writer.add_scalar('train/clustering_loss', train_inst_loss, epoch)
 
+
 def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_fn = None, bayes_args=None):   
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     model.train()
@@ -334,14 +341,21 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
     for batch_idx, (data, label) in enumerate(loader):
         data, label = data.to(device), label.to(device)
 
-        logits, Y_prob, Y_hat, _, _ = model(data)
+        if 'enc' in bayes_args:
+            logits, Y_prob, Y_hat, _, _ = model(data, slide_label=label)
+        else:
+            logits, Y_prob, Y_hat, _, _ = model(data)
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits, label)
         if bayes_args:
-            loss += bayes_args[1] * bayes_args[0](model)
+            if 'enc' in bayes_args:
+                loss += bayes_args[1] * model.kl_div()
+            else:
+                loss += bayes_args[1] * bayes_args[0](model)
+
         loss_value = loss.item()
-        
+
         train_loss += loss_value
         if (batch_idx + 1) % 20 == 0:
             print('batch {}, loss: {:.4f}, label: {}, bag_size: {}'.format(batch_idx, loss_value, label.item(), data.size(0)))
@@ -419,7 +433,8 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                         A = torch.cat([A, 1 - A], dim = 1)
                         ens_atten.append((- A * torch.log(A)).sum(dim = 1).mean().item())
                         # EXTRACT DATA UNCERTAINTY: store the vector vis_data += (- A * torch.log(A)).sum(dim = 1)
-
+                    elif 'enc' in bayes_args:
+                        pass
                     else:
                         ens_atten.append(torch.sum(- A * torch.log(A)).item())
 
@@ -498,6 +513,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
             return True
 
     return False
+
 
 def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, writer = None, loss_fn = None, results_dir = None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -589,6 +605,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
             return True
 
     return False
+
 
 def summary(model, loader, n_classes):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")

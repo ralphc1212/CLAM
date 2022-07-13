@@ -5,7 +5,7 @@ from torch import Tensor
 from utils.utils import initialize_weights
 from models.linear_vdo import LinearVDO
 import numpy as np
-
+from torch.distributions import kl
 
 """
 Attention Network without Gating (2 fc layers)
@@ -217,6 +217,93 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         #     results_dict.update({'features': top_features})
         return top_instance, Y_prob, Y_hat, y_probs, A
 
+
+class probabilistic_MIL_Bayes_enc(nn.Module):
+    def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
+        super(probabilistic_MIL_Bayes_enc, self).__init__()
+        self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+        size = self.size_dict[size_arg]
+        fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
+
+        if dropout:
+            fc.append(nn.Dropout(0.25))
+
+        if gate:
+            # attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            self.prior_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            self.postr_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+
+        else:
+            # attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            self.prior_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            self.postr_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+
+        fc.append(attention_net)
+
+        self.attention_net = nn.Sequential(*fc)
+        self.classifiers = nn.Linear(size[1], n_classes)
+        self.n_classes = n_classes
+        self.print_sample_trigger = False
+        self.num_samples = 16
+        self.temperature = torch.tensor([1.0])
+        self.conc_pos = torch.exp(torch.tensor([3.], requires_grad=False))
+        self.conc_neg = torch.exp(torch.tensor([-1.], requires_grad=False))
+        initialize_weights(self)
+        self.top_k = top_k
+
+    def kl_div(self):
+        pass
+
+    def relocate(self):
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.attention_net = self.attention_net.to(device)
+        self.classifiers = self.classifiers.to(device)
+        self.temperature = self.temperature.to(device)
+
+    def forward(self, h, return_features=False, slide_label=None):
+        device = h.device
+        #*-*# A, h = self.attention_net(h)  # NxK 
+
+        postr_alpha = self.postr_net(h)
+        prior_alpha = self.prior_net(h)
+
+        # if negative, all patches should be checked with equal probabilities.
+        # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
+
+        postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha)  
+        + (1 - slide_label) * self.conc_neg * torch.softmax(postr_alpha / 10.)
+
+        postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
+        postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
+        prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
+
+        kl_div = kl.kl_divergence(postr_kl, prior_kl)
+
+        A = postr_sp.rsample()
+
+        # if positive
+        A, h = self.attention_net(h)
+
+        A = torch.transpose(A, 1, 0)  # KxN 
+
+        A = F.softmax(A, dim=1)  # softmax over N
+
+        M = torch.mm(A, h)
+        logits = self.classifiers(M)
+
+        y_probs = F.softmax(logits, dim = 1)
+        top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
+        top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
+        Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
+        Y_prob = F.softmax(top_instance, dim = 1)
+        results_dict = {}
+
+        if return_features:
+            top_features = torch.index_select(h, dim=0, index=top_instance_idx)
+            results_dict.update({'features': top_features})
+        return top_instance, Y_prob, Y_hat, y_probs, results_dict
+
+
 def get_ard_reg_vdo(module, reg=0):
     """
     :param module: model to evaluate ard regularization for
@@ -227,10 +314,12 @@ def get_ard_reg_vdo(module, reg=0):
     if hasattr(module, 'children'): return reg + sum([get_ard_reg_vdo(submodule) for submodule in module.children()])
     return reg
 
+
 bMIL_model_dict = {
                     'A': probabilistic_MIL_Bayes,
                     'F': probabilistic_MIL_Bayes_fc,
                     'vis': probabilistic_MIL_Bayes_vis,
+                    'enc': probabilistic_MIL_Bayes_enc,
 }
 
 
