@@ -69,7 +69,7 @@ class Attn_Net_Gated(nn.Module):
 
 class DAttn_Net_Gated(nn.Module):
     def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
-        super(Attn_Net_Gated, self).__init__()
+        super(DAttn_Net_Gated, self).__init__()
         self.attention_a = [
             Linear(L, D),
             nn.Tanh()]
@@ -255,7 +255,6 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             fc2.append(nn.Dropout(0.25))
 
         if gate:
-            print('*******************************************')
             # attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
             postr_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
             prior_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
