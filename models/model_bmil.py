@@ -303,22 +303,16 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
         prior_alpha = F.softplus(torch.transpose(prior_alpha, 1, 0))  # KxN
 
-        print(postr_alpha.shape)
-        print(prior_alpha.shape)
-
         postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha, dim=1)  
         + (1 - slide_label) * self.conc_neg * torch.softmax(postr_alpha / 10., dim=1)
-
-        print(postr_alpha)
-        print(prior_alpha)
-        exit()
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
         prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
 
         kl_div = kl.kl_divergence(postr_kl, prior_kl)
-
+        print(kl_div)
+        exit()
         A = postr_sp.rsample()
 
         # if positive
