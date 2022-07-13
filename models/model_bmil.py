@@ -251,9 +251,6 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         initialize_weights(self)
         self.top_k = top_k
 
-    def kl_div(self):
-        pass
-
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.attention_net = self.attention_net.to(device)
@@ -276,7 +273,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         print(postr_alpha)
         print(prior_alpha)
         exit()
-        
+
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
         prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)

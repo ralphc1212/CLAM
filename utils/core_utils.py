@@ -411,7 +411,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
         for batch_idx, (data, label) in enumerate(loader):
             data, label = data.to(device, non_blocking=True), label.to(device, non_blocking=True)
 
-            if bayes_args:
+            if bayes_args and ('vis' in bayes_args):
                 out_prob = 0
                 out_atten = 0
                 out_logits = 0
@@ -462,6 +462,9 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
 
                 attention_model_uncertainty.append(out_ens_atten - ens_atten)
                 attention_data_uncertainty.append(ens_atten)
+
+            elif bayes_args and ('vis' in bayes_args):
+                logits, Y_prob, Y_hat, _, _ = model(data)
 
             else:
                 logits, Y_prob, Y_hat, _, _ = model(data)
