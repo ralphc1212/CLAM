@@ -342,7 +342,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         data, label = data.to(device), label.to(device)
 
         if 'enc' in bayes_args:
-            logits, Y_prob, Y_hat, _, _ = model(data, slide_label=label)
+            logits, Y_prob, Y_hat, kl_div, _, _ = model(data, slide_label=label)
         else:
             logits, Y_prob, Y_hat, _, _ = model(data)
 
@@ -350,7 +350,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         loss = loss_fn(logits, label)
         if bayes_args:
             if 'enc' in bayes_args:
-                loss += bayes_args[1] * model.kl_div()
+                loss += bayes_args[1] * kl_div
             else:
                 loss += bayes_args[1] * bayes_args[0](model)
 
@@ -462,9 +462,6 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
 
                 attention_model_uncertainty.append(out_ens_atten - ens_atten)
                 attention_data_uncertainty.append(ens_atten)
-
-            elif bayes_args and ('vis' in bayes_args):
-                logits, Y_prob, Y_hat, _, _ = model(data)
 
             else:
                 logits, Y_prob, Y_hat, _, _ = model(data)

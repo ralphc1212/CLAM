@@ -314,8 +314,6 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         A = postr_sp.rsample()
 
-        print(A)
-
         # if positive
         # A, h = self.attention_net(h)
 
@@ -336,7 +334,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         if return_features:
             top_features = torch.index_select(h, dim=0, index=top_instance_idx)
             results_dict.update({'features': top_features})
-        return top_instance, Y_prob, Y_hat, y_probs, results_dict
+        return top_instance, Y_prob, Y_hat, kl_div, y_probs, results_dict
 
 
 def get_ard_reg_vdo(module, reg=0):
