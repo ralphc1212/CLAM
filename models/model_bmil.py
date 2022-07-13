@@ -311,18 +311,19 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
 
         kl_div = kl.kl_divergence(postr_kl, prior_kl)
-        print(kl_div)
-        exit()
+
         A = postr_sp.rsample()
 
+        print(A)
+
         # if positive
-        A, h = self.attention_net(h)
+        # A, h = self.attention_net(h)
 
-        A = torch.transpose(A, 1, 0)  # KxN 
+        # A = torch.transpose(A, 1, 0)  # KxN 
 
-        A = F.softmax(A, dim=1)  # softmax over N
+        # A = F.softmax(A, dim=1)  # softmax over N
 
-        M = torch.mm(A, h)
+        M = torch.mm(A, h_)
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
