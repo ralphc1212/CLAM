@@ -275,7 +275,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.print_sample_trigger = False
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
-        self.conc_pos = torch.exp(torch.tensor([3.], requires_grad=False))
+        self.conc_pos = torch.tensor([1e6], requires_grad=False)
         self.conc_neg = torch.exp(torch.tensor([-1.], requires_grad=False))
         initialize_weights(self)
         self.top_k = top_k
@@ -308,7 +308,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         print('before: ', postr_alpha)
         postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha, dim=1)  
-        + (1 - slide_label) * self.conc_neg * torch.softmax(postr_alpha / 2., dim=1)
+        + (1 - slide_label) * self.conc_neg * torch.softmax(postr_alpha, dim=1)
         print('after: ', postr_alpha)
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
