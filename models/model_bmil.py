@@ -276,6 +276,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # if negative, all patches should be checked with equal probabilities.
         # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
 
+        print(postr_alpha.shape)
+        print(prior_alpha.shape)
+
         postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha)  
         + (1 - slide_label) * self.conc_neg * torch.softmax(postr_alpha / 10.)
 
