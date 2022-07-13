@@ -263,6 +263,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.prior_net = self.prior_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
+        self.conc_pos = self.conc_pos.to(device)
+        self.conc_neg = self.conc_neg.to(device)
 
     def forward(self, h, return_features=False, slide_label=None):
         device = h.device
