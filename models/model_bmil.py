@@ -275,7 +275,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.print_sample_trigger = False
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
-        self.conc_pos = torch.tensor([1e6], requires_grad=False)
+        self.conc_pos = torch.tensor([1e4], requires_grad=False)
         self.conc_neg = torch.exp(torch.tensor([-1.], requires_grad=False))
         initialize_weights(self)
         self.top_k = top_k
