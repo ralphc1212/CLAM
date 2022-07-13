@@ -303,6 +303,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
         prior_alpha = F.softplus(torch.transpose(prior_alpha, 1, 0))  # KxN
 
+        print(torch.max(torch.softmax(postr_alpha, dim=1)))
+        print(torch.min(torch.softmax(postr_alpha, dim=1)))
+
         print('before: ', postr_alpha)
         postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha, dim=1)  
         + (1 - slide_label) * self.conc_neg * torch.softmax(postr_alpha / 2., dim=1)
