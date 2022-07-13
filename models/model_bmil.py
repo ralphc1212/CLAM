@@ -71,10 +71,10 @@ class DAttn_Net_Gated(nn.Module):
     def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
         super(DAttn_Net_Gated, self).__init__()
         self.attention_a = [
-            Linear(L, D),
+            nn.Linear(L, D),
             nn.Tanh()]
 
-        self.attention_b = [Linear(L, D),
+        self.attention_b = [nn.Linear(L, D),
                             nn.Sigmoid()]
         if dropout:
             self.attention_a.append(nn.Dropout(0.25))
@@ -83,7 +83,7 @@ class DAttn_Net_Gated(nn.Module):
         self.attention_a = nn.Sequential(*self.attention_a)
         self.attention_b = nn.Sequential(*self.attention_b)
 
-        self.attention_c = Linear(D, n_classes)
+        self.attention_c = nn.Linear(D, n_classes)
 
     def forward(self, x):
         a = self.attention_a(x)
