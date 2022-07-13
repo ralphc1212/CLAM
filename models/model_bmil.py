@@ -294,14 +294,14 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK 
 
-        postr_alpha, h = self.postr_net(h)
+        postr_alpha, h_ = self.postr_net(h)
         prior_alpha, _ = self.prior_net(h)
 
         # if negative, all patches should be checked with equal probabilities.
         # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
 
         print(postr_alpha.shape)
-        print(prior_alpha.shape)
+        print(prior_alpha)
 
         postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha)  
         + (1 - slide_label) * self.conc_neg * torch.softmax(postr_alpha / 10.)
