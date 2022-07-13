@@ -243,8 +243,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         fc1.append(postr_net)
         fc2.append(prior_net)
 
-        self.postr_net = nn.Sequential(*fc)
-        self.prior_net = nn.Sequential(*fc)
+        self.postr_net = nn.Sequential(*fc1)
+        self.prior_net = nn.Sequential(*fc2)
 
         self.classifiers = nn.Linear(size[1], n_classes)
         self.n_classes = n_classes
