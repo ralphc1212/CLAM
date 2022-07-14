@@ -276,7 +276,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
         self.sf_pos = torch.tensor([1e4], requires_grad=False)
-        self.sf_neg = torch.exp(torch.tensor([1e3], requires_grad=False))
+        self.sf_neg = torch.exp(torch.tensor([1e4], requires_grad=False))
         initialize_weights(self)
         self.top_k = top_k
 
@@ -308,14 +308,18 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         print('temperature: ', temp)
         print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
         print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
+        print('mean: ', torch.mean(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
+        print('median: ', torch.median(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
-        temp = 10.
+        temp = 5.
         print('temperature: ', temp)
         print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
         print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
+        print('mean: ', torch.mean(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
+        print('median: ', torch.median(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
         print('before: ', postr_alpha)
-        postr_alpha = slide_label * (self.sf_pos * torch.softmax(postr_alpha, dim=1))
+        postr_alpha = slide_label * (self.sf_pos * torch.softmax(postr_alpha, dim=1)).clamp()
         + (1 - slide_label) * self.sf_neg * torch.softmax(postr_alpha, dim=1)
         print(1 - slide_label)
         print('after: ', postr_alpha)
