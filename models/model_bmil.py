@@ -303,6 +303,13 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
         prior_alpha = F.softplus(torch.transpose(prior_alpha, 1, 0))  # KxN
 
+        temp = 0.1
+        print('temperature: ', temp)
+        print('max: ', torch.max(torch.softmax(postr_alpha, dim=1)))
+        print('min: ', torch.min(torch.softmax(postr_alpha, dim=1)))
+
+        temp = 10.
+        print('temperature: ', temp)
         print('max: ', torch.max(torch.softmax(postr_alpha, dim=1)))
         print('min: ', torch.min(torch.softmax(postr_alpha, dim=1)))
 
