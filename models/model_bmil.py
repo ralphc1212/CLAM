@@ -275,8 +275,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.print_sample_trigger = False
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
-        self.sf_pos = torch.tensor([1e4], requires_grad=False)
-        self.sf_neg = torch.exp(torch.tensor([1e4], requires_grad=False))
+        self.sf_pos = torch.tensor([2e4], requires_grad=False)
+        self.sf_neg = torch.exp(torch.tensor([2e4], requires_grad=False))
         initialize_weights(self)
         self.top_k = top_k
 
@@ -299,7 +299,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         # if negative, all patches should be checked with equal probabilities.
         # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
-        
+
         postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
         prior_alpha = F.softplus(torch.transpose(prior_alpha, 1, 0))  # KxN
 
@@ -319,6 +319,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         print('median: ', torch.median(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
         print('before: ', postr_alpha)
+        print('component 1: ', slide_label * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0))
+        print('component 2: ', (1. - slide_label) * (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95))
+
         postr_alpha = slide_label * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0)
         + (1. - slide_label) * (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
         print(1. - slide_label)
