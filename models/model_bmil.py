@@ -303,15 +303,16 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
         prior_alpha = F.softplus(torch.transpose(prior_alpha, 1, 0))  # KxN
 
+        scaling_factor = 1e5
         temp = 0.1
         print('temperature: ', temp)
-        print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1)))
-        print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1)))
+        print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
+        print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
         temp = 10.
         print('temperature: ', temp)
-        print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1)))
-        print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1)))
+        print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
+        print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
         print('before: ', postr_alpha)
         postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha, dim=1)  
