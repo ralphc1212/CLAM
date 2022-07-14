@@ -275,8 +275,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.print_sample_trigger = False
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
-        self.conc_pos = torch.tensor([1e4], requires_grad=False)
-        self.conc_neg = torch.exp(torch.tensor([-1.], requires_grad=False))
+        self.sf_pos = torch.tensor([1e4], requires_grad=False)
+        self.sf_neg = torch.exp(torch.tensor([1e3], requires_grad=False))
         initialize_weights(self)
         self.top_k = top_k
 
@@ -287,8 +287,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.prior_net = self.prior_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-        self.conc_pos = self.conc_pos.to(device)
-        self.conc_neg = self.conc_neg.to(device)
+        self.sf_pos = self.sf_pos.to(device)
+        self.sf_neg = self.sf_neg.to(device)
 
     def forward(self, h, return_features=False, slide_label=None):
         device = h.device
@@ -303,7 +303,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
         prior_alpha = F.softplus(torch.transpose(prior_alpha, 1, 0))  # KxN
 
-        scaling_factor = 1e5
+        scaling_factor = 1e4
         temp = 0.1
         print('temperature: ', temp)
         print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
@@ -315,8 +315,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
         print('before: ', postr_alpha)
-        postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha, dim=1)  
-        + (1 - slide_label) * self.conc_neg * torch.softmax(postr_alpha, dim=1)
+        postr_alpha = slide_label * (self.sf_pos * torch.softmax(postr_alpha, dim=1))
+        + (1 - slide_label) * self.sf_neg * torch.softmax(postr_alpha, dim=1)
         print(1 - slide_label)
         print('after: ', postr_alpha)
 
