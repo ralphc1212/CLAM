@@ -319,11 +319,17 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         print('median: ', torch.median(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
         print('before: ', postr_alpha)
-        print('component 1: ', slide_label * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))
+        print('component 1: ', slide_label * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0))
         print('component 2: ', (1. - slide_label) * (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95))
 
-        postr_alpha = slide_label.detach() * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)) \
-        + (1. - slide_label).detach() * (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
+        # postr_alpha = slide_label.detach() * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0) \
+        # + (1. - slide_label).detach() * (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
+
+        if slide_label == 1:
+            postr_alpha = (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0)
+        else:
+            postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
+
         print(1. - slide_label)
         print('after: ', postr_alpha)
 
