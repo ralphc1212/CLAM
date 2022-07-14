@@ -305,13 +305,13 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         temp = 0.1
         print('temperature: ', temp)
-        print('max: ', torch.max(torch.softmax(postr_alpha, dim=1)))
-        print('min: ', torch.min(torch.softmax(postr_alpha, dim=1)))
+        print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1)))
+        print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1)))
 
         temp = 10.
         print('temperature: ', temp)
-        print('max: ', torch.max(torch.softmax(postr_alpha, dim=1)))
-        print('min: ', torch.min(torch.softmax(postr_alpha, dim=1)))
+        print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1)))
+        print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1)))
 
         print('before: ', postr_alpha)
         postr_alpha = slide_label * self.conc_pos * torch.softmax(postr_alpha, dim=1)  
