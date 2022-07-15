@@ -435,8 +435,6 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                         A = torch.cat([A, 1 - A], dim = 1)
                         ens_atten.append((- A * torch.log(A)).sum(dim = 1).mean().item())
                         # EXTRACT DATA UNCERTAINTY: store the vector vis_data += (- A * torch.log(A)).sum(dim = 1)
-                    elif 'enc' in bayes_args:
-                        pass
                     else:
                         ens_atten.append(torch.sum(- A * torch.log(A)).item())
 

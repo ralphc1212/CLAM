@@ -318,11 +318,11 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # print('mean: ', torch.mean(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
         # print('median: ', torch.median(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
-        print('before: ', postr_alpha)
-        print('component 1: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))
-        print('component 1 clamp: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0))
-        print('component 2: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)))
-        print('component 2 clamp: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95))
+        # print('before: ', postr_alpha)
+        # print('component 1: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))
+        # print('component 1 clamp: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0))
+        # print('component 2: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)))
+        # print('component 2 clamp: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95))
 
         # postr_alpha = slide_label.detach() * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0) \
         # + (1. - slide_label).detach() * (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
@@ -332,15 +332,16 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         else:
             postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
 
-        print(1. - slide_label)
-        print('after: ', postr_alpha)
+        # print(1. - slide_label)
+        # print('after: ', postr_alpha)
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
         prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
 
-        kl_div = kl.kl_divergence(postr_kl, prior_kl)
-
+        if self.training:
+            kl_div = kl.kl_divergence(postr_kl, prior_kl)
+        
         A = postr_sp.rsample()
 
         # if positive
@@ -363,8 +364,10 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         if return_features:
             top_features = torch.index_select(h, dim=0, index=top_instance_idx)
             results_dict.update({'features': top_features})
-        return top_instance, Y_prob, Y_hat, kl_div, y_probs, results_dict
-
+        if self.training:
+            return top_instance, Y_prob, Y_hat, kl_div, y_probs, results_dict
+        else:
+            return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
 def get_ard_reg_vdo(module, reg=0):
     """
