@@ -338,14 +338,14 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             kl_div = kl.kl_divergence(postr_kl, prior_kl)
             # kl_div = kl.kl_divergence(prior_kl, postr_kl)
             A = postr_sp.rsample()
-            print('postr samples: ', A)
+            # print('postr samples: ', A)
         else:
             prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
             A = prior_sp.sample()
-            print('prior samples: ', A)
+            # print('prior samples: ', A)
 
-        print('max sample', torch.max(A))
-        print('min sample', torch.min(A))
+        # print('max sample', torch.max(A))
+        # print('min sample', torch.min(A))
 
         # A = prior_sp.rsample()
 
@@ -360,10 +360,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         # A = F.softmax(A, dim=1)  # softmax over N
 
-        print(h_.shape)
-        print(h.shape)
-        print(A.shape)
-        M = torch.mm(A, h)
+        M = torch.mm(A, h_)
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
