@@ -338,9 +338,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
             postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.99)
 
-        print('slide label: ', slide_label)
-        print('after: ', postr_alpha)
-        print('prior_alpha: ', prior_alpha)
+        # print('slide label: ', slide_label)
+        # print('after: ', postr_alpha)
+        # print('prior_alpha: ', prior_alpha)
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
@@ -354,9 +354,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         A = postr_sp.rsample()
         # A = prior_sp.rsample()
 
-        print('samples: ', A)
-        print('max sample', torch.max(A))
-        print('min sample', torch.min(A))
+        # print('samples: ', A)
+        # print('max sample', torch.max(A))
+        # print('min sample', torch.min(A))
 
         # if positive
         # A, h = self.attention_net(h)
