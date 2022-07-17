@@ -354,6 +354,10 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # A = postr_sp.rsample()
         A = prior_sp.rsample()
 
+        print('samples: ', A)
+        print('max sample', torch.max(A))
+        print('min sample', torch.min(A))
+
         # if positive
         # A, h = self.attention_net(h)
 
