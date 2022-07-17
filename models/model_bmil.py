@@ -301,7 +301,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
 
         postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
-        prior_alpha = F.softplus(torch.transpose(prior_alpha, 1, 0))  # KxN
+        prior_alpha = torch.exp(torch.transpose(prior_alpha, 1, 0))  # KxN
 
         # scaling_factor = 2e4
         # temp = 0.1
