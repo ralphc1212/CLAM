@@ -90,7 +90,7 @@ class DAttn_Net_Gated(nn.Module):
         b = self.attention_b(x)
         A = a.mul(b)
         A = self.attention_c(A)  # N x n_classes
-        print(x.shape)
+        # print(x.shape)
         return A, x
 
 class probabilistic_MIL_Bayes(nn.Module):
