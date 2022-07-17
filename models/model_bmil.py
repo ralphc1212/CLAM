@@ -336,15 +336,22 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
         # prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
 
-        if self.training:
-            kl_div = kl.kl_divergence(postr_kl, prior_kl)
-            # kl_div = kl.kl_divergence(prior_kl, postr_kl)
-            A = postr_sp.rsample()
-            # print('postr samples: ', A)
-        else:
-            prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
-            A = prior_sp.sample()
-            # print('prior samples: ', A)
+        # if self.training:
+        #     kl_div = kl.kl_divergence(postr_kl, prior_kl)
+        #     # kl_div = kl.kl_divergence(prior_kl, postr_kl)
+        #     A = postr_sp.rsample()
+        #     # print('postr samples: ', A)
+        # else:
+        #     prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
+        #     A = prior_sp.sample()
+        #     # print('prior samples: ', A)
+
+
+        kl_div = kl.kl_divergence(postr_kl, prior_kl)
+        # kl_div = kl.kl_divergence(prior_kl, postr_kl)
+        A = postr_sp.rsample()
+        # print('postr samples: ', A)
+
 
         # print('max sample', torch.max(A))
         # print('min sample', torch.min(A))
