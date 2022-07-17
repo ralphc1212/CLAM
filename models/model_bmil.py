@@ -349,7 +349,10 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         kl_div = kl.kl_divergence(postr_kl, prior_kl)
         # kl_div = kl.kl_divergence(prior_kl, postr_kl)
-        A = postr_sp.rsample()
+        A = 0
+        for i in range(self.num_samples):
+            A += postr_sp.rsample()
+        A /= self.num_samples
         # print('postr samples: ', A)
 
 
