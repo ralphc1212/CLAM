@@ -330,7 +330,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         if slide_label == 1:
             postr_alpha = (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1))
         else:
-            postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
+            postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.99)
 
         # print(1. - slide_label)
         # print('after: ', postr_alpha)
