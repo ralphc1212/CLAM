@@ -305,7 +305,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
         prior_alpha = torch.exp(torch.transpose(prior_alpha, 1, 0))  # KxN
 
-        # print('***************************')
+        print('***************************')
         # print('before: ', postr_alpha)
         # print('component 1: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))
         # # print('component 1 clamp: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0))
@@ -325,7 +325,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
             postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
 
-        # print('slide label: ', slide_label)
+        print('slide label: ', slide_label)
         # print('after: ', postr_alpha)
         # print('prior_alpha: ', prior_alpha)
 
