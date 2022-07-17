@@ -303,21 +303,6 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
         prior_alpha = torch.exp(torch.transpose(prior_alpha, 1, 0))  # KxN
 
-        # scaling_factor = 2e4
-        # temp = 0.1
-        # print('temperature: ', temp)
-        # print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
-        # print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
-        # print('mean: ', torch.mean(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
-        # print('median: ', torch.median(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
-
-        # temp = 5.
-        # print('temperature: ', temp)
-        # print('max: ', torch.max(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
-        # print('min: ', torch.min(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
-        # print('mean: ', torch.mean(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
-        # print('median: ', torch.median(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
-
         # print('***************************')
         # print('before: ', postr_alpha)
         # print('component 1: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))
@@ -373,6 +358,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         # A = F.softmax(A, dim=1)  # softmax over N
 
+        print(h_.shape)
+        print(h.shape)
         M = torch.mm(A, h)
         logits = self.classifiers(M)
 
