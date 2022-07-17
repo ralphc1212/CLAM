@@ -318,16 +318,16 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # print('mean: ', torch.mean(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
         # print('median: ', torch.median(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
-        print('***************************')
-        print('before: ', postr_alpha)
-        print('component 1: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))
-        # print('component 1 clamp: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0))
-        print('component 1 max: {}, min: {}: '.format(torch.max((self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1))),
-            torch.min((self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))))
-        print('component 2: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)))
-        # print('component 2 clamp: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95))
-        print('component 2 max: {}, min: {}: '.format(torch.max((self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))),
-            torch.min((self.sf_pos * torch.softmax(postr_alpha / 5., dim=1)))))
+        # print('***************************')
+        # print('before: ', postr_alpha)
+        # print('component 1: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))
+        # # print('component 1 clamp: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0))
+        # print('component 1 max: {}, min: {}: '.format(torch.max((self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1))),
+        #     torch.min((self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))))
+        # print('component 2: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)))
+        # # print('component 2 clamp: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95))
+        # print('component 2 max: {}, min: {}: '.format(torch.max((self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))),
+        #     torch.min((self.sf_pos * torch.softmax(postr_alpha / 5., dim=1)))))
 
         # postr_alpha = slide_label.detach() * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0) \
         # + (1. - slide_label).detach() * (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
@@ -335,24 +335,24 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         if slide_label == 1:
             postr_alpha = (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1))
         else:
-            postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
-            # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.99)
+            # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
+            postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.99)
 
         print('slide label: ', slide_label)
         print('after: ', postr_alpha)
         print('prior_alpha: ', prior_alpha)
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
-        # postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
+        postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
         prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
-        prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
+        # prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
 
         if self.training:
-            # kl_div = kl.kl_divergence(postr_kl, prior_kl)
-            kl_div = kl.kl_divergence(prior_kl, postr_kl)
+            kl_div = kl.kl_divergence(postr_kl, prior_kl)
+            # kl_div = kl.kl_divergence(prior_kl, postr_kl)
 
-        # A = postr_sp.rsample()
-        A = prior_sp.rsample()
+        A = postr_sp.rsample()
+        # A = prior_sp.rsample()
 
         print('samples: ', A)
         print('max sample', torch.max(A))
