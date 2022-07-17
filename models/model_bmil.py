@@ -373,7 +373,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         # A = F.softmax(A, dim=1)  # softmax over N
 
-        M = torch.mm(A, h_)
+        M = torch.mm(A, h)
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
