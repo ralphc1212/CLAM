@@ -348,8 +348,8 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits, label)
-        # print('loss: ', loss)
-        # print('kl_div: ', kl_div)
+        print('loss: ', loss)
+        print('kl_div: ', kl_div)
 
         if bayes_args:
             if 'enc' in bayes_args:
@@ -593,7 +593,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
         
         if writer and acc is not None:
             writer.add_scalar('val/class_{}_acc'.format(i), acc, epoch)
-     
+
 
     if early_stopping:
         assert results_dir
