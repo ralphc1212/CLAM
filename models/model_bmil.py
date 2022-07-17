@@ -360,6 +360,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         print(h_.shape)
         print(h.shape)
+        print(A.shape)
         M = torch.mm(A, h)
         logits = self.classifiers(M)
 
