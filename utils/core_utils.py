@@ -350,8 +350,6 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         loss = loss_fn(logits, label)
         if bayes_args:
             if 'enc' in bayes_args:
-                # print('kl div:', kl_div)
-                # print('loss:', loss)
                 loss += bayes_args[1] * kl_div[0]
             else:
                 loss += bayes_args[1] * bayes_args[0](model)
@@ -514,7 +512,6 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
 
     return False
 
-
 def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, writer = None, loss_fn = None, results_dir = None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
@@ -587,7 +584,6 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
         writer.add_scalar('val/error', val_error, epoch)
         writer.add_scalar('val/inst_loss', val_inst_loss, epoch)
 
-
     for i in range(n_classes):
         acc, correct, count = acc_logger.get_summary(i)
         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
@@ -605,7 +601,6 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
             return True
 
     return False
-
 
 def summary(model, loader, n_classes):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -652,5 +647,5 @@ def summary(model, loader, n_classes):
 
         auc = np.nanmean(np.array(aucs))
 
-
     return patient_results, test_error, auc, acc_logger
+

@@ -336,13 +336,16 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # print('after: ', postr_alpha)
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
-        postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
+        # postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
         prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
+        prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
 
         if self.training:
-            kl_div = kl.kl_divergence(postr_kl, prior_kl)
-        
-        A = postr_sp.rsample()
+            # kl_div = kl.kl_divergence(postr_kl, prior_kl)
+            kl_div = kl.kl_divergence(prior_kl, postr_kl)
+
+        # A = postr_sp.rsample()
+        A = prior_sp.rsample()
 
         # if positive
         # A, h = self.attention_net(h)
