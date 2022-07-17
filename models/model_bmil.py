@@ -248,8 +248,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         super(probabilistic_MIL_Bayes_enc, self).__init__()
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
-        fc1 = [nn.Linear(size[0], size[1]), nn.ReLU()]
-        fc2 = [nn.Linear(size[0], size[1]), nn.ReLU()]
+        first_transform = nn.Linear(size[0], size[1])
+        fc1 = [first_transform, nn.ReLU()]
+        fc2 = [first_transform, nn.ReLU()]
 
         if dropout:
             fc1.append(nn.Dropout(0.25))
