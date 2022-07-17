@@ -350,8 +350,10 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         if self.training:
             kl_div = kl.kl_divergence(postr_kl, prior_kl)
             # kl_div = kl.kl_divergence(prior_kl, postr_kl)
-
-        A = postr_sp.rsample()
+            A = postr_sp.rsample()
+        else:
+            prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
+            A = prior_sp.sample()
         # A = prior_sp.rsample()
 
         # print('samples: ', A)
