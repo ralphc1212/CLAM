@@ -318,6 +318,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # print('mean: ', torch.mean(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
         # print('median: ', torch.median(torch.softmax(postr_alpha / temp, dim=1) * scaling_factor))
 
+        print('***************************')
         print('before: ', postr_alpha)
         print('component 1: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))
         print('component 1 clamp: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0))
@@ -335,6 +336,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         print('slide label: ', slide_label)
         print('after: ', postr_alpha)
+        print('prior_alpha: ', prior_alpha)
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         # postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
