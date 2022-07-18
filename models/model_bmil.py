@@ -195,7 +195,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         if dropout:
             fc.append(nn.Dropout(0.25))
         if gate:
-            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
         else:
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
@@ -225,7 +225,14 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         # A = F.softmax(A, dim=1)  # softmax over N
 
-        A = F.sigmoid(A)
+        # # JUST Sigmoid
+        # A = F.sigmoid(A)
+        # # JUST Sigmoid
+
+        # USING BETA
+        A = F.softplus(A)
+        print(A.shape)
+        exit()
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
