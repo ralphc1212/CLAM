@@ -221,18 +221,15 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         A, h = self.attention_net(h)
 
-        A = torch.transpose(A, 1, 0)  # KxN
-
-        # A = F.softmax(A, dim=1)  # softmax over N
-
         # # JUST Sigmoid
+        # A = torch.transpose(A, 1, 0)  # KxN
         # A = F.sigmoid(A)
         # # JUST Sigmoid
 
         # USING BETA
         A = F.softplus(A)
-        print(A.shape)
-        exit()
+        postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
+        A = postr_sp.rsample()
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
