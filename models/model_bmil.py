@@ -331,9 +331,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         postr_alpha = F.softplus(postr_alpha)
 
-        # print('slide label: ', slide_label)
+        print('slide label: ', slide_label)
         # print('after: ', postr_alpha)
-        # print('prior_alpha: ', prior_alpha)
+        print('prior_alpha: ', prior_alpha)
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
@@ -358,10 +358,10 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         #     A += postr_sp.rsample()
         # A /= self.num_samples
         A = postr_sp.rsample()
-        # print('postr samples: ', A)
+        print('postr samples: ', A)
 
-        # print('max sample', torch.max(A))
-        # print('min sample', torch.min(A))
+        print('max sample', torch.max(A))
+        print('min sample', torch.min(A))
 
         # A = prior_sp.rsample()
 
