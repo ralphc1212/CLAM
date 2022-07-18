@@ -357,12 +357,13 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # for i in range(self.num_samples):
         #     A += postr_sp.rsample()
         # A /= self.num_samples
+        A = postr_sp.rsample()
         # print('postr samples: ', A)
 
         # print('max sample', torch.max(A))
         # print('min sample', torch.min(A))
 
-        A = prior_sp.rsample()
+        # A = prior_sp.rsample()
 
         # print('samples: ', A)
         # print('max sample', torch.max(A))
