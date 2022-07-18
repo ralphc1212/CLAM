@@ -7,6 +7,8 @@ from models.linear_vdo import LinearVDO
 import numpy as np
 from torch.distributions import kl
 
+EPS = 1e-8
+
 """
 Attention Network without Gating (2 fc layers)
 args:
@@ -227,7 +229,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # JUST Sigmoid
 
         # # USING BETA attn_net-n_classes = 2
-        A = F.softplus(A, threshold=8.)
+        # A = F.softplus(A, threshold=8.)
+        A = F.relu(A) + EPS
         # print('***********************************')
         # print(A)
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
