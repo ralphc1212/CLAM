@@ -357,9 +357,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
                 # loss += bayes_args[1] * kl_div[0]
                 kl_1 = kl_div[0]
                 kl_2 = bayes_args[0](model)
-                loss += bayes_args[1] * (1e-7 * kl_1 + kl_2)
-                print(kl_1)
-                print(kl_2)
+                loss += bayes_args[1] * (1e2 * kl_1 + kl_2)
             else:
                 loss += bayes_args[1] * bayes_args[0](model)
 
