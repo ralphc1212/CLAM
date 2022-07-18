@@ -195,7 +195,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         if dropout:
             fc.append(nn.Dropout(0.25))
         if gate:
-            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
+            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         else:
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
@@ -221,14 +221,19 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         A, h = self.attention_net(h)
 
-        # # JUST Sigmoid
+        # # JUST Sigmoid attn_net-n_classes = 1
         # A = torch.transpose(A, 1, 0)  # KxN
         # A = F.sigmoid(A)
         # # JUST Sigmoid
 
-        # USING BETA
+        # # USING BETA attn_net-n_classes = 2
+        # A = F.softplus(A, threshold=3.)
+        # postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
+        # A = postr_sp.rsample().unsqueeze(0)
+
+        # USING DIRICHLET -> BETA attn_net-n_classes = 1
         A = F.softplus(A, threshold=3.)
-        postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
+        postr_sp = torch.distributions.beta.Beta(A, A.sum() - A)
         A = postr_sp.rsample().unsqueeze(0)
 
         M = torch.mm(A, h)
