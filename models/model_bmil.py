@@ -228,13 +228,13 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         # # USING BETA attn_net-n_classes = 2
         A = F.softplus(A, threshold=8.)
-        print('***********************************')
-        print(A)
-        print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
+        # print('***********************************')
+        # print(A)
+        # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
         postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
         A = postr_sp.rsample().unsqueeze(0)
-        print(A)
-        print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
+        # print(A)
+        # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # USING DIRICHLET -> BETA attn_net-n_classes = 1
         # A = F.softplus(A, threshold=3.).squeeze(1)
