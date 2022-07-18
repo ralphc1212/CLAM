@@ -327,7 +327,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             postr_alpha = (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1))
         else:
             # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
-            postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
+            postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 100., dim=1)).clamp(max=0.9)
 
         # postr_alpha = torch.exp(postr_alpha)
 
