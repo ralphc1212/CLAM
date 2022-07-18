@@ -227,7 +227,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # JUST Sigmoid
 
         # USING BETA
-        A = F.softplus(A)
+        A = torch.exp(A)
         postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
         A = postr_sp.rsample().unsqueeze(0)
 
