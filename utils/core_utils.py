@@ -183,7 +183,7 @@ def train(datasets, cur, args):
         model = MIL_mlp(**model_dict)
     elif args.model_type.startswith('bmil'):
         model = bMIL_model_dict[args.model_type.split('-')[1]](**model_dict)
-        bayes_args = [get_ard_reg_vdo, 1e-5]
+        bayes_args = [get_ard_reg_vdo, 1e-8]
         if 'vis' in args.model_type.split('-'):
             bayes_args.append('vis')
         elif 'enc' in args.model_type.split('-'):
@@ -354,10 +354,10 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         if bayes_args:
 
             if 'enc' in bayes_args:
-                # loss += bayes_args[1] * kl_div[0]
-                kl_1 = kl_div[0]
+                loss += bayes_args[1] * kl_div[0]
+                # kl_1 = kl_div[0]
                 # kl_2 = bayes_args[0](model)
-                loss += kl_1
+                # loss += kl_1
             else:
                 loss += bayes_args[1] * bayes_args[0](model)
 
@@ -530,7 +530,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
     val_inst_loss = 0.
     val_inst_acc = 0.
     inst_count=0
-    
+
     prob = np.zeros((len(loader), n_classes))
     labels = np.zeros(len(loader))
     sample_size = model.k_sample
