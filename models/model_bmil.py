@@ -332,8 +332,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # postr_alpha = torch.exp(postr_alpha)
 
         print('slide label: ', slide_label)
-        # print('after: ', postr_alpha)
-        print('prior_alpha: ', prior_alpha)
+        print('after: ', postr_alpha)
+        # print('prior_alpha: ', prior_alpha)
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
