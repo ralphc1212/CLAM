@@ -232,11 +232,9 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # A = postr_sp.rsample().unsqueeze(0)
 
         # USING DIRICHLET -> BETA attn_net-n_classes = 1
-        A = F.softplus(A, threshold=3.)
-        print(A.shape)
+        A = F.softplus(A, threshold=3.).squeeze(1)
         postr_sp = torch.distributions.beta.Beta(A, A.sum() - A)
         A = postr_sp.rsample().unsqueeze(0)
-        A = A.squeeze(2)
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
