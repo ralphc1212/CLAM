@@ -273,8 +273,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         self.postr_net = nn.Sequential(*fc1)
         self.prior_net = nn.Sequential(*fc2)
+        self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
-        self.classifiers = nn.Linear(size[1], n_classes)
+        # self.classifiers = nn.Linear(size[1], n_classes)
         self.n_classes = n_classes
         self.print_sample_trigger = False
         self.num_samples = 16
