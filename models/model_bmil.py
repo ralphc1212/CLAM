@@ -234,7 +234,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print('***********************************')
         # print(A)
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
-        for k, v in self.attention_net.state_dict():
+        for k, v in self.attention_net.state_dict().items():
             print(k, v)
         exit()
         if torch.isnan(A).sum() > 0:
