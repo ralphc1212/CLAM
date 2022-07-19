@@ -240,7 +240,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # USING DIRICHLET -> BETA attn_net-n_classes = 1
-        A = (F.relu(A) + EPS).squeeze(1)
+        A = (F.relu(A) + EPS)
         # print('***********************************')
         # print(A)
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
