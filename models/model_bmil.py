@@ -7,7 +7,7 @@ from models.linear_vdo import LinearVDO
 import numpy as np
 from torch.distributions import kl
 
-EPS = 1e-8
+EPS = 1e-6
 
 """
 Attention Network without Gating (2 fc layers)
