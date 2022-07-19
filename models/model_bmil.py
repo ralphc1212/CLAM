@@ -234,12 +234,11 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print('***********************************')
         # print(A)
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
-        for k, v in self.attention_net.state_dict().items():
-            print(k, v)
-        exit()
+
         if torch.isnan(A).sum() > 0:
             print(A)
-            print(self.attention_net)
+            for k, v in self.attention_net.state_dict().items():
+                print(k, v)
         postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
         A = postr_sp.rsample().unsqueeze(0)
         # print(A)
