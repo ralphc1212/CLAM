@@ -190,6 +190,7 @@ class probabilistic_MIL_Bayes_fc(nn.Module):
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
 
+
 class probabilistic_MIL_Bayes_vis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
         super(probabilistic_MIL_Bayes_vis, self).__init__()
@@ -213,6 +214,11 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         initialize_weights(self)
         self.top_k=top_k
 
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5*logvar)
+        eps = torch.randn_like(std)
+        return mu + eps*std
+
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.attention_net = self.attention_net.to(device)
@@ -225,40 +231,40 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         A, h = self.attention_net(h)
 
-        # # JUST Sigmoid attn_net-n_classes = 1
+        # # [1] JUST Sigmoid attn_net-n_classes = 1
         # A = torch.transpose(A, 1, 0)  # KxN
         # A = F.sigmoid(A)
         # # JUST Sigmoid
 
-        # USING BETA attn_net-n_classes = 2
+        # [2] USING BETA attn_net-n_classes = 2
         # A = F.softplus(A, threshold=8.)
-        A = F.relu(A) + EPS_1
-        # print('***********************************')
-        # print(A)
-        # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
+        # A = F.relu(A) + EPS_1
+        # # print('***********************************')
+        # # print(A)
+        # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
-        if torch.isnan(A).sum() > 0:
-            print(A)
-            for k, v in self.attention_net.state_dict().items():
-                print(k, v)
-        postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
-        # A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
+        # if torch.isnan(A).sum() > 0:
+        #     print(A)
+        #     for k, v in self.attention_net.state_dict().items():
+        #         print(k, v)
+        # postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
+        # # A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
 
-        A = postr_sp.rsample().unsqueeze(0)
+        # A = postr_sp.rsample().unsqueeze(0)
 
-        # print(A.shape)
-        # print(torch.max(A, 1))
-        # print(A[0][torch.max(A, 1)[1]])
-        # A[0][torch.max(A, 1)[1]] += 1e-20
-        A_clone = A.clone()
-        A_clone[0][torch.max(A, 1)[1]] = A_clone[0][torch.max(A, 1)[1]].clamp(min=1e-8)
-        A = A_clone
+        # # print(A.shape)
+        # # print(torch.max(A, 1))
+        # # print(A[0][torch.max(A, 1)[1]])
+        # # A[0][torch.max(A, 1)[1]] += 1e-20
+        # A_clone = A.clone()
+        # A_clone[0][torch.max(A, 1)[1]] = A_clone[0][torch.max(A, 1)[1]].clamp(min=1e-8)
+        # A = A_clone
 
         # print(torch.max(A), torch.min(A))
         # print(A)
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
-        # USING DIRICHLET -> BETA attn_net-n_classes = 1
+        # [3] USING DIRICHLET -> BETA attn_net-n_classes = 1
         # A = (F.relu(A) + EPS).squeeze(1)
         # # print('***********************************')
         # # print(A)
@@ -267,6 +273,13 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # A = postr_sp.rsample().unsqueeze(0)
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
+
+        # [4] USING logistic normal
+        mu = A[:, 0]
+        logvar = A[:, 1]
+        gaus_samples = self.reparameterize(mu, logvar)
+        beta_samples = F.sigmoid(gaus_samples)
+        A = beta_samples
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
