@@ -246,10 +246,11 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         A = postr_sp.rsample().unsqueeze(0)
 
-        print(A.shape)
-        print(torch.max(A, 1))
-        print(A[0][torch.max(A, 1)[1]])
-        exit()
+        # print(A.shape)
+        # print(torch.max(A, 1))
+        # print(A[0][torch.max(A, 1)[1]])
+        A[0][torch.max(A, 1)[1]] = torch.max(A).clamp(min=-20)
+        # exit()
 
         # print(torch.max(A), torch.min(A))
         # print(A)
