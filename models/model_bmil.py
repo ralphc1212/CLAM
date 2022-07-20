@@ -280,6 +280,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         gaus_samples = self.reparameterize(mu, logvar)
         beta_samples = F.sigmoid(gaus_samples)
         A = beta_samples
+        print(A.shape)
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
