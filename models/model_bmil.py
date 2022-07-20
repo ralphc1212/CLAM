@@ -251,7 +251,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print(A[0][torch.max(A, 1)[1]])
         # A[0][torch.max(A, 1)[1]] += 1e-20
         A_clone = A.clone()
-        A_clone[0][torch.max(A, 1)[1]] = A_clone[0][torch.max(A, 1)[1]].clamp(min=1e-20)
+        A_clone[0][torch.max(A, 1)[1]] = A_clone[0][torch.max(A, 1)[1]].clamp(min=1e-8)
         A = A_clone
 
         # print(torch.max(A), torch.min(A))
