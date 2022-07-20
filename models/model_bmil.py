@@ -226,33 +226,33 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         A, h = self.attention_net(h)
 
         # # JUST Sigmoid attn_net-n_classes = 1
-        A = torch.transpose(A, 1, 0)  # KxN
-        A = F.sigmoid(A)
+        # A = torch.transpose(A, 1, 0)  # KxN
+        # A = F.sigmoid(A)
         # # JUST Sigmoid
 
         # USING BETA attn_net-n_classes = 2
-        # # A = F.softplus(A, threshold=8.)
-        # A = F.relu(A) + EPS_1
-        # # print('***********************************')
-        # # print(A)
-        # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
+        # A = F.softplus(A, threshold=8.)
+        A = F.relu(A) + EPS_1
+        # print('***********************************')
+        # print(A)
+        # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
-        # if torch.isnan(A).sum() > 0:
-        #     print(A)
-        #     for k, v in self.attention_net.state_dict().items():
-        #         print(k, v)
-        # postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
-        # # A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
+        if torch.isnan(A).sum() > 0:
+            print(A)
+            for k, v in self.attention_net.state_dict().items():
+                print(k, v)
+        postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
+        # A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
 
-        # A = postr_sp.rsample().unsqueeze(0)
+        A = postr_sp.rsample().unsqueeze(0)
 
-        # # print(A.shape)
-        # # print(torch.max(A, 1))
-        # # print(A[0][torch.max(A, 1)[1]])
-        # # A[0][torch.max(A, 1)[1]] += 1e-20
-        # A_clone = A.clone()
-        # A_clone[0][torch.max(A, 1)[1]] += 1e-20
-        # A = A_clone
+        # print(A.shape)
+        # print(torch.max(A, 1))
+        # print(A[0][torch.max(A, 1)[1]])
+        # A[0][torch.max(A, 1)[1]] += 1e-20
+        A_clone = A.clone()
+        A_clone[0][torch.max(A, 1)[1]] = A_clone[0][torch.max(A, 1)[1]].clamp(min=1e-20)
+        A = A_clone
 
         # print(torch.max(A), torch.min(A))
         # print(A)
