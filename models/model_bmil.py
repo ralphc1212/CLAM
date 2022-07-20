@@ -249,8 +249,13 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print(A.shape)
         # print(torch.max(A, 1))
         # print(A[0][torch.max(A, 1)[1]])
-        A[0][torch.max(A, 1)[1]] += 1e-20
-        # exit()
+        # A[0][torch.max(A, 1)[1]] += 1e-20
+        A_clone = A.clone()
+        A_clone[0][torch.max(A, 1)[1]] += 1e-20
+        A = A_clone
+        print(A)
+        print(A_clone)
+        exit()
 
         # print(torch.max(A), torch.min(A))
         # print(A)
