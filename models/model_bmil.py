@@ -199,7 +199,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         if dropout:
             fc.append(nn.Dropout(0.25))
         if gate:
-            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
         else:
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
