@@ -7,7 +7,7 @@ from models.linear_vdo import LinearVDO
 import numpy as np
 from torch.distributions import kl
 
-EPS_1 = 1e-10
+EPS_1 = 1e-16
 # EPS_2 = 1e-28
 
 """
@@ -242,7 +242,13 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
             for k, v in self.attention_net.state_dict().items():
                 print(k, v)
         postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
-        A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
+        # A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
+
+        A = postr_sp.rsample().unsqueeze(0)
+
+        print(A.shape)
+        print(A.max())
+        exit()
 
         # print(torch.max(A), torch.min(A))
         # print(A)
