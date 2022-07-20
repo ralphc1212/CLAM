@@ -8,7 +8,7 @@ import numpy as np
 from torch.distributions import kl
 
 EPS_1 = 1e-10
-EPS_2 = 1e-20
+# EPS_2 = 1e-28
 
 """
 Attention Network without Gating (2 fc layers)
@@ -242,7 +242,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
             for k, v in self.attention_net.state_dict().items():
                 print(k, v)
         postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
-        A = postr_sp.rsample().unsqueeze(0) + EPS_2
+        A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
+
         # print(torch.max(A), torch.min(A))
         # print(A)
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
