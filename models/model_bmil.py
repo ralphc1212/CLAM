@@ -188,6 +188,7 @@ class probabilistic_MIL_Bayes_fc(nn.Module):
             results_dict.update({'features': top_features})
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
+
 class probabilistic_MIL_Bayes_vis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
         super(probabilistic_MIL_Bayes_vis, self).__init__()
@@ -241,6 +242,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
                 print(k, v)
         postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
         A = postr_sp.rsample().unsqueeze(0)
+        print(torch.max(A), torch.min(A))
         # print(A)
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
