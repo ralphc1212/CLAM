@@ -248,7 +248,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         print(A.shape)
         print(torch.max(A, 1))
-        print(A[1][torch.max(A, 1)[2]])
+        print(A[0][torch.max(A, 1)[2]])
         exit()
 
         # print(torch.max(A), torch.min(A))
