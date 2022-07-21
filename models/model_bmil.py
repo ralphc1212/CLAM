@@ -278,6 +278,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         postr_sp = torch.distributions.beta.Beta(alpha, beta)
         A = postr_sp.rsample().unsqueeze(0)
         print('sample max: {}, sample min: {}.'.format(torch.max(A), torch.min(A)))
+        print('a      max: {}, a      min: {}.'.format(torch.max(a), torch.min(a)))
+        print('b      max: {}, b      min: {}.'.format(torch.max(b), torch.min(b)))
         print('alpha  max: {}, alpha  min: {}.'.format(torch.max(alpha), torch.min(alpha)))
         print('beta   max: {}, beta   min: {}.'.format(torch.max(beta), torch.min(beta)))
 
