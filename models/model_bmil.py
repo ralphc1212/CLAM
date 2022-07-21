@@ -268,6 +268,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         A = F.softplus(A, threshold=8.)
         alpha = A[:, 0] * A[:, 1]
         beta  = A[:, 1] - A[:, 0] * A[:, 1]
+        postr_sp = torch.distributions.beta.Beta(alpha, beta)
         A = postr_sp.rsample().unsqueeze(0)
 
         # A = F.relu(A) + EPS_1
