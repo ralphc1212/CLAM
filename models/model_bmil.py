@@ -268,13 +268,18 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # [3] USING BETA, pred-conc parameterization attn_net-n_classes = 2
         # A = F.softplus(A, threshold=8.)
         a = F.sigmoid(A[:, 0])
-        # b = F.softplus(A[:, 1], threshold=3.)
+        b = F.softplus(A[:, 1], threshold=3.)
 
-        alpha = a * self.fixed_b
-        beta  = self.fixed_b - a * self.fixed_b
+        # alpha = a * self.fixed_b
+        # beta  = self.fixed_b - a * self.fixed_b
+        alpha = a * b
+        beta  = b - a * b
+
         postr_sp = torch.distributions.beta.Beta(alpha, beta)
         A = postr_sp.rsample().unsqueeze(0)
-        # print(torch.max(A), torch.min(A))
+        print('sample max: {}, sample min: {}.'.format(torch.max(A), torch.min(A)))
+        print('alpha  max: {}, alpha  min: {}.'.format(torch.max(alpha), torch.min(alpha)))
+        print('beta   max: {}, beta   min: {}.'.format(torch.max(beta), torch.min(beta)))
 
         # A = F.relu(A) + EPS_1
         # # print('***********************************')
