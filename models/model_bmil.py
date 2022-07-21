@@ -264,7 +264,39 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print(A)
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
-        # [3] USING DIRICHLET -> BETA attn_net-n_classes = 1
+        # [3] USING BETA, pred-conc parameterization attn_net-n_classes = 2
+        A = F.softplus(A, threshold=8.)
+        alpha = A[:, 0] * A[:, 1]
+        beta  = A[:, 1] - A[:, 0] * A[:, 1]
+        A = postr_sp.rsample().unsqueeze(0)
+
+        # A = F.relu(A) + EPS_1
+        # # print('***********************************')
+        # # print(A)
+        # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
+
+        # if torch.isnan(A).sum() > 0:
+        #     print(A)
+        #     for k, v in self.attention_net.state_dict().items():
+        #         print(k, v)
+        # postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
+        # # A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
+
+        # A = postr_sp.rsample().unsqueeze(0)
+
+        # # print(A.shape)
+        # # print(torch.max(A, 1))
+        # # print(A[0][torch.max(A, 1)[1]])
+        # # A[0][torch.max(A, 1)[1]] += 1e-20
+        # A_clone = A.clone()
+        # A_clone[0][torch.max(A, 1)[1]] = A_clone[0][torch.max(A, 1)[1]].clamp(min=1e-8)
+        # A = A_clone
+
+        # print(torch.max(A), torch.min(A))
+        # print(A)
+        # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
+
+        # [4] USING DIRICHLET -> BETA attn_net-n_classes = 1
         # A = (F.relu(A) + EPS).squeeze(1)
         # # print('***********************************')
         # # print(A)
@@ -274,12 +306,12 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
-        # [4] USING logistic normal
-        mu = A[:, 0]
-        logvar = A[:, 1]
-        gaus_samples = self.reparameterize(mu, logvar)
-        beta_samples = F.sigmoid(gaus_samples)
-        A = beta_samples.unsqueeze(0)
+        # [5] USING logistic normal
+        # mu = A[:, 0]
+        # logvar = A[:, 1]
+        # gaus_samples = self.reparameterize(mu, logvar)
+        # beta_samples = F.sigmoid(gaus_samples)
+        # A = beta_samples.unsqueeze(0)
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
