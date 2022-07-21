@@ -210,6 +210,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         self.print_sample_trigger = False
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
+        self.fixed_b = torch.tensor([5.], requires_grad=False)
 
         initialize_weights(self)
         self.top_k=top_k
@@ -267,9 +268,10 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # [3] USING BETA, pred-conc parameterization attn_net-n_classes = 2
         # A = F.softplus(A, threshold=8.)
         a = F.sigmoid(A[:, 0])
-        b = F.softplus(A[:, 1], threshold=3.)
-        alpha = a * b
-        beta  = b - a * b
+        # b = F.softplus(A[:, 1], threshold=3.)
+
+        alpha = a * self.fixed_b
+        beta  = self.fixed_b - a * self.fixed_b
         postr_sp = torch.distributions.beta.Beta(alpha, beta)
         A = postr_sp.rsample().unsqueeze(0)
         # print(torch.max(A), torch.min(A))
