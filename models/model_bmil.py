@@ -269,7 +269,9 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # A = F.softplus(A, threshold=8.)
         a = F.sigmoid(A[:, 0])
         b = F.softplus(A[:, 1], threshold=3.)
-
+        print(a)
+        print(b)
+        exit()
         # alpha = a * self.fixed_b
         # beta  = self.fixed_b - a * self.fixed_b
         alpha = a * b
