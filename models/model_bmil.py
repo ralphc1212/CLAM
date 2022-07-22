@@ -271,7 +271,6 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         b = F.softplus(A[:, 1], threshold=3.)
         print(a)
         print(b)
-        exit()
         # alpha = a * self.fixed_b
         # beta  = self.fixed_b - a * self.fixed_b
         alpha = a * b
@@ -284,6 +283,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         print('b      max: {0:.4f}, b      min: {0:.4f}.'.format(torch.max(b), torch.min(b)))
         print('alpha  max: {0:.4f}, alpha  min: {0:.4f}.'.format(torch.max(alpha), torch.min(alpha)))
         print('beta   max: {0:.4f}, beta   min: {0:.4f}.'.format(torch.max(beta), torch.min(beta)))
+        exit()
 
         # A = F.relu(A) + EPS_1
         # # print('***********************************')
