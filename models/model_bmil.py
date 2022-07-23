@@ -277,11 +277,12 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         # postr_sp = torch.distributions.beta.Beta(alpha, beta)
         # A = postr_sp.rsample().unsqueeze(0)
-        print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
-        print('a      max: {0:.4f}, a      min: {1:.4f}.'.format(torch.max(a), torch.min(a)))
-        print('b      max: {0:.4f}, b      min: {1:.4f}.'.format(torch.max(b), torch.min(b)))
-        print('alpha  max: {0:.4f}, alpha  min: {1:.4f}.'.format(torch.max(alpha), torch.min(alpha)))
-        print('beta   max: {0:.4f}, beta   min: {1:.4f}.'.format(torch.max(beta), torch.min(beta)))
+        
+        # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
+        # print('a      max: {0:.4f}, a      min: {1:.4f}.'.format(torch.max(a), torch.min(a)))
+        # print('b      max: {0:.4f}, b      min: {1:.4f}.'.format(torch.max(b), torch.min(b)))
+        # print('alpha  max: {0:.4f}, alpha  min: {1:.4f}.'.format(torch.max(alpha), torch.min(alpha)))
+        # print('beta   max: {0:.4f}, beta   min: {1:.4f}.'.format(torch.max(beta), torch.min(beta)))
 
         # A = F.relu(A) + EPS_1
         # # print('***********************************')
