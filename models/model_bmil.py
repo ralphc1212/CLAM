@@ -266,7 +266,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # [3] USING BETA, pred-conc parameterization attn_net-n_classes = 2
-        A = F.softplus(A, threshold=8.)
+        # A = F.softplus(A, threshold=8.)
         a = F.sigmoid(A[:, 0])
         b = F.softplus(A[:, 1], threshold=3.)
 
