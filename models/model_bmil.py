@@ -276,7 +276,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         beta  = (b - a * b).clamp(min=1e-8)
 
         postr_sp = torch.distributions.beta.Beta(alpha, beta)
-        A = postr_sp.rsample().unsqueeze(0)
+        A = postr_sp.rsample().unsqueeze(0) + EPS_1
 
         print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
         print('a      max: {0:.4f}, a      min: {1:.4f}.'.format(torch.max(a), torch.min(a)))
