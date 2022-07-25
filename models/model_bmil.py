@@ -267,22 +267,22 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         # [3] USING BETA, pred-conc parameterization attn_net-n_classes = 2
         # A = F.softplus(A, threshold=8.)
-        a = F.sigmoid(A[:, 0])
-        b = F.softplus(A[:, 1], threshold=3.)
+        # a = F.sigmoid(A[:, 0])
+        # b = F.softplus(A[:, 1], threshold=3.)
 
-        # alpha = a * self.fixed_b
-        # beta  = self.fixed_b - a * self.fixed_b
-        alpha = (a * b).clamp(min=1e-8)
-        beta  = (b - a * b).clamp(min=1e-8)
+        # # alpha = a * self.fixed_b
+        # # beta  = self.fixed_b - a * self.fixed_b
+        # alpha = (a * b).clamp(min=1e-8)
+        # beta  = (b - a * b).clamp(min=1e-8)
 
-        postr_sp = torch.distributions.beta.Beta(alpha, beta)
-        A = postr_sp.rsample().unsqueeze(0) + EPS_1
+        # postr_sp = torch.distributions.beta.Beta(alpha, beta)
+        # A = postr_sp.rsample().unsqueeze(0) + EPS_1
 
-        print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
-        print('a      max: {0:.4f}, a      min: {1:.4f}.'.format(torch.max(a), torch.min(a)))
-        print('b      max: {0:.4f}, b      min: {1:.4f}.'.format(torch.max(b), torch.min(b)))
-        print('alpha  max: {0:.4f}, alpha  min: {1:.4f}.'.format(torch.max(alpha), torch.min(alpha)))
-        print('beta   max: {0:.4f}, beta   min: {1:.4f}.'.format(torch.max(beta), torch.min(beta)))
+        # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
+        # print('a      max: {0:.4f}, a      min: {1:.4f}.'.format(torch.max(a), torch.min(a)))
+        # print('b      max: {0:.4f}, b      min: {1:.4f}.'.format(torch.max(b), torch.min(b)))
+        # print('alpha  max: {0:.4f}, alpha  min: {1:.4f}.'.format(torch.max(alpha), torch.min(alpha)))
+        # print('beta   max: {0:.4f}, beta   min: {1:.4f}.'.format(torch.max(beta), torch.min(beta)))
 
         # A = F.relu(A) + EPS_1
         # # print('***********************************')
@@ -321,14 +321,13 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # [5] USING logistic normal
-        # mu = A[:, 0]
-        # logvar = A[:, 1]
-        # gaus_samples = self.reparameterize(mu, logvar)
-        # beta_samples = F.sigmoid(gaus_samples)
-        # A = beta_samples.unsqueeze(0)
-        # print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
-        # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
-
+        mu = A[:, 0]
+        logvar = A[:, 1]
+        gaus_samples = self.reparameterize(mu, logvar)
+        beta_samples = F.sigmoid(gaus_samples)
+        A = beta_samples.unsqueeze(0)
+        print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
+        print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
