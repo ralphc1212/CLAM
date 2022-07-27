@@ -535,7 +535,10 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
 
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.attention_net = self.attention_net.to(device)
+        self.conv1 = self.conv1.to(device)
+        self.conv2 = self.conv2.to(device)
+        self.conv3 = self.conv3.to(device)
+
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
 
