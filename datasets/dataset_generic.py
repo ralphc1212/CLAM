@@ -222,6 +222,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
 		if from_id:
 			if len(self.train_ids) > 0:
 				train_data = self.slide_data.loc[self.train_ids].reset_index(drop=True)
+				print(self.use_h5)
 				train_split = Generic_Split(train_data, data_dir=self.data_dir, num_classes=self.num_classes, use_h5=self.use_h5)
 
 			else:
