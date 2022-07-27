@@ -495,9 +495,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         else:
             return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
-class probabilistic_MIL_Bayes_sp_vis(nn.Module):
+class probabilistic_MIL_Bayes_convis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
-        super(probabilistic_MIL_Bayes_sp_vis, self).__init__()
+        super(probabilistic_MIL_Bayes_convis, self).__init__()
 
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
@@ -587,7 +587,7 @@ bMIL_model_dict = {
                     'F': probabilistic_MIL_Bayes_fc,
                     'vis': probabilistic_MIL_Bayes_vis,
                     'enc': probabilistic_MIL_Bayes_enc,
-                    'sp_vis': probabilistic_MIL_Bayes_sp_vis,
+                    'convis': probabilistic_MIL_Bayes_sp_vis,
 }
 
 
