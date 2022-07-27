@@ -53,7 +53,7 @@ def main(args):
         train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False, 
                 csv_path='{}/splits_{}.csv'.format(args.split_dir, i))
 
-        print('------------------use h5? {}--------------------'.format(dataset.use_h5))
+        print('------------------use h5? {}--------------------'.format(train_dataset.use_h5))
 
         datasets = (train_dataset, val_dataset, test_dataset)
         results, test_auc, val_auc, test_acc, val_acc  = train(datasets, i, args)
