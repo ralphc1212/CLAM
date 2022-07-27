@@ -515,8 +515,8 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         # size = self.size_dict[size_arg]
 
         self.conv1 = nn.Conv2d(size[0], size[1],  3, padding=1)
-        self.conv2 = nn.Conv2d(size[0], size[1],  7, padding=5)
-        self.conv3 = nn.Conv2d(size[0], size[1], 11, padding=9)
+        self.conv2 = nn.Conv2d(size[0], size[1],  7, padding=3)
+        self.conv3 = nn.Conv2d(size[0], size[1], 11, padding=5)
 
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
         self.n_classes = n_classes
