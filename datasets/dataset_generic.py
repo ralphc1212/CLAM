@@ -317,7 +317,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
 	def __init__(self,
 		data_dir, 
 		**kwargs):
-	
+
 		super(Generic_MIL_Dataset, self).__init__(**kwargs)
 		self.data_dir = data_dir
 		self.use_h5 = False
@@ -339,7 +339,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
 				full_path = os.path.join(data_dir, 'pt_files', '{}.pt'.format(slide_id))
 				features = torch.load(full_path)
 				return features, label
-			
+
 			else:
 				return slide_id, label
 

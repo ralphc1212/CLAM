@@ -190,7 +190,6 @@ class probabilistic_MIL_Bayes_fc(nn.Module):
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
 
-
 class probabilistic_MIL_Bayes_vis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
         super(probabilistic_MIL_Bayes_vis, self).__init__()
@@ -200,7 +199,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         if dropout:
             fc.append(nn.Dropout(0.25))
         if gate:
-            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
+            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         else:
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
@@ -233,8 +232,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         A, h = self.attention_net(h)
 
         # # [1] JUST Sigmoid attn_net-n_classes = 1
-        # A = torch.transpose(A, 1, 0)  # KxN
-        # A = F.sigmoid(A)
+        A = torch.transpose(A, 1, 0)  # KxN
+        A = F.sigmoid(A)
         # # JUST Sigmoid
 
         # [2] USING BETA attn_net-n_classes = 2
@@ -321,13 +320,13 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # [5] USING logistic normal
-        mu = A[:, 0]
-        logvar = A[:, 1]
-        gaus_samples = self.reparameterize(mu, logvar)
-        beta_samples = F.sigmoid(gaus_samples)
-        A = beta_samples.unsqueeze(0)
-        print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
-        print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
+        # mu = A[:, 0]
+        # logvar = A[:, 1]
+        # gaus_samples = self.reparameterize(mu, logvar)
+        # beta_samples = F.sigmoid(gaus_samples)
+        # A = beta_samples.unsqueeze(0)
+        # print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
+        # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
 
         M = torch.mm(A, h)
         logits = self.classifiers(M)
@@ -496,6 +495,82 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         else:
             return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
+class probabilistic_MIL_Bayes_sp_vis(nn.Module):
+    def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
+        super(probabilistic_MIL_Bayes_sp_vis, self).__init__()
+
+        self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+        size = self.size_dict[size_arg]
+        # fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
+        # if dropout:
+        #     fc.append(nn.Dropout(0.25))
+        # if gate:
+        #     attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+        # else:
+        #     attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+        # fc.append(attention_net)
+        # self.attention_net = nn.Sequential(*fc)
+
+        # self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+        # size = self.size_dict[size_arg]
+
+        self.conv1 = nn.Conv2d(size[0], size[1],  3, padding=1)
+        self.conv2 = nn.Conv2d(size[0], size[1],  7, padding=5)
+        self.conv3 = nn.Conv2d(size[0], size[1], 11, padding=9)
+
+        self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
+        self.n_classes = n_classes
+        self.print_sample_trigger = False
+        self.num_samples = 16
+        self.temperature = torch.tensor([1.0])
+        self.fixed_b = torch.tensor([5.], requires_grad=False)
+
+        initialize_weights(self)
+        self.top_k=top_k
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5*logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
+
+    def relocate(self):
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.attention_net = self.attention_net.to(device)
+        self.classifiers = self.classifiers.to(device)
+        self.temperature = self.temperature.to(device)
+
+    def forward(self, h, validation=False):
+        device = h.device
+        #*-*# A, h = self.attention_net(h)  # NxK        
+        feat1 = self.conv1(h)
+        feat2 = self.conv2(h)
+        feat3 = self.conv3(h)
+        print(feat1.shape, feat2.shape, feat3.shape)
+        exit()
+
+        A, h = self.attention_net(h)
+
+        mu = A[:, 0]
+        logvar = A[:, 1]
+        gaus_samples = self.reparameterize(mu, logvar)
+        beta_samples = F.sigmoid(gaus_samples)
+        A = beta_samples.unsqueeze(0)
+
+        M = torch.mm(A, h)
+        logits = self.classifiers(M)
+
+        y_probs = F.softmax(logits, dim = 1)
+        top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
+        top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
+        Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
+        Y_prob = F.softmax(top_instance, dim = 1) 
+        # results_dict = {}
+
+        # if return_features:
+        #     top_features = torch.index_select(h, dim=0, index=top_instance_idx)
+        #     results_dict.update({'features': top_features})
+        return top_instance, Y_prob, Y_hat, y_probs, A
+
 def get_ard_reg_vdo(module, reg=0):
     """
     :param module: model to evaluate ard regularization for
@@ -512,6 +587,7 @@ bMIL_model_dict = {
                     'F': probabilistic_MIL_Bayes_fc,
                     'vis': probabilistic_MIL_Bayes_vis,
                     'enc': probabilistic_MIL_Bayes_enc,
+                    'sp_vis': probabilistic_MIL_Bayes_sp_vis,
 }
 
 
