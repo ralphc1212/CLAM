@@ -545,7 +545,8 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
     def forward(self, h, validation=False):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK      
-        h = h.unsqueeze(0)  
+        h = h.unsqueeze(0)
+        h = h.permute(0, 3, 1, 2)
         feat1 = self.conv1(h)
         feat2 = self.conv2(h)
         feat3 = self.conv3(h)
