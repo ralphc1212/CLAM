@@ -53,6 +53,8 @@ def main(args):
         train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False, 
                 csv_path='{}/splits_{}.csv'.format(args.split_dir, i))
 
+        print('------------------use h5? {}--------------------'.format(dataset.use_h5))
+
         datasets = (train_dataset, val_dataset, test_dataset)
         results, test_auc, val_auc, test_acc, val_acc  = train(datasets, i, args)
         all_test_auc.append(test_auc)
@@ -172,7 +174,6 @@ if args.task == 'task_1_tumor_vs_normal':
                             patient_strat=False,
                             ignore=[])
     if 'convis' in args.model_type:
-        print('load from h5 !!!!!!!')
         dataset.load_from_h5(True)
 
 elif args.task == 'task_2_tumor_subtyping':
