@@ -643,8 +643,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         feat = feat_a.mul(feat_b)
         mu = self.conv3a(feat)
-        mu = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
-        mu = self.gaus_smoothing(mu)
+        # mu = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
+        # mu = self.gaus_smoothing(mu)
 
         logvar = self.conv3b(feat)
 
@@ -654,7 +654,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # logvar = A[:, 1]
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
-
         M = A.mul(h).sum(dim=(2,3)) / A.sum()
 
         logits = self.classifiers(M)
