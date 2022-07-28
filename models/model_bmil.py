@@ -600,8 +600,7 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         A = F.sigmoid(gaus_samples)
 
         M = A.mul(h).sum(dim=(2,3)) / A.sum()
-        print(M.shape)
-        exit()
+
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
