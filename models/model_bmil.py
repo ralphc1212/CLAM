@@ -559,9 +559,13 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         self.conv2b2 = self.conv2b2.to(device)
         self.conv2b3 = self.conv2b3.to(device)
 
-        self.conv31 = self.conv31.to(device)
-        self.conv32 = self.conv32.to(device)
-        self.conv33 = self.conv33.to(device)
+        self.conv3a1 = self.conv3a1.to(device)
+        self.conv3a2 = self.conv3a2.to(device)
+        self.conv3a3 = self.conv3a3.to(device)
+
+        self.conv3b1 = self.conv3b1.to(device)
+        self.conv3b2 = self.conv3b2.to(device)
+        self.conv3b3 = self.conv3b3.to(device)
 
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
@@ -571,6 +575,7 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         #*-*# A, h = self.attention_net(h)  # NxK      
         h = h.float().unsqueeze(0)
         h = h.permute(0, 3, 1, 2)
+
         feat = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
             torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
             torch.nn.functional.dropout(self.conv13(h),p=0.25))
@@ -580,18 +585,19 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         feat_b = F.tanh(self.conv2b1(feat) + self.conv2b2(feat) + self.conv2b3(feat))
 
         feat = feat_a.mul(feat_b)
-        logits = self.conv31(feat) + self.conv32(feat) + self.conv33(feat)
+        mu = self.conv3a1(feat) + self.conv3a2(feat) + self.conv3a3(feat)
+        sigma = self.conv3b1(feat) + self.conv3b2(feat) + self.conv3b3(feat)
 
-        print(logits.shape)
-        exit()
         # A, h = self.attention_net(h)
 
-        mu = A[:, 0]
-        logvar = A[:, 1]
+        # mu = A[:, 0]
+        # logvar = A[:, 1]
         gaus_samples = self.reparameterize(mu, logvar)
         beta_samples = F.sigmoid(gaus_samples)
         A = beta_samples.unsqueeze(0)
 
+        print(beta_samples.shape)
+        exit()
         M = torch.mm(A, h)
         logits = self.classifiers(M)
 
