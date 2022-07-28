@@ -816,6 +816,7 @@ bMIL_model_dict = {
                     'F': probabilistic_MIL_Bayes_fc,
                     'vis': probabilistic_MIL_Bayes_vis,
                     'enc': probabilistic_MIL_Bayes_enc,
+                    'spvis': probabilistic_MIL_Bayes_spvis,
                     'convis': probabilistic_MIL_Bayes_convis,
 }
 
