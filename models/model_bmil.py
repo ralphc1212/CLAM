@@ -613,6 +613,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv2b = self.conv2b.to(device)
         self.conv3a = self.conv3a.to(device)
         self.conv3b = self.conv3b.to(device)
+        self.gaus_smoothing = self.gaus_smoothing.to(device)
 
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
