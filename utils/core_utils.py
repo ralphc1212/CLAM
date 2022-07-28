@@ -19,7 +19,6 @@ from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
 
-
 N_SAMPLES = 16
 
 

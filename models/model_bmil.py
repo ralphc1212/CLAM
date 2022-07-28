@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 from utils.utils import initialize_weights
-from models.linear_vdo import LinearVDO
+from models.linear_vdo import LinearVDO, Conv2dVDO
 import numpy as np
 from torch.distributions import kl
 
@@ -514,21 +514,21 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         # self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         # size = self.size_dict[size_arg]
 
-        self.conv11 = nn.Conv2d(size[0], size[1],  3, padding=1)
-        self.conv12 = nn.Conv2d(size[0], size[1],  7, padding=3)
-        self.conv13 = nn.Conv2d(size[0], size[1], 11, padding=5)
+        self.conv11 = Conv2dVDO(size[0], size[1],  3, padding=1, ard_init=-3.)
+        self.conv12 = Conv2dVDO(size[0], size[1],  7, padding=3, ard_init=-3.)
+        self.conv13 = Conv2dVDO(size[0], size[1], 11, padding=5, ard_init=-3.)
 
-        self.conv2a1 = nn.Conv2d(size[1], size[2],  3, padding=1)
-        self.conv2a2 = nn.Conv2d(size[1], size[2],  7, padding=3)
-        self.conv2a3 = nn.Conv2d(size[1], size[2], 11, padding=5)
+        self.conv2a1 = Conv2dVDO(size[1], size[2],  3, padding=1, ard_init=-3.)
+        self.conv2a2 = Conv2dVDO(size[1], size[2],  7, padding=3, ard_init=-3.)
+        self.conv2a3 = Conv2dVDO(size[1], size[2], 11, padding=5, ard_init=-3.)
 
-        self.conv2b1 = nn.Conv2d(size[1], size[2],  3, padding=1)
-        self.conv2b2 = nn.Conv2d(size[1], size[2],  7, padding=3)
-        self.conv2b3 = nn.Conv2d(size[1], size[2], 11, padding=5)
+        self.conv2b1 = Conv2dVDO(size[1], size[2],  3, padding=1, ard_init=-3.)
+        self.conv2b2 = Conv2dVDO(size[1], size[2],  7, padding=3, ard_init=-3.)
+        self.conv2b3 = Conv2dVDO(size[1], size[2], 11, padding=5, ard_init=-3.)
 
-        self.conv31 = nn.Conv2d(size[2], 1,  3, padding=1)
-        self.conv32 = nn.Conv2d(size[2], 1,  7, padding=3)
-        self.conv33 = nn.Conv2d(size[2], 1, 11, padding=5)
+        self.conv31 = Conv2dVDO(size[2], 1,  3, padding=1, ard_init=-3.)
+        self.conv32 = Conv2dVDO(size[2], 1,  7, padding=3, ard_init=-3.)
+        self.conv33 = Conv2dVDO(size[2], 1, 11, padding=5, ard_init=-3.)
 
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
         self.n_classes = n_classes
@@ -541,7 +541,7 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         self.top_k=top_k
 
     def reparameterize(self, mu, logvar):
-        std = torch.exp(0.5*logvar)
+        std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
@@ -571,16 +571,18 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         #*-*# A, h = self.attention_net(h)  # NxK      
         h = h.float().unsqueeze(0)
         h = h.permute(0, 3, 1, 2)
-        feat = F.relu(self.conv11(h) + self.conv12(h) + self.conv13(h))
+        feat = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
+            torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
+            torch.nn.functional.dropout(self.conv13(h),p=0.25))
 
         feat_a = F.sigmoid(self.conv2a1(feat) + self.conv2a2(feat) + self.conv2a3(feat))
 
         feat_b = F.tanh(self.conv2b1(feat) + self.conv2b2(feat) + self.conv2b3(feat))
 
         feat = feat_a.mul(feat_b)
-        feat = F.relu(self.conv31(feat) + self.conv32(feat) + self.conv33(feat))
+        logits = self.conv31(feat) + self.conv32(feat) + self.conv33(feat)
 
-        print(feat.shape)
+        print(logits)
         exit()
         # A, h = self.attention_net(h)
 
@@ -611,10 +613,9 @@ def get_ard_reg_vdo(module, reg=0):
     :param reg: auxilary cumulative variable for recursion
     :return: total regularization for module
     """
-    if isinstance(module, LinearVDO): return reg + module.get_reg()
+    if isinstance(module, LinearVDO) or isinstance(module, Conv2dVDO): return reg + module.get_reg()
     if hasattr(module, 'children'): return reg + sum([get_ard_reg_vdo(submodule) for submodule in module.children()])
     return reg
-
 
 bMIL_model_dict = {
                     'A': probabilistic_MIL_Bayes,
