@@ -396,7 +396,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
         # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
 
-        M = torch.mm(A, h)
+        M = torch.mm(A, h) / A.sum()
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
