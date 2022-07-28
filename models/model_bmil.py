@@ -300,8 +300,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         A, h = self.attention_net(h)
 
         # # [1] JUST Sigmoid attn_net-n_classes = 1
-        A = torch.transpose(A, 1, 0)  # KxN
-        A = F.sigmoid(A)
+        # A = torch.transpose(A, 1, 0)  # KxN
+        # A = F.sigmoid(A)
         # # JUST Sigmoid
 
         # [2] USING BETA attn_net-n_classes = 2
@@ -388,11 +388,11 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # [5] USING logistic normal
-        # mu = A[:, 0]
-        # logvar = A[:, 1]
-        # gaus_samples = self.reparameterize(mu, logvar)
-        # beta_samples = F.sigmoid(gaus_samples)
-        # A = beta_samples.unsqueeze(0)
+        mu = A[:, 0]
+        logvar = A[:, 1]
+        gaus_samples = self.reparameterize(mu, logvar)
+        beta_samples = F.sigmoid(gaus_samples)
+        A = beta_samples.unsqueeze(0)
         # print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
         # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
 
@@ -562,7 +562,6 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             return top_instance, Y_prob, Y_hat, kl_div, y_probs, results_dict
         else:
             return top_instance, Y_prob, Y_hat, y_probs, results_dict
-
 
 class probabilistic_MIL_Bayes_spvis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
