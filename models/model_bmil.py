@@ -597,14 +597,11 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         # mu = A[:, 0]
         # logvar = A[:, 1]
         gaus_samples = self.reparameterize(mu, logvar)
-        beta_samples = F.sigmoid(gaus_samples)
-        A = beta_samples.unsqueeze(0)
+        A = F.sigmoid(gaus_samples)
 
-        print(A.shape)
-        print(h.shape)
+        M = A.mul(h).sum(dim=(2,3)) / A.sum()
+        print(M.shape)
         exit()
-
-        M = torch.mm(A, h)
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
