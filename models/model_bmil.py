@@ -580,13 +580,13 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         h = h.float().unsqueeze(0)
         h = h.permute(0, 3, 1, 2)
 
-        feat = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
+        h = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
             torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
             torch.nn.functional.dropout(self.conv13(h),p=0.25))
 
-        feat_a = F.sigmoid(self.conv2a1(feat) + self.conv2a2(feat) + self.conv2a3(feat))
+        feat_a = F.sigmoid(self.conv2a1(h) + self.conv2a2(h) + self.conv2a3(h))
 
-        feat_b = F.tanh(self.conv2b1(feat) + self.conv2b2(feat) + self.conv2b3(feat))
+        feat_b = F.tanh(self.conv2b1(h) + self.conv2b2(h) + self.conv2b3(h))
 
         feat = feat_a.mul(feat_b)
         mu = self.conv3a1(feat) + self.conv3a2(feat) + self.conv3a3(feat)
@@ -600,8 +600,10 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         beta_samples = F.sigmoid(gaus_samples)
         A = beta_samples.unsqueeze(0)
 
-        print(beta_samples.shape)
+        print(A.shape)
+        print(h.shape)
         exit()
+
         M = torch.mm(A, h)
         logits = self.classifiers(M)
 
