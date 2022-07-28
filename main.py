@@ -173,7 +173,7 @@ if args.task == 'task_1_tumor_vs_normal':
                             label_dict = {'normal':0, 'tumor':1},
                             patient_strat=False,
                             ignore=[])
-    if 'convis' in args.model_type:
+    if 'convis' in args.model_type or 'spvis' in args.model_type:
         dataset.load_from_h5(True)
 
 elif args.task == 'task_2_tumor_subtyping':
