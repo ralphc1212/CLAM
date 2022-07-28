@@ -526,9 +526,13 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         self.conv2b2 = Conv2dVDO(size[1], size[2],  7, padding=3, ard_init=-3.)
         self.conv2b3 = Conv2dVDO(size[1], size[2], 11, padding=5, ard_init=-3.)
 
-        self.conv31 = Conv2dVDO(size[2], 1,  3, padding=1, ard_init=-3.)
-        self.conv32 = Conv2dVDO(size[2], 1,  7, padding=3, ard_init=-3.)
-        self.conv33 = Conv2dVDO(size[2], 1, 11, padding=5, ard_init=-3.)
+        self.conv3a1 = Conv2dVDO(size[2], 1,  3, padding=1, ard_init=-3.)
+        self.conv3a2 = Conv2dVDO(size[2], 1,  7, padding=3, ard_init=-3.)
+        self.conv3a3 = Conv2dVDO(size[2], 1, 11, padding=5, ard_init=-3.)
+
+        self.conv3b1 = Conv2dVDO(size[2], 1,  3, padding=1, ard_init=-3.)
+        self.conv3b2 = Conv2dVDO(size[2], 1,  7, padding=3, ard_init=-3.)
+        self.conv3b3 = Conv2dVDO(size[2], 1, 11, padding=5, ard_init=-3.)
 
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
         self.n_classes = n_classes
