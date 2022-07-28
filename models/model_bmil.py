@@ -590,7 +590,7 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
 
         feat = feat_a.mul(feat_b)
         mu = self.conv3a1(feat) + self.conv3a2(feat) + self.conv3a3(feat)
-        sigma = self.conv3b1(feat) + self.conv3b2(feat) + self.conv3b3(feat)
+        logvar = self.conv3b1(feat) + self.conv3b2(feat) + self.conv3b3(feat)
 
         # A, h = self.attention_net(h)
 
