@@ -515,23 +515,23 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         # size = self.size_dict[size_arg]
 
         self.conv11 = Conv2dVDO(size[0], size[1],  3, padding=1, ard_init=-3.)
-        self.conv12 = Conv2dVDO(size[0], size[1],  7, padding=3, ard_init=-3.)
+        # self.conv12 = Conv2dVDO(size[0], size[1],  7, padding=3, ard_init=-3.)
         self.conv13 = Conv2dVDO(size[0], size[1], 11, padding=5, ard_init=-3.)
 
         self.conv2a1 = Conv2dVDO(size[1], size[2],  3, padding=1, ard_init=-3.)
-        self.conv2a2 = Conv2dVDO(size[1], size[2],  7, padding=3, ard_init=-3.)
+        # self.conv2a2 = Conv2dVDO(size[1], size[2],  7, padding=3, ard_init=-3.)
         self.conv2a3 = Conv2dVDO(size[1], size[2], 11, padding=5, ard_init=-3.)
 
         self.conv2b1 = Conv2dVDO(size[1], size[2],  3, padding=1, ard_init=-3.)
-        self.conv2b2 = Conv2dVDO(size[1], size[2],  7, padding=3, ard_init=-3.)
+        # self.conv2b2 = Conv2dVDO(size[1], size[2],  7, padding=3, ard_init=-3.)
         self.conv2b3 = Conv2dVDO(size[1], size[2], 11, padding=5, ard_init=-3.)
 
         self.conv3a1 = Conv2dVDO(size[2], 1,  3, padding=1, ard_init=-3.)
-        self.conv3a2 = Conv2dVDO(size[2], 1,  7, padding=3, ard_init=-3.)
+        # self.conv3a2 = Conv2dVDO(size[2], 1,  7, padding=3, ard_init=-3.)
         self.conv3a3 = Conv2dVDO(size[2], 1, 11, padding=5, ard_init=-3.)
 
         self.conv3b1 = Conv2dVDO(size[2], 1,  3, padding=1, ard_init=-3.)
-        self.conv3b2 = Conv2dVDO(size[2], 1,  7, padding=3, ard_init=-3.)
+        # self.conv3b2 = Conv2dVDO(size[2], 1,  7, padding=3, ard_init=-3.)
         self.conv3b3 = Conv2dVDO(size[2], 1, 11, padding=5, ard_init=-3.)
 
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
@@ -552,23 +552,23 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.conv11 = self.conv11.to(device)
-        self.conv12 = self.conv12.to(device)
+        # self.conv12 = self.conv12.to(device)
         self.conv13 = self.conv13.to(device)
 
         self.conv2a1 = self.conv2a1.to(device)
-        self.conv2a2 = self.conv2a2.to(device)
+        # self.conv2a2 = self.conv2a2.to(device)
         self.conv2a3 = self.conv2a3.to(device)
 
         self.conv2b1 = self.conv2b1.to(device)
-        self.conv2b2 = self.conv2b2.to(device)
+        # self.conv2b2 = self.conv2b2.to(device)
         self.conv2b3 = self.conv2b3.to(device)
 
         self.conv3a1 = self.conv3a1.to(device)
-        self.conv3a2 = self.conv3a2.to(device)
+        # self.conv3a2 = self.conv3a2.to(device)
         self.conv3a3 = self.conv3a3.to(device)
 
         self.conv3b1 = self.conv3b1.to(device)
-        self.conv3b2 = self.conv3b2.to(device)
+        # self.conv3b2 = self.conv3b2.to(device)
         self.conv3b3 = self.conv3b3.to(device)
 
         self.classifiers = self.classifiers.to(device)
@@ -581,16 +581,24 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         h = h.permute(0, 3, 1, 2)
 
         h = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
-            torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
+            # torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
             torch.nn.functional.dropout(self.conv13(h),p=0.25))
 
-        feat_a = F.sigmoid(self.conv2a1(h) + self.conv2a2(h) + self.conv2a3(h))
+        feat_a = F.sigmoid(self.conv2a1(h) + 
+            # self.conv2a2(h) + 
+            self.conv2a3(h))
 
-        feat_b = F.tanh(self.conv2b1(h) + self.conv2b2(h) + self.conv2b3(h))
+        feat_b = F.tanh(self.conv2b1(h) + 
+            # self.conv2b2(h) + 
+            self.conv2b3(h))
 
         feat = feat_a.mul(feat_b)
-        mu = self.conv3a1(feat) + self.conv3a2(feat) + self.conv3a3(feat)
-        logvar = self.conv3b1(feat) + self.conv3b2(feat) + self.conv3b3(feat)
+        mu = self.conv3a1(feat) + 
+        # self.conv3a2(feat) + 
+        self.conv3a3(feat)
+        logvar = self.conv3b1(feat) + 
+        # self.conv3b2(feat) + 
+        self.conv3b3(feat)
 
         # A, h = self.attention_net(h)
 
