@@ -514,9 +514,21 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         # self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         # size = self.size_dict[size_arg]
 
-        self.conv1 = nn.Conv2d(size[0], size[1],  3, padding=1)
-        self.conv2 = nn.Conv2d(size[0], size[1],  7, padding=3)
-        self.conv3 = nn.Conv2d(size[0], size[1], 11, padding=5)
+        self.conv11 = nn.Conv2d(size[0], size[1],  3, padding=1)
+        self.conv12 = nn.Conv2d(size[0], size[1],  7, padding=3)
+        self.conv13 = nn.Conv2d(size[0], size[1], 11, padding=5)
+
+        self.conv2a1 = nn.Conv2d(size[1], size[2],  3, padding=1)
+        self.conv2a2 = nn.Conv2d(size[1], size[2],  7, padding=3)
+        self.conv2a3 = nn.Conv2d(size[1], size[2], 11, padding=5)
+
+        self.conv2b1 = nn.Conv2d(size[1], size[2],  3, padding=1)
+        self.conv2b2 = nn.Conv2d(size[1], size[2],  7, padding=3)
+        self.conv2b3 = nn.Conv2d(size[1], size[2], 11, padding=5)
+
+        self.conv31 = nn.Conv2d(size[3], 1,  3, padding=1)
+        self.conv32 = nn.Conv2d(size[3], 1,  7, padding=3)
+        self.conv33 = nn.Conv2d(size[3], 1, 11, padding=5)
 
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
         self.n_classes = n_classes
@@ -535,9 +547,21 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
 
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.conv1 = self.conv1.to(device)
-        self.conv2 = self.conv2.to(device)
-        self.conv3 = self.conv3.to(device)
+        self.conv11 = self.conv11.to(device)
+        self.conv12 = self.conv12.to(device)
+        self.conv13 = self.conv13.to(device)
+
+        self.conv2a1 = self.conv2a1.to(device)
+        self.conv2a2 = self.conv2a2.to(device)
+        self.conv2a3 = self.conv2a3.to(device)
+
+        self.conv2b1 = self.conv2b1.to(device)
+        self.conv2b2 = self.conv2b2.to(device)
+        self.conv2b3 = self.conv2b3.to(device)
+
+        self.conv31 = self.conv31.to(device)
+        self.conv32 = self.conv32.to(device)
+        self.conv33 = self.conv33.to(device)
 
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
@@ -547,14 +571,18 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         #*-*# A, h = self.attention_net(h)  # NxK      
         h = h.float().unsqueeze(0)
         h = h.permute(0, 3, 1, 2)
-        print(h.shape)
-        feat1 = self.conv1(h)
-        feat2 = self.conv2(h)
-        feat3 = self.conv3(h)
-        print(feat1.shape, feat2.shape, feat3.shape)
-        exit()
+        feat = F.relu(self.conv11(h) + self.conv12(h) + self.conv13(h))
 
-        A, h = self.attention_net(h)
+        feat_a = F.sigmoid(self.conv2a1(feat) + self.conv2a2(feat) + self.conv2a3(feat))
+
+        feat_b = F.tanh(self.conv2b1(feat) + self.conv2b2(feat) + self.conv2b3(feat))
+
+        feat = feat_a.mul(feat_b)
+        feat = F.relu(self.conv31(feat) + self.conv32(feat) + self.conv33(feat))
+
+        print(feat.shape)
+        exit()
+        # A, h = self.attention_net(h)
 
         mu = A[:, 0]
         logvar = A[:, 1]
