@@ -96,6 +96,72 @@ class DAttn_Net_Gated(nn.Module):
         # print(x.shape)
         return A, x
 
+class GaussianSmoothing(nn.Module):
+    """
+    Apply gaussian smoothing on a
+    1d, 2d or 3d tensor. Filtering is performed seperately for each channel
+    in the input using a depthwise convolution.
+    Arguments:
+        channels (int, sequence): Number of channels of the input tensors. Output will
+            have this number of channels as well.
+        kernel_size (int, sequence): Size of the gaussian kernel.
+        sigma (float, sequence): Standard deviation of the gaussian kernel.
+        dim (int, optional): The number of dimensions of the data.
+            Default value is 2 (spatial).
+    """
+    def __init__(self, channels, kernel_size, sigma, dim=2):
+        super(GaussianSmoothing, self).__init__()
+        if isinstance(kernel_size, numbers.Number):
+            kernel_size = [kernel_size] * dim
+        if isinstance(sigma, numbers.Number):
+            sigma = [sigma] * dim
+
+        # The gaussian kernel is the product of the
+        # gaussian function of each dimension.
+        kernel = 1
+        meshgrids = torch.meshgrid(
+            [
+                torch.arange(size, dtype=torch.float32)
+                for size in kernel_size
+            ]
+        )
+
+        for size, std, mgrid in zip(kernel_size, sigma, meshgrids):
+            mean = (size - 1) / 2
+            kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
+                      torch.exp(-((mgrid - mean) / std) ** 2 / 2)
+
+        # Make sure sum of values in gaussian kernel equals 1.
+        kernel = kernel / torch.sum(kernel)
+
+        # Reshape to depthwise convolutional weight
+        kernel = kernel.view(1, 1, *kernel.size())
+        kernel = kernel.repeat(channels, *[1] * (kernel.dim() - 1))
+
+        self.register_buffer('weight', kernel)
+        self.groups = channels
+
+        if dim == 1:
+            self.conv = F.conv1d
+        elif dim == 2:
+            self.conv = F.conv2d
+        elif dim == 3:
+            self.conv = F.conv3d
+        else:
+            raise RuntimeError(
+                'Only 1, 2 and 3 dimensions are supported. Received {}.'.format(dim)
+            )
+
+    def forward(self, input):
+        """
+        Apply gaussian filter to input.
+        Arguments:
+            input (torch.Tensor): Input to apply gaussian filter on.
+        Returns:
+            filtered (torch.Tensor): Filtered output.
+        """
+        return self.conv(input, weight=self.weight, groups=self.groups)
+
 class probabilistic_MIL_Bayes(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
         super(probabilistic_MIL_Bayes, self).__init__()
@@ -494,6 +560,115 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             return top_instance, Y_prob, Y_hat, kl_div, y_probs, results_dict
         else:
             return top_instance, Y_prob, Y_hat, y_probs, results_dict
+
+
+class probabilistic_MIL_Bayes_spvis(nn.Module):
+    def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
+        super(probabilistic_MIL_Bayes_spvis, self).__init__()
+
+        self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+        size = self.size_dict[size_arg]
+        # fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
+        # if dropout:
+        #     fc.append(nn.Dropout(0.25))
+        # if gate:
+        #     attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+        # else:
+        #     attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+        # fc.append(attention_net)
+        # self.attention_net = nn.Sequential(*fc)
+
+        # self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+        # size = self.size_dict[size_arg]
+
+        self.conv1 = Conv2dVDO(size[0], size[1],  1, padding=0, ard_init=-3.)
+        self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-3.)
+        self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-3.)
+
+        self.conv3a = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-3.)
+        self.conv3b = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-3.)
+        self.gaus_smoothing = GaussianSmoothing(1, 11, 2)
+        self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
+
+        self.n_classes = n_classes
+        self.print_sample_trigger = False
+        self.num_samples = 16
+        self.temperature = torch.tensor([1.0])
+        self.fixed_b = torch.tensor([5.], requires_grad=False)
+
+        initialize_weights(self)
+        self.top_k=top_k
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
+
+    def relocate(self):
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.conv1 = self.conv1.to(device)
+        self.conv2a = self.conv2a.to(device)
+        self.conv2b = self.conv2b.to(device)
+        self.conv3a = self.conv3a.to(device)
+        self.conv3b = self.conv3b.to(device)
+
+        self.classifiers = self.classifiers.to(device)
+        self.temperature = self.temperature.to(device)
+
+    def forward(self, h, validation=False):
+        device = h.device
+        #*-*# A, h = self.attention_net(h)  # NxK      
+        h = h.float().unsqueeze(0)
+        h = h.permute(0, 3, 1, 2)
+
+        # h = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
+        #     torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
+        #     torch.nn.functional.dropout(self.conv13(h),p=0.25))
+
+        # feat_a = F.sigmoid(self.conv2a1(h) + self.conv2a2(h) + self.conv2a3(h))
+
+        # feat_b = F.tanh(self.conv2b1(h) + self.conv2b2(h) + self.conv2b3(h))
+
+        # feat = feat_a.mul(feat_b)
+        # mu = self.conv3a1(feat) + self.conv3a2(feat) + self.conv3a3(feat)
+        # logvar = self.conv3b1(feat) + self.conv3b2(feat) + self.conv3b3(feat)
+
+        h = F.relu(torch.nn.functional.dropout(self.conv1(h), p=0.25))
+
+        feat_a = F.sigmoid(self.conv2a(h))
+
+        feat_b = F.tanh(self.conv2b(h))
+
+        feat = feat_a.mul(feat_b)
+        mu = self.conv3a(feat)
+        mu = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
+        mu = smoothing(mu)
+
+        logvar = self.conv3b(feat)
+
+        # A, h = self.attention_net(h)
+
+        # mu = A[:, 0]
+        # logvar = A[:, 1]
+        gaus_samples = self.reparameterize(mu, logvar)
+        A = F.sigmoid(gaus_samples)
+
+        M = A.mul(h).sum(dim=(2,3)) / A.sum()
+
+        logits = self.classifiers(M)
+
+        y_probs = F.softmax(logits, dim = 1)
+        top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
+        top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
+        Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
+        Y_prob = F.softmax(top_instance, dim = 1) 
+        # results_dict = {}
+
+        # if return_features:
+        #     top_features = torch.index_select(h, dim=0, index=top_instance_idx)
+        #     results_dict.update({'features': top_features})
+        return top_instance, Y_prob, Y_hat, y_probs, A
+
 
 class probabilistic_MIL_Bayes_convis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
