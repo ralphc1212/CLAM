@@ -526,9 +526,9 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         self.conv2b2 = nn.Conv2d(size[1], size[2],  7, padding=3)
         self.conv2b3 = nn.Conv2d(size[1], size[2], 11, padding=5)
 
-        self.conv31 = nn.Conv2d(size[3], 1,  3, padding=1)
-        self.conv32 = nn.Conv2d(size[3], 1,  7, padding=3)
-        self.conv33 = nn.Conv2d(size[3], 1, 11, padding=5)
+        self.conv31 = nn.Conv2d(size[2], 1,  3, padding=1)
+        self.conv32 = nn.Conv2d(size[2], 1,  7, padding=3)
+        self.conv33 = nn.Conv2d(size[2], 1, 11, padding=5)
 
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
         self.n_classes = n_classes
