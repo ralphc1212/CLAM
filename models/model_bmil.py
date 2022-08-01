@@ -499,13 +499,14 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         #     # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
         #     postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
 
-        print(h_.shape)
-        exit()
-        # if slide_label == 1:
-        #     prior_alpha = torch.tensor()
-        # else:
-        #     # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
-        #     postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
+
+        if slide_label == 1:
+            prior_alpha = torch.ones(h_.shape[0], device=h_.deivce)
+        else:
+            # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
+            prior_alpha = torch.tensor([1./h_.shape[0]]*h_.shape[0], device=h_.deivce)
+
+            # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
 
         # postr_alpha = torch.exp(postr_alpha)
 
@@ -515,21 +516,19 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
-        # prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
-        # prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
-
-
         prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
+        # prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
+        # prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
 
-        if self.training:
-            kl_div = kl.kl_divergence(postr_kl, prior_kl)
-            # kl_div = kl.kl_divergence(prior_kl, postr_kl)
-            A = postr_sp.rsample()
-            # print('postr samples: ', A)
-        else:
-            prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
-            A = prior_sp.sample()
-            # print('prior samples: ', A)
+        # if self.training:
+        #     kl_div = kl.kl_divergence(postr_kl, prior_kl)
+        #     # kl_div = kl.kl_divergence(prior_kl, postr_kl)
+        #     A = postr_sp.rsample()
+        #     # print('postr samples: ', A)
+        # else:
+        #     prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
+        #     A = postr_sp.sample()
+        #     # print('prior samples: ', A)
 
         kl_div = kl.kl_divergence(postr_kl, prior_kl)
         # kl_div = kl.kl_divergence(prior_kl, postr_kl)
@@ -556,7 +555,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         # A = F.softmax(A, dim=1)  # softmax over N
 
-        M = torch.mm(A, h_)
+        # M = torch.mm(A, h_)
+        M = torch.mm(A, h) / A.sum()
+
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
