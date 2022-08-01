@@ -393,8 +393,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         gaus_samples = self.reparameterize(mu, logvar)
         beta_samples = F.sigmoid(gaus_samples)
         A = beta_samples.unsqueeze(0)
-        print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
-        print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
+        # print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
+        # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
 
         M = torch.mm(A, h) / A.sum()
         logits = self.classifiers(M)
@@ -419,17 +419,17 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         size = self.size_dict[size_arg]
         first_transform = nn.Linear(size[0], size[1])
         fc1 = [first_transform, nn.ReLU()]
-        fc2 = [first_transform, nn.ReLU()]
+        # fc2 = [first_transform, nn.ReLU()]
 
         if dropout:
             fc1.append(nn.Dropout(0.25))
-            fc2.append(nn.Dropout(0.25))
+            # fc2.append(nn.Dropout(0.25))
 
         if gate:
             # attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
-            postr_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
-            prior_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
-            # postr_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            # postr_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            # prior_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            postr_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
             # prior_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
 
         else:
@@ -438,10 +438,10 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             prior_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
 
         fc1.append(postr_net)
-        fc2.append(prior_net)
+        # fc2.append(prior_net)
 
         self.postr_net = nn.Sequential(*fc1)
-        self.prior_net = nn.Sequential(*fc2)
+        # self.prior_net = nn.Sequential(*fc2)
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
         # self.classifiers = nn.Linear(size[1], n_classes)
@@ -452,7 +452,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # self.sf_pos = torch.tensor([2e4], requires_grad=False)
         # self.sf_neg = torch.tensor([2e4], requires_grad=False)
         self.sf_pos = torch.tensor([1.], requires_grad=False)
-        self.sf_neg = torch.tensor([1.], requires_grad=False)
+        # self.sf_neg = torch.tensor([1.], requires_grad=False)
         initialize_weights(self)
         self.top_k = top_k
 
@@ -460,24 +460,24 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # self.attention_net = self.attention_net.to(device)
         self.postr_net = self.postr_net.to(device)
-        self.prior_net = self.prior_net.to(device)
+        # self.prior_net = self.prior_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
         self.sf_pos = self.sf_pos.to(device)
-        self.sf_neg = self.sf_neg.to(device)
+        # self.sf_neg = self.sf_neg.to(device)
 
     def forward(self, h, return_features=False, slide_label=None):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK 
 
         postr_alpha, h_ = self.postr_net(h)
-        prior_alpha, _ = self.prior_net(h)
+        # prior_alpha, _ = self.prior_net(h)
 
         # if negative, all patches should be checked with equal probabilities.
         # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
 
-        postr_alpha = torch.transpose(postr_alpha, 1, 0)  # KxN
-        prior_alpha = torch.exp(torch.transpose(prior_alpha, 1, 0))  # KxN
+        postr_alpha = torch.softplus(torch.transpose(postr_alpha, 1, 0))  # KxN
+        # prior_alpha = torch.exp(torch.transpose(prior_alpha, 1, 0))  # KxN
 
         # print('***************************')
         # print('before: ', postr_alpha)
@@ -493,11 +493,19 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # postr_alpha = slide_label.detach() * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0) \
         # + (1. - slide_label).detach() * (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
 
-        if slide_label == 1:
-            postr_alpha = (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.)
-        else:
-            # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
-            postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
+        # if slide_label == 1:
+        #     postr_alpha = (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.)
+        # else:
+        #     # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
+        #     postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
+
+        print(h_.shape)
+        exit()
+        # if slide_label == 1:
+        #     prior_alpha = torch.tensor()
+        # else:
+        #     # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
+        #     postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
 
         # postr_alpha = torch.exp(postr_alpha)
 
@@ -507,8 +515,11 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
         postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
-        prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
+        # prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
         # prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
+
+
+        prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
 
         if self.training:
             kl_div = kl.kl_divergence(postr_kl, prior_kl)
