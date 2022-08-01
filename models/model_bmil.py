@@ -501,10 +501,10 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
 
         if slide_label == 1:
-            prior_alpha = torch.ones(h_.shape[0], device=h_.deivce)
+            prior_alpha = torch.ones(h_.shape[0]).cuda()
         else:
             # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
-            prior_alpha = torch.tensor([1./h_.shape[0]]*h_.shape[0], device=h_.deivce)
+            prior_alpha = torch.tensor([1./h_.shape[0]]*h_.shape[0]).cuda()
 
             # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
 
