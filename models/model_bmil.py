@@ -380,9 +380,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # [4] USING DIRICHLET -> BETA attn_net-n_classes = 1
 
         ### If we add the marginalization, will it still work?
-        ### Yes
 
-        A = (F.relu(A) + EPS).squeeze(1)
+        A = (F.relu(A) + EPS_1).squeeze(1)
         # # print('***********************************')
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
