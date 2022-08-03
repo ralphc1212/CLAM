@@ -182,7 +182,7 @@ def train(datasets, cur, args):
         model = MIL_mlp(**model_dict)
     elif args.model_type.startswith('bmil'):
         model = bMIL_model_dict[args.model_type.split('-')[1]](**model_dict)
-        bayes_args = [get_ard_reg_vdo, 1e-8]
+        bayes_args = [get_ard_reg_vdo, 1e-4, 1e-2]
         if 'vis' in args.model_type.split('-'):
             bayes_args.append('vis')
         elif 'enc' in args.model_type.split('-'):
@@ -358,7 +358,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
                 kl_1 = kl_div[0]
                 kl_2 = bayes_args[0](model)
 
-                loss += bayes_args[1] * kl_1 + kl_2
+                loss += bayes_args[1] * kl_1 + bayes_args[2] * kl_2
             else:
                 loss += bayes_args[1] * bayes_args[0](model)
 
