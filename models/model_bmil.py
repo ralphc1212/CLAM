@@ -306,7 +306,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         # [2] USING BETA attn_net-n_classes = 2
         # A = F.softplus(A, threshold=8.)
-        # A = F.relu(A) + EPS_1
+        A = F.relu(A) + EPS_1
         # # print('***********************************')
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
@@ -315,10 +315,10 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         #     print(A)
         #     for k, v in self.attention_net.state_dict().items():
         #         print(k, v)
-        # postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
+        postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
         # # A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
 
-        # A = postr_sp.rsample().unsqueeze(0)
+        A = postr_sp.rsample().unsqueeze(0)
 
         # # print(A.shape)
         # # print(torch.max(A, 1))
@@ -381,13 +381,13 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         ### If we add the marginalization, will it still work?
 
-        A = F.softplus(A, threshold=8.).squeeze(1)
+        # A = F.softplus(A, threshold=8.).squeeze(1)
         # A = (F.relu(A) + EPS_1).squeeze(1)
         # # print('***********************************')
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
-        postr_sp = torch.distributions.beta.Beta(A, A.sum() - A)
-        A = postr_sp.rsample().unsqueeze(0)
+        # postr_sp = torch.distributions.beta.Beta(A, A.sum() - A)
+        # A = postr_sp.rsample().unsqueeze(0)
         # print(A.shape)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
