@@ -307,7 +307,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # [2] USING BETA attn_net-n_classes = 2
         # softplus and written form
         # A = F.softplus(A, threshold=8.)
-        A = torch.log(torch.exp(A) + 1 + EPS_1)
+        # A = torch.log(torch.exp(A) + 1 + EPS_1)
         # A = F.relu(A) + EPS_1
         # # print('***********************************')
         # # print(A)
@@ -317,10 +317,10 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         #     print(A)
         #     for k, v in self.attention_net.state_dict().items():
         #         print(k, v)
-        postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
+        # postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
         # # A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
 
-        A = postr_sp.rsample().unsqueeze(0)
+        # A = postr_sp.rsample().unsqueeze(0)
 
         # # print(A.shape)
         # # print(torch.max(A, 1))
@@ -396,11 +396,11 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # [5] USING logistic normal
-        # mu = A[:, 0]
-        # logvar = A[:, 1]
-        # gaus_samples = self.reparameterize(mu, logvar)
-        # beta_samples = F.sigmoid(gaus_samples)
-        # A = beta_samples.unsqueeze(0)
+        mu = A[:, 0]
+        logvar = A[:, 1]
+        gaus_samples = self.reparameterize(mu, logvar)
+        beta_samples = F.sigmoid(gaus_samples)
+        A = beta_samples.unsqueeze(0)
         # print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
         # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
 
