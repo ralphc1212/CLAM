@@ -349,6 +349,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         loss = loss_fn(logits, label)
         # print('loss: ', loss)
         # print('kl_div: ', kl_div)
+        print(loss)
 
         if bayes_args:
 
@@ -364,7 +365,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         loss_value = loss.item()
         print(kl_1)
         print(kl_2)
-        print(loss_value)
+
         exit()
 
         train_loss += loss_value
