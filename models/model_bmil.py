@@ -305,8 +305,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # JUST Sigmoid
 
         # [2] USING BETA attn_net-n_classes = 2
-        A = F.softplus(A, threshold=8.)
-        # A = F.relu(A) + EPS_1
+        # A = F.softplus(A, threshold=8.)
+        A = F.relu(A) + EPS_1
         # # print('***********************************')
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
