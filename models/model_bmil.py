@@ -399,6 +399,10 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
         # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
 
+        print(A)
+        print(h)
+        print(A.shape)
+        print(h.shape)
         M = torch.mm(A, h) / A.sum()
         logits = self.classifiers(M)
 
