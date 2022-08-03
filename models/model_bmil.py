@@ -267,7 +267,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         if dropout:
             fc.append(nn.Dropout(0.25))
         if gate:
-            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
+            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         else:
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
@@ -334,16 +334,16 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         # [3] USING BETA, pred-conc parameterization attn_net-n_classes = 2
         # A = F.softplus(A, threshold=8.)
-        a = F.sigmoid(A[:, 0])
-        b = F.softplus(A[:, 1], threshold=3.)
+        # a = F.sigmoid(A[:, 0])
+        # b = F.softplus(A[:, 1], threshold=3.)
 
         # # alpha = a * self.fixed_b
         # # beta  = self.fixed_b - a * self.fixed_b
-        alpha = (a * b)
-        beta  = (b - a * b)
+        # alpha = (a * b)
+        # beta  = (b - a * b)
 
-        postr_sp = torch.distributions.beta.Beta(alpha, beta)
-        A = postr_sp.rsample().unsqueeze(0)
+        # postr_sp = torch.distributions.beta.Beta(alpha, beta)
+        # A = postr_sp.rsample().unsqueeze(0)
 
         # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
         # print('a      max: {0:.4f}, a      min: {1:.4f}.'.format(torch.max(a), torch.min(a)))
@@ -385,8 +385,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # print('***********************************')
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
-        # postr_sp = torch.distributions.beta.Beta(A, A.sum() - A)
-        # A = postr_sp.rsample().unsqueeze(0)
+        postr_sp = torch.distributions.beta.Beta(A, A.sum() - A)
+        A = postr_sp.rsample().unsqueeze(0)
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
