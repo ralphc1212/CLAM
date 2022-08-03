@@ -267,7 +267,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         if dropout:
             fc.append(nn.Dropout(0.25))
         if gate:
-            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
         else:
             attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         fc.append(attention_net)
@@ -334,8 +334,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         # [3] USING BETA, pred-conc parameterization attn_net-n_classes = 2
         # A = F.softplus(A, threshold=8.)
-        a = F.sigmoid(A[:, 0])
-        b = F.softplus(A[:, 1], threshold=3.)
+        # a = F.sigmoid(A[:, 0])
+        # b = F.softplus(A[:, 1], threshold=3.)
 
         # # alpha = a * self.fixed_b
         # # beta  = self.fixed_b - a * self.fixed_b
