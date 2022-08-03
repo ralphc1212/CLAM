@@ -347,9 +347,6 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits, label)
-        # print('loss: ', loss)
-        # print('kl_div: ', kl_div)
-        print(loss)
 
         if bayes_args:
 
@@ -363,10 +360,6 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
                 loss += bayes_args[1] * bayes_args[0](model)
 
         loss_value = loss.item()
-        print(kl_1)
-        print(kl_2)
-
-        exit()
 
         train_loss += loss_value
         if (batch_idx + 1) % 20 == 0:
