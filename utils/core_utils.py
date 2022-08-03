@@ -349,15 +349,16 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         loss = loss_fn(logits, label)
 
         if bayes_args:
+            
+            kl_model = bayes_args[0](model)
 
             if 'enc' in bayes_args:
-                # loss += bayes_args[1] * kl_div[0]
-                kl_model = bayes_args[0](model)
+                # loss += bayes_args[1] * kl_div[0]    
                 kl_data = kl_div[0]
 
                 loss += bayes_args[1] * kl_model + bayes_args[2] * kl_data
             else:
-                loss += bayes_args[1] * bayes_args[0](model)
+                loss += bayes_args[1] * kl_model
 
         loss_value = loss.item()
 
