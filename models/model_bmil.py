@@ -381,7 +381,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         ### If we add the marginalization, will it still work?
 
-        A = (F.relu(A) + EPS_1).squeeze(1)
+        A = F.softplus(A, threshold=8.)
+        # A = (F.relu(A) + EPS_1).squeeze(1)
         # # print('***********************************')
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
