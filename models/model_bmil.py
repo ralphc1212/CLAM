@@ -306,7 +306,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         # [2] USING BETA attn_net-n_classes = 2
         # A = F.softplus(A, threshold=8.)
-        A = F.relu(A) + EPS_1
+        # A = F.relu(A) + EPS_1
         # # print('***********************************')
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
@@ -315,10 +315,10 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         #     print(A)
         #     for k, v in self.attention_net.state_dict().items():
         #         print(k, v)
-        postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
+        # postr_sp = torch.distributions.beta.Beta(A[:,0], A[:,1])
         # # A = postr_sp.rsample().unsqueeze(0).clamp(min=1e-20)
 
-        A = postr_sp.rsample().unsqueeze(0)
+        # A = postr_sp.rsample().unsqueeze(0)
 
         # # print(A.shape)
         # # print(torch.max(A, 1))
@@ -334,16 +334,16 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
 
         # [3] USING BETA, pred-conc parameterization attn_net-n_classes = 2
         # A = F.softplus(A, threshold=8.)
-        # a = F.sigmoid(A[:, 0])
-        # b = F.softplus(A[:, 1], threshold=3.)
+        a = F.sigmoid(A[:, 0])
+        b = F.softplus(A[:, 1], threshold=3.)
 
         # # alpha = a * self.fixed_b
         # # beta  = self.fixed_b - a * self.fixed_b
-        # alpha = (a * b)
-        # beta  = (b - a * b)
+        alpha = (a * b)
+        beta  = (b - a * b)
 
-        # postr_sp = torch.distributions.beta.Beta(alpha, beta)
-        # A = postr_sp.rsample().unsqueeze(0)
+        postr_sp = torch.distributions.beta.Beta(alpha, beta)
+        A = postr_sp.rsample().unsqueeze(0)
 
         # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
         # print('a      max: {0:.4f}, a      min: {1:.4f}.'.format(torch.max(a), torch.min(a)))
