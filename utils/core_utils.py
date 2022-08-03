@@ -182,7 +182,7 @@ def train(datasets, cur, args):
         model = MIL_mlp(**model_dict)
     elif args.model_type.startswith('bmil'):
         model = bMIL_model_dict[args.model_type.split('-')[1]](**model_dict)
-        bayes_args = [get_ard_reg_vdo, 1e-4, 1e-6]
+        bayes_args = [get_ard_reg_vdo, 1e-8, 1e-6]
         if 'vis' in args.model_type.split('-'):
             bayes_args.append('vis')
         elif 'enc' in args.model_type.split('-'):
