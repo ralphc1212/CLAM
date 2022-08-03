@@ -9,7 +9,7 @@ from models.linear_vdo import LinearVDO, Conv2dVDO
 import numpy as np
 from torch.distributions import kl
 
-EPS_1 = 1e-16
+EPS = 1e-16
 # EPS_2 = 1e-28
 
 """
