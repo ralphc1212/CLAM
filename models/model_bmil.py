@@ -378,21 +378,21 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # [4] USING DIRICHLET -> BETA attn_net-n_classes = 1
-        # A = (F.relu(A) + EPS).squeeze(1)
+        A = (F.relu(A) + EPS).squeeze(1)
         # # print('***********************************')
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
-        # postr_sp = torch.distributions.beta.Beta(A, A.sum() - A)
-        # A = postr_sp.rsample().unsqueeze(0)
+        postr_sp = torch.distributions.beta.Beta(A, A.sum() - A)
+        A = postr_sp.rsample().unsqueeze(0)
         # # print(A)
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # [5] USING logistic normal
-        mu = A[:, 0]
-        logvar = A[:, 1]
-        gaus_samples = self.reparameterize(mu, logvar)
-        beta_samples = F.sigmoid(gaus_samples)
-        A = beta_samples.unsqueeze(0)
+        # mu = A[:, 0]
+        # logvar = A[:, 1]
+        # gaus_samples = self.reparameterize(mu, logvar)
+        # beta_samples = F.sigmoid(gaus_samples)
+        # A = beta_samples.unsqueeze(0)
         # print('gaus   max: {0:.4f}, gaus   min: {1:.4f}.'.format(torch.max(gaus_samples), torch.min(gaus_samples)))
         # print('sample max: {0:.4f}, sample min: {1:.4f}.'.format(torch.max(A), torch.min(A)))
 
@@ -499,12 +499,11 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         #     # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
         #     postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
 
-
         if slide_label == 1:
             prior_alpha = torch.ones(h_.shape[0]).cuda()
         else:
             # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
-            prior_alpha = torch.tensor([1./h_.shape[0]]*h_.shape[0]).cuda()
+            prior_alpha = torch.tensor([1. / h_.shape[0]]*h_.shape[0]).cuda()
 
             # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
 
