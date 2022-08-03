@@ -378,6 +378,10 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # [4] USING DIRICHLET -> BETA attn_net-n_classes = 1
+
+        ### If we add the marginalization, will it still work?
+        ### Yes
+
         A = (F.relu(A) + EPS).squeeze(1)
         # # print('***********************************')
         # # print(A)
@@ -476,8 +480,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # if negative, all patches should be checked with equal probabilities.
         # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
 
-        postr_alpha = F.softplus(torch.transpose(postr_alpha, 1, 0))  # KxN
+        # postr_alpha = F.softplus(torch.transpose(postr_alpha, 1, 0))  # KxN
         # prior_alpha = torch.exp(torch.transpose(prior_alpha, 1, 0))  # KxN
+        postr_alpha = (F.relu(postr_alpha) + EPS).squeeze(1)
 
         # print('***************************')
         # print('before: ', postr_alpha)
