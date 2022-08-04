@@ -460,7 +460,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # self.sf_pos = torch.tensor([2e4], requires_grad=False)
         # self.sf_neg = torch.tensor([2e4], requires_grad=False)
         # self.sf_pos = torch.tensor([1.], requires_grad=False)
-        self.prior_logvar = torch.tensor([-1.])
+        self.prior_mu = torch.tensor([-5., 0.])
+        self.prior_logvar = torch.tensor([-1., 3.])
+
         # self.sf_neg = torch.tensor([1.], requires_grad=False)
         initialize_weights(self)
         self.top_k = top_k
@@ -478,6 +480,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
         # self.sf_pos = self.sf_pos.to(device)
+        self.prior_mu = self.prior_mu.to(device)
         self.prior_logvar = self.prior_logvar.to(device)
 
         # self.sf_neg = self.sf_neg.to(device)
@@ -492,10 +495,15 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         param, h = self.postr_net(h)
         # prior_alpha, _ = self.prior_net(h)
 
-        if slide_label == 0:
-            mu_pr = torch.tensor([-5.] * h.shape[0]).cuda()
-        else:
-            mu_pr = torch.tensor([0.] * h.shape[0]).cuda()
+        mu_pr = prior_mu[slide_label.item()].expand(h.shape[0])
+        logvar_pr = self.prior_logvar[slide_label.item()]
+
+        # if slide_label == 0:
+        #     mu_pr = prior_mu[0].expand(h.shape[0])
+        #     logvar_pr = self.prior_logvar[0]
+        # else:
+        #     mu_pr = torch.tensor([0.] * h.shape[0]).cuda()
+        #     logvar_pr = self.prior_logvar[1]
 
         mu = param[:, 0]
         logvar = param[:, 1]
@@ -503,7 +511,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         beta_samples = F.sigmoid(gaus_samples)
         A = beta_samples.unsqueeze(0)
 
-        kl_div = self.kl_logistic_normal(mu_pr, mu, self.prior_logvar, logvar)
+        kl_div = self.kl_logistic_normal(mu_pr, mu, logvar_pr, logvar)
         
         # if negative, all patches should be checked with equal probabilities.
         # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
