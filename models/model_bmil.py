@@ -396,6 +396,7 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         # # print('*max: {}, min: {}'.format(torch.max(A), torch.min(A)))
 
         # [5] USING logistic normal
+        # we stick to this one 
         mu = A[:, 0]
         logvar = A[:, 1]
         gaus_samples = self.reparameterize(mu, logvar)
@@ -458,10 +459,16 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.temperature = torch.tensor([1.0])
         # self.sf_pos = torch.tensor([2e4], requires_grad=False)
         # self.sf_neg = torch.tensor([2e4], requires_grad=False)
-        self.sf_pos = torch.tensor([1.], requires_grad=False)
+        # self.sf_pos = torch.tensor([1.], requires_grad=False)
+        self.prior_logvar = torch.tensor([-1.])
         # self.sf_neg = torch.tensor([1.], requires_grad=False)
         initialize_weights(self)
         self.top_k = top_k
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
 
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -470,22 +477,40 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # self.prior_net = self.prior_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-        self.sf_pos = self.sf_pos.to(device)
+        # self.sf_pos = self.sf_pos.to(device)
+        self.prior_sigma = self.prior_sigma.to(device)
+
         # self.sf_neg = self.sf_neg.to(device)
+
+    def kl_logistic_normal(mu_pr, mu_pos, logvar_pr, logvar_pos):
+        return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) -0.5
 
     def forward(self, h, return_features=False, slide_label=None):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK 
 
-        postr_alpha, h_ = self.postr_net(h)
+        param, h = self.postr_net(h)
         # prior_alpha, _ = self.prior_net(h)
 
+        if slide_label == 0:
+            prior_mu = torch.tensor([-5.] * h.shape[0])
+        else:
+            prior_mu = torch.tensor([0.] * h.shape[0])
+
+        mu = param[:, 0]
+        logvar = param[:, 1]
+        gaus_samples = self.reparameterize(mu, logvar)
+        beta_samples = F.sigmoid(gaus_samples)
+        A = beta_samples.unsqueeze(0)
+
+        kl_div = self.kl_logistic_normal(mu_pr, mu, self.prior_logvar, logvar)
+        
         # if negative, all patches should be checked with equal probabilities.
         # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
 
         # postr_alpha = F.softplus(torch.transpose(postr_alpha, 1, 0))  # KxN
         # prior_alpha = torch.exp(torch.transpose(prior_alpha, 1, 0))  # KxN
-        postr_alpha = (F.relu(postr_alpha) + EPS).squeeze(1)
+        # postr_alpha = (F.relu(postr_alpha) + EPS).squeeze(1)
 
         # print('***************************')
         # print('before: ', postr_alpha)
@@ -507,11 +532,11 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         #     # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
         #     postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
 
-        if slide_label == 1:
-            prior_alpha = torch.ones(h_.shape[0]).cuda()
-        else:
-            # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
-            prior_alpha = torch.tensor([1. / h_.shape[0]]*h_.shape[0]).cuda()
+        # if slide_label == 1:
+        #     prior_alpha = torch.ones(h_.shape[0]).cuda()
+        # else:
+        #     # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
+        #     prior_alpha = torch.tensor([1. / h_.shape[0]]*h_.shape[0]).cuda()
 
             # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
 
@@ -521,9 +546,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # print('after: ', postr_alpha)
         # print('prior_alpha: ', prior_alpha)
 
-        postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
-        postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
-        prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
+        # postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
+        # postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
+        # prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
         # prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
         # prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
 
@@ -537,13 +562,13 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         #     A = postr_sp.sample()
         #     # print('prior samples: ', A)
 
-        kl_div = kl.kl_divergence(postr_kl, prior_kl)
+        # kl_div = kl.kl_divergence(postr_kl, prior_kl)
         # kl_div = kl.kl_divergence(prior_kl, postr_kl)
         # A = 0
         # for i in range(self.num_samples):
         #     A += postr_sp.rsample()
         # A /= self.num_samples
-        A = postr_sp.rsample()
+        # A = postr_sp.rsample()
         # print('postr samples: ', A)
 
         # print('max sample', torch.max(A))
@@ -563,7 +588,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # A = F.softmax(A, dim=1)  # softmax over N
 
         # M = torch.mm(A, h_)
-        M = torch.mm(A, h_) / A.sum()
+        M = torch.mm(A, h) / A.sum()
 
         logits = self.classifiers(M)
 
