@@ -482,7 +482,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
         # self.sf_neg = self.sf_neg.to(device)
 
-    def kl_logistic_normal(mu_pr, mu_pos, logvar_pr, logvar_pos):
+    def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
         return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) -0.5
 
     def forward(self, h, return_features=False, slide_label=None):
