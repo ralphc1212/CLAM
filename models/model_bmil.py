@@ -687,8 +687,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         feat = feat_a.mul(feat_b)
         mu = self.conv3a(feat)
-        mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
-        mu = self.gaus_smoothing(mu)
+        # mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
+        # mu = self.gaus_smoothing(mu)
 
         logvar = self.conv3b(feat)
 
