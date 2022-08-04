@@ -495,9 +495,6 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         param, h = self.postr_net(h)
         # prior_alpha, _ = self.prior_net(h)
 
-        mu_pr = self.prior_mu[slide_label.item()].expand(h.shape[0])
-        logvar_pr = self.prior_logvar[slide_label.item()]
-
         # if slide_label == 0:
         #     mu_pr = prior_mu[0].expand(h.shape[0])
         #     logvar_pr = self.prior_logvar[0]
@@ -511,8 +508,13 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         beta_samples = F.sigmoid(gaus_samples)
         A = beta_samples.unsqueeze(0)
 
-        kl_div = self.kl_logistic_normal(mu_pr, mu, logvar_pr, logvar)
-        
+        if self.training:
+            mu_pr = self.prior_mu[slide_label.item()].expand(h.shape[0])
+            logvar_pr = self.prior_logvar[slide_label.item()]
+            kl_div = self.kl_logistic_normal(mu_pr, mu, logvar_pr, logvar)
+        else:
+            kl_div = None
+
         # if negative, all patches should be checked with equal probabilities.
         # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
 
