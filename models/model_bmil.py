@@ -478,7 +478,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
         # self.sf_pos = self.sf_pos.to(device)
-        self.prior_sigma = self.prior_sigma.to(device)
+        self.prior_logvar = self.prior_logvar.to(device)
 
         # self.sf_neg = self.sf_neg.to(device)
 
