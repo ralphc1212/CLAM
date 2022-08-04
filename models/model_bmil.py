@@ -437,7 +437,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             # attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
             # postr_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
             # prior_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
-            postr_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            postr_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
             # prior_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
 
         else:
