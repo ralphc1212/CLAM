@@ -495,7 +495,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         param, h = self.postr_net(h)
         # prior_alpha, _ = self.prior_net(h)
 
-        mu_pr = prior_mu[slide_label.item()].expand(h.shape[0])
+        mu_pr = self.prior_mu[slide_label.item()].expand(h.shape[0])
         logvar_pr = self.prior_logvar[slide_label.item()]
 
         # if slide_label == 0:
