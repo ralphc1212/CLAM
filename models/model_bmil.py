@@ -493,9 +493,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # prior_alpha, _ = self.prior_net(h)
 
         if slide_label == 0:
-            prior_mu = torch.tensor([-5.] * h.shape[0])
+            mu_pr = torch.tensor([-5.] * h.shape[0])
         else:
-            prior_mu = torch.tensor([0.] * h.shape[0])
+            mu_pr = torch.tensor([0.] * h.shape[0])
 
         mu = param[:, 0]
         logvar = param[:, 1]
