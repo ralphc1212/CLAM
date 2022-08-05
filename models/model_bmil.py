@@ -652,7 +652,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.fixed_b = torch.tensor([5.], requires_grad=False)
 
         initialize_weights(self)
-        self.top_k=top_k
+        self.top_k = top_k
 
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
@@ -691,9 +691,9 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         h = F.relu(F.dropout(self.conv1(h), p=0.25))
 
-        feat_a = F.dropout(F.sigmoid(self.conv2a(h)))
+        feat_a = F.dropout(F.sigmoid(self.conv2a(h)), p=0.25)
 
-        feat_b = F.dropout(F.tanh(self.conv2b(h)))
+        feat_b = F.dropout(F.tanh(self.conv2b(h)), p=0.25)
 
         feat = feat_a.mul(feat_b)
         mu = self.conv3a(feat)
