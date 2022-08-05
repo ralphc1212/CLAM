@@ -689,11 +689,11 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # mu = self.conv3a1(feat) + self.conv3a2(feat) + self.conv3a3(feat)
         # logvar = self.conv3b1(feat) + self.conv3b2(feat) + self.conv3b3(feat)
 
-        h = F.relu(torch.nn.functional.dropout(self.conv1(h), p=0.25))
+        h = F.relu(F.dropout(self.conv1(h), p=0.25))
 
-        feat_a = F.sigmoid(self.conv2a(h))
+        feat_a = F.dropout(F.sigmoid(self.conv2a(h)))
 
-        feat_b = F.tanh(self.conv2b(h))
+        feat_b = F.dropout(F.tanh(self.conv2b(h)))
 
         feat = feat_a.mul(feat_b)
         mu = self.conv3a(feat)
@@ -708,7 +708,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # logvar = A[:, 1]
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
-        M = A.mul(h).sum(dim=(2,3)) / A.sum()
+        M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
         logits = self.classifiers(M)
 
