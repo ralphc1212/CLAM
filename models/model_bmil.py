@@ -647,7 +647,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
         #### use MLP instead ####
-        self.conv1 = LinearVDO(size[0], size[1], ard_init=-1.)
+        self.conv1 = nn.Linear(size[0], size[1])
         self.conv2a = LinearVDO(size[1], size[2], ard_init=-1.)
         self.conv2b = LinearVDO(size[1], size[2], ard_init=-1.)
 
@@ -722,7 +722,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
         M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
-        print(M)
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
