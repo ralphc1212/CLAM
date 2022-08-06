@@ -675,6 +675,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK      
         h = h.float().unsqueeze(0)
+        print(h.shape)
         h = h.permute(0, 3, 1, 2)
         print(h.shape)
         exit()
