@@ -722,6 +722,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
         M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
+        print(M)
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
