@@ -702,9 +702,9 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         h = F.relu(F.dropout(self.conv1(h), p=0.25))
 
-        feat_a = F.dropout(F.sigmoid(self.conv2a(h)), p=0.25)
+        feat_a = F.dropout(torch.sigmoid(self.conv2a(h)), p=0.25)
 
-        feat_b = F.dropout(F.tanh(self.conv2b(h)), p=0.25)
+        feat_b = F.dropout(torch.tanh(self.conv2b(h)), p=0.25)
 
         feat = feat_a.mul(feat_b)
         mu = self.conv3a(feat)
@@ -722,6 +722,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
         M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
+        M = M.view(-1, M.shape[-1])
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
