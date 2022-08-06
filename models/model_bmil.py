@@ -680,7 +680,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.gaus_smoothing = self.gaus_smoothing.to(device)
 
         self.classifiers = self.classifiers.to(device)
-        self.temperature = self.temperature.to(device)
+        # self.temperature = self.temperature.to(device)
 
     def forward(self, h, validation=False):
         device = h.device
