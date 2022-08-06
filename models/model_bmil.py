@@ -645,6 +645,9 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv3b = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
         self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
+        self.dp_0 = nn.Dropout(0.25)
+        self.dp_a = nn.Dropout(0.25)
+        self.dp_b = nn.Dropout(0.25)
 
         # #### use MLP instead ####
         # self.conv1 = nn.Linear(size[0], size[1])
@@ -677,6 +680,9 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv2b = self.conv2b.to(device)
         self.conv3a = self.conv3a.to(device)
         self.conv3b = self.conv3b.to(device)
+        self.dp_0 = self.dp_0.to(device)
+        self.dp_a = self.dp_a.to(device)
+        self.dp_b = self.dp_b.to(device)
         self.gaus_smoothing = self.gaus_smoothing.to(device)
 
         self.classifiers = self.classifiers.to(device)
@@ -700,11 +706,11 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # mu = self.conv3a1(feat) + self.conv3a2(feat) + self.conv3a3(feat)
         # logvar = self.conv3b1(feat) + self.conv3b2(feat) + self.conv3b3(feat)
 
-        h = F.relu(F.dropout(self.conv1(h), p=0.25))
+        h = F.relu(self.dp_0(self.conv1(h)))
 
-        feat_a = F.dropout(torch.sigmoid(self.conv2a(h)), p=0.25)
+        feat_a = self.dp_a(torch.sigmoid(self.conv2a(h)))
 
-        feat_b = F.dropout(torch.tanh(self.conv2b(h)), p=0.25)
+        feat_b = self.dp_b(torch.tanh(self.conv2b(h)))
 
         feat = feat_a.mul(feat_b)
         mu = self.conv3a(feat)
