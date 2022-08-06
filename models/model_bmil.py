@@ -722,7 +722,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
         M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
-        print(M.shape)
+        # print(M.shape)
         # M = M.view(-1, M.shape[-1])
 
         logits = self.classifiers(M)
