@@ -676,6 +676,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         #*-*# A, h = self.attention_net(h)  # NxK      
         h = h.float().unsqueeze(0)
         h = h.permute(0, 3, 1, 2)
+        print(h.shape)
+        exit()
 
         # h = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
         #     torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
