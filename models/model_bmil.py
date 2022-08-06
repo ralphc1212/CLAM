@@ -636,31 +636,31 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         # size = self.size_dict[size_arg]
 
-        #### for the convolution operation ####
-        # self.conv1 = Conv2dVDO(size[0], size[1],  1, padding=0, ard_init=-1.)
-        # self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
-        # self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
+        ### for the convolution operation ####
+        self.conv1 = Conv2dVDO(size[0], size[1],  1, padding=0, ard_init=-1.)
+        self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
+        self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
 
-        # self.conv3a = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
-        # self.conv3b = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
-        # self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
-        # self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
-
-        #### use MLP instead ####
-        self.conv1 = nn.Linear(size[0], size[1])
-        self.conv2a = LinearVDO(size[1], size[2], ard_init=-1.)
-        self.conv2b = LinearVDO(size[1], size[2], ard_init=-1.)
-
-        self.conv3a = LinearVDO(size[2], 1, ard_init=-1.)
-        self.conv3b = LinearVDO(size[2], 1, ard_init=-1.)
+        self.conv3a = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
+        self.conv3b = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
         self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
-        self.n_classes = n_classes
-        self.print_sample_trigger = False
-        self.num_samples = 16
-        self.temperature = torch.tensor([1.0])
-        self.fixed_b = torch.tensor([5.], requires_grad=False)
+        # #### use MLP instead ####
+        # self.conv1 = nn.Linear(size[0], size[1])
+        # self.conv2a = LinearVDO(size[1], size[2], ard_init=-1.)
+        # self.conv2b = LinearVDO(size[1], size[2], ard_init=-1.)
+
+        # self.conv3a = LinearVDO(size[2], 1, ard_init=-1.)
+        # self.conv3b = LinearVDO(size[2], 1, ard_init=-1.)
+        # self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
+        # self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
+
+        # self.n_classes = n_classes
+        # self.print_sample_trigger = False
+        # self.num_samples = 16
+        # self.temperature = torch.tensor([1.0])
+        # self.fixed_b = torch.tensor([5.], requires_grad=False)
 
         initialize_weights(self)
         self.top_k = top_k
@@ -686,7 +686,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK      
         h = h.float().unsqueeze(0)
-        # h = h.permute(0, 3, 1, 2)
+        h = h.permute(0, 3, 1, 2)
 
         # h = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
         #     torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
@@ -722,7 +722,9 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
         M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
-        M = M.view(-1, M.shape[-1])
+        print(M.shape)
+        # M = M.view(-1, M.shape[-1])
+
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
