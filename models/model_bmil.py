@@ -642,13 +642,10 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
         self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
 
-        self.conv3a = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
-        self.conv3b = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
+        self.conv3a = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
+        # self.conv3b = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
         self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
-        self.dp_0 = nn.Dropout(0.25)
-        self.dp_a = nn.Dropout(0.25)
-        self.dp_b = nn.Dropout(0.25)
 
         # #### use MLP instead ####
         # self.conv1 = nn.Linear(size[0], size[1])
@@ -659,6 +656,10 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # self.conv3b = LinearVDO(size[2], 1, ard_init=-1.)
         # self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
         # self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
+
+        self.dp_0 = nn.Dropout(0.25)
+        self.dp_a = nn.Dropout(0.25)
+        self.dp_b = nn.Dropout(0.25)
 
         # self.n_classes = n_classes
         # self.print_sample_trigger = False
@@ -714,11 +715,12 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         feat_b = self.dp_b(torch.tanh(self.conv2b(h)))
 
         feat = feat_a.mul(feat_b)
-        mu = self.conv3a(feat)
+        params = self.conv3(feat)
+        mu = params[:, 0]
+        logvar = params[:, 1]
+
         # mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
         # mu = self.gaus_smoothing(mu)
-
-        logvar = self.conv3b(feat)
 
         # A, h = self.attention_net(h)
 
