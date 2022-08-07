@@ -508,7 +508,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         beta_samples = F.sigmoid(gaus_samples)
         A = beta_samples.unsqueeze(0)
 
-        if self.training:
+        if not validation:
             mu_pr = self.prior_mu[slide_label.item()].expand(h.shape[0])
             logvar_pr = self.prior_logvar[slide_label.item()]
             kl_div = self.kl_logistic_normal(mu_pr, mu, logvar_pr, logvar)
