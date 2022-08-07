@@ -99,7 +99,7 @@ class LinearVDO(nn.Module):
 
         # sum_kl = element_wise_kl.mean(dim=(1,))
 
-        return - sum_kl.sum()
+        return - element_wise_kl.sum()
         # return -torch.mean(minus_kl)
 
     def extra_repr(self):
