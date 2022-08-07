@@ -625,25 +625,22 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         size = self.size_dict[size_arg]
 
         ### for the convolution operation ####
-        self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
-        self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
-        self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
+        # self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
+        # self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
+        # self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
 
-        self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
-        # self.conv3b = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
-        self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
-        self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
-
-        # #### use MLP instead ####
-        # self.conv1 = nn.Linear(size[0], size[1])
-        # self.conv2a = LinearVDO(size[1], size[2], ard_init=-1.)
-        # self.conv2b = LinearVDO(size[1], size[2], ard_init=-1.)
-
-        # self.conv3 = LinearVDO(size[2], 2, ard_init=-1.)
+        # self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
         # self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
         # self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
+        # #### use MLP instead ####
+        self.conv1 = nn.Linear(size[0], size[1])
+        self.conv2a = LinearVDO(size[1], size[2], ard_init=-1.)
+        self.conv2b = LinearVDO(size[1], size[2], ard_init=-1.)
 
+        self.conv3 = LinearVDO(size[2], 2, ard_init=-1.)
+        self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
+        self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
         self.dp_0 = nn.Dropout(0.25)
         self.dp_a = nn.Dropout(0.25)
@@ -678,7 +675,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         h = h.float().unsqueeze(0)
 
         # comment this if use MLP
-        h = h.permute(0, 3, 1, 2)
+        # h = h.permute(0, 3, 1, 2)
 
         h = F.relu(self.dp_0(self.conv1(h)))
 
@@ -689,22 +686,22 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         feat = feat_a.mul(feat_b)
         params = self.conv3(feat)
 
-        mu = params[:, :1, :, :]
-        logvar = params[:, 1:, :, :]
+        # mu = params[:, :1, :, :]
+        # logvar = params[:, 1:, :, :]
 
         # #### use MLP instead ####
-        # mu = params[:, :, :, 0]
-        # logvar = params[:, :, :, 1]
+        mu = params[:, :, :, 0:]
+        logvar = params[:, :, :, 1:]
 
         # mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
         # mu = self.gaus_smoothing(mu)
 
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
-        M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+        # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
         # #### use MLP instead ####
-        # M = A.mul(h).sum(dim=(1, 2)) / A.sum()
+        M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
         logits = self.classifiers(M)
 
