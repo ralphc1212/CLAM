@@ -48,8 +48,7 @@ class LinearVDO(nn.Module):
         si = torch.sqrt(var)
 
         activation = mu + torch.normal(torch.zeros_like(mu), torch.ones_like(mu)) * si
-        # return activation + self.bias
-        return activation 
+        return activation + self.bias
 
     @property
     def weights_clipped(self):
@@ -120,6 +119,7 @@ class LinearVDO(nn.Module):
     def log_alpha(self):
         eps = 1e-8
         return self.log_sigma2 - 2 * torch.log(torch.abs(self.weight) + eps)
+
 
 class Conv2dVDO(nn.Conv2d):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1,
