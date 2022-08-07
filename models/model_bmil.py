@@ -686,8 +686,13 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         feat = feat_a.mul(feat_b)
         params = self.conv3(feat)
-        mu = params[:, :, :, 0]
-        logvar = params[:, :, :, 1]
+
+        mu = params[:, :1, :, :]
+        logvar = params[:, 1:, :, :]
+
+        # #### use MLP instead ####
+        # mu = params[:, :, :, 0]
+        # logvar = params[:, :, :, 1]
 
         print(mu.shape)
         print(logvar.shape)
