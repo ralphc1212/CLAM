@@ -396,7 +396,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
              writer = None, loss_fn = None, results_dir=None,  bayes_args=None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args):
+    if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args):
         model.train()
     else:
         model.eval()

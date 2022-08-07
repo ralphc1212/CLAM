@@ -488,7 +488,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
     def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
         return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) -0.5
 
-    def forward(self, h, return_features=False, slide_label=None):
+    def forward(self, h, return_features=False, slide_label=None, validation=False):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK 
 
@@ -612,7 +612,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         if return_features:
             top_features = torch.index_select(h, dim=0, index=top_instance_idx)
             results_dict.update({'features': top_features})
-        if self.training:
+        if not validation:
             return top_instance, Y_prob, Y_hat, kl_div, y_probs, results_dict
         else:
             return top_instance, Y_prob, Y_hat, y_probs, results_dict
@@ -717,7 +717,10 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # if return_features:
         #     top_features = torch.index_select(h, dim=0, index=top_instance_idx)
         #     results_dict.update({'features': top_features})
-        return top_instance, Y_prob, Y_hat, y_probs, A
+        if not validation:
+            return top_instance, Y_prob, Y_hat, kl_div, y_probs, results_dict
+        else:
+            return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
 class probabilistic_MIL_Bayes_convis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
