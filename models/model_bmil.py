@@ -642,7 +642,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
         self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
 
-        self.conv3a = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
+        self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
         # self.conv3b = Conv2dVDO(size[2], 1,  1, padding=0, ard_init=-1.)
         self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
