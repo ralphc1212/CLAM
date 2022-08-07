@@ -217,7 +217,7 @@ class Conv2dVDO(nn.Conv2d):
                           + k1 * torch.exp(-(k2 + k3 * log_alp)**2)
 
         # sum_kl = element_wise_kl.mean(dim=(1, 2, 3))
-        return - sum_kl.sum()
+        return - element_wise_kl.sum()
 
         # log_alp = self.clip_alp(self.log_alp)
         # # log_alp = self.clip_alp(self.log_alpha)
