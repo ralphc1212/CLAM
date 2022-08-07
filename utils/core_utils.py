@@ -418,7 +418,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
         for batch_idx, (data, label) in enumerate(loader):
             data, label = data.to(device, non_blocking=True), label.to(device, non_blocking=True)
 
-            if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args):
+            if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args):
                 out_prob = 0
                 out_atten = 0
                 out_logits = 0
@@ -435,7 +435,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
 
                     Y_hats.append(Y_hat)
                     ens_prob.append(torch.sum(- Y_prob * torch.log(Y_prob)).item())
-                    if 'vis' in bayes_args or 'spvis' in bayes_args:
+                    if 'vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args:
                         A = A.t()
                         A = torch.cat([A, 1 - A], dim = 1)
                         ens_atten.append((- A * torch.log(A)).sum(dim = 1).mean().item())
