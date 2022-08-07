@@ -48,8 +48,8 @@ class LinearVDO(nn.Module):
         si = torch.sqrt(var)
 
         activation = mu + torch.normal(torch.zeros_like(mu), torch.ones_like(mu)) * si
-        # return activation + self.bias
-        return activation 
+        return activation + self.bias
+        # return activation 
 
     @property
     def weights_clipped(self):
