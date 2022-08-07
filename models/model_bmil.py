@@ -659,12 +659,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.dp_a = nn.Dropout(0.25)
         self.dp_b = nn.Dropout(0.25)
 
-        # self.n_classes = n_classes
-        # self.print_sample_trigger = False
-        # self.num_samples = 16
-        # self.temperature = torch.tensor([1.0])
-        # self.fixed_b = torch.tensor([5.], requires_grad=False)
-
         initialize_weights(self)
         self.top_k = top_k
 
@@ -692,19 +686,9 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK      
         h = h.float().unsqueeze(0)
+
+        # comment this if use MLP
         # h = h.permute(0, 3, 1, 2)
-
-        # h = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
-        #     torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
-        #     torch.nn.functional.dropout(self.conv13(h),p=0.25))
-
-        # feat_a = F.sigmoid(self.conv2a1(h) + self.conv2a2(h) + self.conv2a3(h))
-
-        # feat_b = F.tanh(self.conv2b1(h) + self.conv2b2(h) + self.conv2b3(h))
-
-        # feat = feat_a.mul(feat_b)
-        # mu = self.conv3a1(feat) + self.conv3a2(feat) + self.conv3a3(feat)
-        # logvar = self.conv3b1(feat) + self.conv3b2(feat) + self.conv3b3(feat)
 
         h = F.relu(self.dp_0(self.conv1(h)))
 
@@ -714,29 +698,18 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         feat = feat_a.mul(feat_b)
         params = self.conv3(feat)
-        print(params.shape)
-        mu = params[:, 0]
-        logvar = params[:, 1]
-
-        print(mu.shape)
-        print(logvar.shape)
+        mu = params[:, :, :, 0]
+        logvar = params[:, :, :, 1]
 
         # mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
         # mu = self.gaus_smoothing(mu)
 
-        # A, h = self.attention_net(h)
-
-        # mu = A[:, 0]
-        # logvar = A[:, 1]
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
-        print(A.shape)
-        print(h.shape)
-        M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
-        # print(M.shape)
-        # M = M.view(-1, M.shape[-1])
+        # #### use MLP instead ####
+        M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
         logits = self.classifiers(M)
 
