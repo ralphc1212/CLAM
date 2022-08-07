@@ -637,7 +637,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # size = self.size_dict[size_arg]
 
         ### for the convolution operation ####
-        self.conv1 = Conv2dVDO(size[0], size[1],  1, padding=0, ard_init=-1.)
+        # self.conv1 = Conv2dVDO(size[0], size[1],  1, padding=0, ard_init=-1.)
+        self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
         self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
         self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
 
