@@ -643,9 +643,11 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
         # self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
-        # self.dp_0 = nn.Dropout(0.25)
-        # self.dp_a = nn.Dropout(0.25)
-        # self.dp_b = nn.Dropout(0.25)
+
+
+        self.dp_0 = nn.Dropout(0.25)
+        self.dp_a = nn.Dropout(0.25)
+        self.dp_b = nn.Dropout(0.25)
 
         initialize_weights(self)
         self.top_k = top_k
