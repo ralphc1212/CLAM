@@ -675,7 +675,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         h = h.float().unsqueeze(0)
 
         # comment this if use MLP
-        # h = h.permute(0, 3, 1, 2)
+        h = h.permute(0, 3, 1, 2)
 
         h = F.relu(self.dp_0(self.conv1(h)))
 
@@ -686,24 +686,24 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         feat = feat_a.mul(feat_b)
         params = self.conv3(feat)
 
-        # mu = params[:, :1, :, :]
-        # logvar = params[:, 1:, :, :]
+        mu = params[:, :1, :, :]
+        logvar = params[:, 1:, :, :]
 
         # #### use MLP instead ####
-        mu = params[:, :, :, :1]
-        logvar = params[:, :, :, 1:]
+        # mu = params[:, :, :, :1]
+        # logvar = params[:, :, :, 1:]
 
         # mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
         # mu = self.gaus_smoothing(mu)
 
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
-        # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+        M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
         # #### use MLP instead ####
-        M = A.mul(h).sum(dim=(1, 2)) / A.sum()
+        # M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
-        print(M.sum())
+        # print(M.sum())
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
