@@ -696,9 +696,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # mu = params[:, :, :, 0]
         # logvar = params[:, :, :, 1]
 
-        print(mu.shape)
-        print(logvar.shape)
-
         # mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
         # mu = self.gaus_smoothing(mu)
 
