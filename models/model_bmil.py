@@ -690,7 +690,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # logvar = params[:, 1:, :, :]
 
         # #### use MLP instead ####
-        mu = params[:, :, :, 0:]
+        mu = params[:, :, :, :1]
         logvar = params[:, :, :, 1:]
 
         # mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
@@ -701,6 +701,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
         print(A.shape)
         print(h.shape)
+
         # #### use MLP instead ####
         M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
