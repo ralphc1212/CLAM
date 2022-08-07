@@ -692,7 +692,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK      
         h = h.float().unsqueeze(0)
-        h = h.permute(0, 3, 1, 2)
+        # h = h.permute(0, 3, 1, 2)
 
         # h = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + 
         #     torch.nn.functional.dropout(self.conv12(h),p=0.25) + 
@@ -726,8 +726,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # logvar = A[:, 1]
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
-        M = A.mul(h).sum(dim=(2, 3)) / A.sum()
-        # M = A.mul(h).sum(dim=(1, 2)) / A.sum()
+        # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+        M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
         # print(M.shape)
         # M = M.view(-1, M.shape[-1])
