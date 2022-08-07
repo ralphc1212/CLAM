@@ -675,7 +675,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         h = h.float().unsqueeze(0)
 
         # comment this if use MLP
-        h = h.permute(0, 3, 1, 2)
+        # h = h.permute(0, 3, 1, 2)
 
         h = F.relu(self.dp_0(self.conv1(h)))
 
