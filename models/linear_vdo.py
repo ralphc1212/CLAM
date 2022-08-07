@@ -42,7 +42,10 @@ class LinearVDO(nn.Module):
         in2 = input * input
         exp_ = torch.exp(log_alp)
         w2 = self.weight * self.weight
+        print(exp_.shape)
+        print(w2.shape)
         var = in2.matmul(((exp_ * w2) + eps).t())
+        print(var.shape)
 
         si = torch.sqrt(var)
 
@@ -97,9 +100,9 @@ class LinearVDO(nn.Module):
         element_wise_kl = -.5 * torch.log(1 + 1. / (torch.exp(log_alp))) \
                           + k1 * torch.exp(-(k2 + k3 * log_alp) ** 2)
 
-        # sum_kl = element_wise_kl.mean(dim=(1,))
+        sum_kl = element_wise_kl.mean(dim=(1,))
 
-        return - element_wise_kl.sum()
+        return - sum_kl.sum()
         # return -torch.mean(minus_kl)
 
     def extra_repr(self):
