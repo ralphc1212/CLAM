@@ -699,12 +699,11 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
-        print(A.shape)
-        print(h.shape)
 
         # #### use MLP instead ####
         M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
+        print(M.sum())
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
