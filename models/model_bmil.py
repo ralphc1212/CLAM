@@ -623,18 +623,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
-        # fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
-        # if dropout:
-        #     fc.append(nn.Dropout(0.25))
-        # if gate:
-        #     attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
-        # else:
-        #     attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
-        # fc.append(attention_net)
-        # self.attention_net = nn.Sequential(*fc)
-
-        # self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
-        # size = self.size_dict[size_arg]
 
         ### for the convolution operation ####
         # self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
@@ -688,7 +676,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         h = h.float().unsqueeze(0)
 
         # comment this if use MLP
-        # h = h.permute(0, 3, 1, 2)
+        h = h.permute(0, 3, 1, 2)
 
         h = F.relu(self.dp_0(self.conv1(h)))
 
@@ -700,6 +688,9 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         params = self.conv3(feat)
         mu = params[:, :, :, 0]
         logvar = params[:, :, :, 1]
+
+        print(mu.shape)
+        print(logvar.shape)
 
         # mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
         # mu = self.gaus_smoothing(mu)
