@@ -42,14 +42,14 @@ class LinearVDO(nn.Module):
         in2 = input * input
         exp_ = torch.exp(log_alp)
         w2 = self.weight * self.weight
-        print(exp_.shape)
-        print(w2.shape)
+
         var = in2.matmul(((exp_ * w2) + eps).t())
-        print(var.shape)
 
         si = torch.sqrt(var)
 
         activation = mu + torch.normal(torch.zeros_like(mu), torch.ones_like(mu)) * si
+        print(activation.shape)
+        print(self.bias.shape)
         return activation + self.bias
 
     @property
