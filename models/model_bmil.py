@@ -727,6 +727,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+        print(A.shape)
+        print(h.shape)
         M = A.mul(h).sum(dim=(1, 2)) / A.sum()
 
         # print(M.shape)
