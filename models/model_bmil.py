@@ -718,11 +718,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         #     top_features = torch.index_select(h, dim=0, index=top_instance_idx)
         #     results_dict.update({'features': top_features})
 
-        print(A.shape)
-        print(logits.shape)
-        exit()
-
-        return top_instance, Y_prob, Y_hat, y_probs, A
+        return top_instance, Y_prob, Y_hat, y_probs, A.view((1,-1))
 
 class probabilistic_MIL_Bayes_convis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):

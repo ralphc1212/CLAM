@@ -437,13 +437,8 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                     ens_prob.append(torch.sum(- Y_prob * torch.log(Y_prob)).item())
                     if 'vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args:
                         A = A.t()
-                        print(A.shape)
                         A = torch.cat([A, 1 - A], dim = 1)
-                        print(A.shape)
-                        print((- A * torch.log(A)).sum(dim = 1).shape)
                         ens_atten.append((- A * torch.log(A)).sum(dim = 1).mean().item())
-
-                        exit()
                         # EXTRACT DATA UNCERTAINTY: store the vector vis_data += (- A * torch.log(A)).sum(dim = 1)
                     else:
                         ens_atten.append(torch.sum(- A * torch.log(A)).item())
