@@ -613,9 +613,9 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
             top_features = torch.index_select(h, dim=0, index=top_instance_idx)
             results_dict.update({'features': top_features})
         if not validation:
-            return top_instance, Y_prob, Y_hat, kl_div, y_probs, results_dict
+            return top_instance, Y_prob, Y_hat, kl_div, y_probs, A
         else:
-            return top_instance, Y_prob, Y_hat, y_probs, results_dict
+            return top_instance, Y_prob, Y_hat, y_probs, A
 
 
 class probabilistic_MIL_Bayes_spvis(nn.Module):
@@ -718,7 +718,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         #     top_features = torch.index_select(h, dim=0, index=top_instance_idx)
         #     results_dict.update({'features': top_features})
 
-        return top_instance, Y_prob, Y_hat, y_probs, results_dict
+        return top_instance, Y_prob, Y_hat, y_probs, A
 
 class probabilistic_MIL_Bayes_convis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
