@@ -427,21 +427,14 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         size = self.size_dict[size_arg]
         first_transform = nn.Linear(size[0], size[1])
         fc1 = [first_transform, nn.ReLU()]
-        # fc2 = [first_transform, nn.ReLU()]
 
         if dropout:
             fc1.append(nn.Dropout(0.25))
-            # fc2.append(nn.Dropout(0.25))
 
         if gate:
-            # attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
-            # postr_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
-            # prior_net = DAttn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
             postr_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
-            # prior_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
 
         else:
-            # attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
             postr_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
             prior_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
 
@@ -449,21 +442,15 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         # fc2.append(prior_net)
 
         self.postr_net = nn.Sequential(*fc1)
-        # self.prior_net = nn.Sequential(*fc2)
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
-        # self.classifiers = nn.Linear(size[1], n_classes)
         self.n_classes = n_classes
         self.print_sample_trigger = False
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
-        # self.sf_pos = torch.tensor([2e4], requires_grad=False)
-        # self.sf_neg = torch.tensor([2e4], requires_grad=False)
-        # self.sf_pos = torch.tensor([1.], requires_grad=False)
         self.prior_mu = torch.tensor([-5., 0.])
         self.prior_logvar = torch.tensor([-1., 3.])
 
-        # self.sf_neg = torch.tensor([1.], requires_grad=False)
         initialize_weights(self)
         self.top_k = top_k
 
@@ -474,33 +461,20 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
 
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # self.attention_net = self.attention_net.to(device)
         self.postr_net = self.postr_net.to(device)
-        # self.prior_net = self.prior_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-        # self.sf_pos = self.sf_pos.to(device)
         self.prior_mu = self.prior_mu.to(device)
         self.prior_logvar = self.prior_logvar.to(device)
 
-        # self.sf_neg = self.sf_neg.to(device)
 
     def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
         return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) -0.5
 
     def forward(self, h, return_features=False, slide_label=None, validation=False):
         device = h.device
-        #*-*# A, h = self.attention_net(h)  # NxK 
 
         param, h = self.postr_net(h)
-        # prior_alpha, _ = self.prior_net(h)
-
-        # if slide_label == 0:
-        #     mu_pr = prior_mu[0].expand(h.shape[0])
-        #     logvar_pr = self.prior_logvar[0]
-        # else:
-        #     mu_pr = torch.tensor([0.] * h.shape[0]).cuda()
-        #     logvar_pr = self.prior_logvar[1]
 
         mu = param[:, 0]
         logvar = param[:, 1]
@@ -515,89 +489,6 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         else:
             kl_div = None
 
-        # if negative, all patches should be checked with equal probabilities.
-        # postr_alpha *= torch.exp(slide_label * torch.tensor([conc_expo]))
-
-        # postr_alpha = F.softplus(torch.transpose(postr_alpha, 1, 0))  # KxN
-        # prior_alpha = torch.exp(torch.transpose(prior_alpha, 1, 0))  # KxN
-        # postr_alpha = (F.relu(postr_alpha) + EPS).squeeze(1)
-
-        # print('***************************')
-        # print('before: ', postr_alpha)
-        # print('component 1: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))
-        # # print('component 1 clamp: ', (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0))
-        # print('component 1 max: {}, min: {}: '.format(torch.max((self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1))),
-        #     torch.min((self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)))))
-        # print('component 2: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)))
-        # # print('component 2 clamp: ', (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95))
-        # print('component 2 max: {}, min: {}: '.format(torch.max((self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))),
-        #     torch.min((self.sf_pos * torch.softmax(postr_alpha / 5., dim=1)))))
-
-        # postr_alpha = slide_label.detach() * (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.0) \
-        # + (1. - slide_label).detach() * (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1)).clamp(max=0.95)
-
-        # if slide_label == 1:
-        #     postr_alpha = (self.sf_pos * torch.softmax(postr_alpha / 0.1, dim=1)).clamp(min=1.)
-        # else:
-        #     # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
-        #     postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
-
-        # if slide_label == 1:
-        #     prior_alpha = torch.ones(h_.shape[0]).cuda()
-        # else:
-        #     # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 5., dim=1))
-        #     prior_alpha = torch.tensor([1. / h_.shape[0]]*h_.shape[0]).cuda()
-
-            # postr_alpha = (self.sf_neg * torch.softmax(postr_alpha / 10., dim=1)).clamp(max=0.9)
-
-        # postr_alpha = torch.exp(postr_alpha)
-
-        # print('slide label: ', slide_label)
-        # print('after: ', postr_alpha)
-        # print('prior_alpha: ', prior_alpha)
-
-        # postr_kl = torch.distributions.dirichlet.Dirichlet(postr_alpha)
-        # postr_sp = torch.distributions.beta.Beta(postr_alpha, postr_alpha.sum() - postr_alpha)
-        # prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
-        # prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
-        # prior_kl = torch.distributions.dirichlet.Dirichlet(prior_alpha)
-
-        # if self.training:
-        #     kl_div = kl.kl_divergence(postr_kl, prior_kl)
-        #     # kl_div = kl.kl_divergence(prior_kl, postr_kl)
-        #     A = postr_sp.rsample()
-        #     # print('postr samples: ', A)
-        # else:
-        #     prior_sp = torch.distributions.beta.Beta(prior_alpha, prior_alpha.sum() - prior_alpha)
-        #     A = postr_sp.sample()
-        #     # print('prior samples: ', A)
-
-        # kl_div = kl.kl_divergence(postr_kl, prior_kl)
-        # kl_div = kl.kl_divergence(prior_kl, postr_kl)
-        # A = 0
-        # for i in range(self.num_samples):
-        #     A += postr_sp.rsample()
-        # A /= self.num_samples
-        # A = postr_sp.rsample()
-        # print('postr samples: ', A)
-
-        # print('max sample', torch.max(A))
-        # print('min sample', torch.min(A))
-
-        # A = prior_sp.rsample()
-
-        # print('samples: ', A)
-        # print('max sample', torch.max(A))
-        # print('min sample', torch.min(A))
-
-        # if positive
-        # A, h = self.attention_net(h)
-
-        # A = torch.transpose(A, 1, 0)  # KxN 
-
-        # A = F.softmax(A, dim=1)  # softmax over N
-
-        # M = torch.mm(A, h_)
         M = torch.mm(A, h) / A.sum()
 
         logits = self.classifiers(M)
@@ -625,7 +516,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
 
-        ### for the convolution operation ####
         self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
         self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
         self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
@@ -633,15 +523,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
         self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
-
-        # #### use MLP instead ####
-        # self.conv1 = nn.Linear(size[0], size[1])
-        # self.conv2a = LinearVDO(size[1], size[2], ard_init=-1.)
-        # self.conv2b = LinearVDO(size[1], size[2], ard_init=-1.)
-
-        # self.conv3 = LinearVDO(size[2], 2, ard_init=-1.)
-        # self.gaus_smoothing = GaussianSmoothing(1, 7, 1)
-        # self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
         self.dp_0 = nn.Dropout(0.25)
         self.dp_a = nn.Dropout(0.25)
@@ -661,50 +542,34 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv2a = self.conv2a.to(device)
         self.conv2b = self.conv2b.to(device)
         self.conv3 = self.conv3.to(device)
-        # self.conv3b = self.conv3b.to(device)
         self.dp_0 = self.dp_0.to(device)
         self.dp_a = self.dp_a.to(device)
         self.dp_b = self.dp_b.to(device)
         self.gaus_smoothing = self.gaus_smoothing.to(device)
 
         self.classifiers = self.classifiers.to(device)
-        # self.temperature = self.temperature.to(device)
 
     def forward(self, h, validation=False):
         device = h.device
-        #*-*# A, h = self.attention_net(h)  # NxK      
         h = h.float().unsqueeze(0)
-
-        # comment this if use MLP
         h = h.permute(0, 3, 1, 2)
-
         h = F.relu(self.dp_0(self.conv1(h)))
 
         feat_a = self.dp_a(torch.sigmoid(self.conv2a(h)))
-
         feat_b = self.dp_b(torch.tanh(self.conv2b(h)))
-
         feat = feat_a.mul(feat_b)
         params = self.conv3(feat)
 
         mu = params[:, :1, :, :]
         logvar = params[:, 1:, :, :]
 
-        # #### use MLP instead ####
-        # mu = params[:, :, :, :1]
-        # logvar = params[:, :, :, 1:]
-
-        # mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
-        # mu = self.gaus_smoothing(mu)
+        mu = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
+        mu = self.gaus_smoothing(mu)
 
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
         M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
-        # #### use MLP instead ####
-        # M = A.mul(h).sum(dim=(1, 2)) / A.sum()
-
-        # print(M.sum())
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
@@ -712,11 +577,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
         Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
         Y_prob = F.softmax(top_instance, dim = 1) 
-        # results_dict = {}
-
-        # if return_features:
-        #     top_features = torch.index_select(h, dim=0, index=top_instance_idx)
-        #     results_dict.update({'features': top_features})
 
         return top_instance, Y_prob, Y_hat, y_probs, A.view((1,-1))
 
