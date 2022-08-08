@@ -429,7 +429,6 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                 ens_atten = []
                 for i in range(N_SAMPLES):
                     logits, Y_prob, Y_hat, _, A = model(data, validation=True)
-                    print(Y_prob)
                     out_prob += Y_prob
                     out_atten += A.detach()
                     out_logits += logits
