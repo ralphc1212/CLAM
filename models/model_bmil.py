@@ -521,7 +521,11 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
 
         self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
-        self.gaus_smoothing = GaussianSmoothing(1, 11, 1)
+        # self.gaus_smoothing = GaussianSmoothing(1, 11, 1)
+        self.gaus_smoothing_1 = GaussianSmoothing(1, 3, 1)
+        self.gaus_smoothing_2 = GaussianSmoothing(1, 7, 1)
+        self.gaus_smoothing_3 = GaussianSmoothing(1, 11, 1)
+
         self.classifiers = LinearVDO(size[1], n_classes, ard_init=-3.)
 
         self.dp_0 = nn.Dropout(0.25)
@@ -563,8 +567,21 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         mu = params[:, :1, :, :]
         logvar = params[:, 1:, :, :]
 
-        mu = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
-        mu = self.gaus_smoothing(mu)
+        # # no branch
+        # mu = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
+        # mu = self.gaus_smoothing(mu)
+
+        # branch 1
+        mu1 = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
+        mu1 = self.gaus_smoothing(mu1)
+        # branch 2
+        mu2 = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
+        mu2 = self.gaus_smoothing(mu2)
+        # branch 3
+        mu3 = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
+        mu3 = self.gaus_smoothing(mu3)
+
+        mu = mu1 + mu2 + mu3
 
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
