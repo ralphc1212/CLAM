@@ -571,17 +571,18 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # mu = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
         # mu = self.gaus_smoothing(mu)
 
+
         # branch 1
         mu1 = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
-        mu1 = self.gaus_smoothing(mu1)
+        mu1 = self.gaus_smoothing_1(mu1)
         # branch 2
         mu2 = F.pad(mu, (3, 3, 3, 3), mode='constant', value=0)
-        mu2 = self.gaus_smoothing(mu2)
+        mu2 = self.gaus_smoothing_2(mu2)
         # branch 3
         mu3 = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
-        mu3 = self.gaus_smoothing(mu3)
-
+        mu3 = self.gaus_smoothing_3(mu3)
         mu = mu1 + mu2 + mu3
+
 
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
