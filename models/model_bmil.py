@@ -583,16 +583,16 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # logvar = params[:, 1:, :, :]
 
         ## use linear
-        h = h.float().unsqueeze(0)
-        print(h.shape)
-        exit()
-        h = h.permute(0, 3, 1, 2)
-        h = F.relu(self.dp_0(self.conv1(h)))
+        h = h.float().view(-1, 1024)
+        h = F.relu(self.dp_0(self.linear1(h)))
 
-        feat_a = self.dp_a(torch.sigmoid(self.conv2a(h)))
-        feat_b = self.dp_b(torch.tanh(self.conv2b(h)))
+        feat_a = self.dp_a(torch.sigmoid(self.linear2a(h)))
+        feat_b = self.dp_b(torch.tanh(self.linear2b(h)))
         feat = feat_a.mul(feat_b)
-        params = self.conv3(feat)
+        params = self.linear3(feat)
+
+        print(params)
+        exit()
 
         mu = params[:, :1, :, :]
         logvar = params[:, 1:, :, :]
