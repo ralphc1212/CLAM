@@ -589,6 +589,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         h = h.unsqueeze(0).permute(0, 3, 1, 2)
         h_ = F.relu(self.dp_0(self.linear1(h_)))
 
+        print(h_.shape)
+
         feat_a = self.dp_a(torch.sigmoid(self.linear2a(h_)))
         feat_b = self.dp_b(torch.tanh(self.linear2b(h_)))
         feat = feat_a.mul(feat_b)
