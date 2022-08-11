@@ -591,7 +591,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         feat = feat_a.mul(feat_b)
         params = self.linear3(feat)
 
-        print(params)
+        print(params.shape)
         exit()
 
         mu = params[:, :1, :, :]
