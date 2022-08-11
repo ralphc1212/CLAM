@@ -585,8 +585,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         ## use linear
         shape = [h.shape[0], h.shape[1]]
         h = h.float().view(-1, 1024)
-        print(shape)
-        print(h.shape)
         h = F.relu(self.dp_0(self.linear1(h)))
 
         feat_a = self.dp_a(torch.sigmoid(self.linear2a(h)))
@@ -594,11 +592,11 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         feat = feat_a.mul(feat_b)
         params = self.linear3(feat)
 
-        print(params.shape)
+        mu = params[:, :1].view(1, shape[0], shape[1], 1)
+        logvar = params[:, 1:].view(1, shape[0], shape[1], 1)
+        print(mu.shape)
+        print(logvar.shape)
         exit()
-
-        mu = params[:, :1, :, :]
-        logvar = params[:, 1:, :, :]
 
         # # no branch
         mu = F.pad(mu, (2, 2, 2, 2), mode='constant', value=0)
