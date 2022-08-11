@@ -526,7 +526,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.linear2b = LinearVDO(size[1], size[2], ard_init=-1.)
         self.linear3 = LinearVDO(size[2], 2, ard_init=-1.)
 
-        self.gaus_smoothing = GaussianSmoothing(1, 5, 1)
+        self.gaus_smoothing = GaussianSmoothing(1, 3, 1)
         # self.gaus_smoothing_1 = GaussianSmoothing(1, 3, 1)
         # self.gaus_smoothing_2 = GaussianSmoothing(1, 7, 1)
         # self.gaus_smoothing_3 = GaussianSmoothing(1, 11, 1)
@@ -592,14 +592,11 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         feat = feat_a.mul(feat_b)
         params = self.linear3(feat)
 
-        mu = params[:, :1].view(1, shape[0], shape[1], 1)
-        logvar = params[:, 1:].view(1, shape[0], shape[1], 1)
-        print(mu.shape)
-        print(logvar.shape)
-        exit()
+        mu = params[:, :1].view(1, 1, shape[0], shape[1])
+        logvar = params[:, 1:].view(1, 1, shape[0], shape[1])
 
         # # no branch
-        mu = F.pad(mu, (2, 2, 2, 2), mode='constant', value=0)
+        mu = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
         mu = self.gaus_smoothing(mu)
 
         # # branch 1
