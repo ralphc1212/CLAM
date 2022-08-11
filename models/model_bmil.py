@@ -297,8 +297,6 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK
 
-        print(h.shape)
-        exit()
         A, h = self.attention_net(h)
 
         # # [1] JUST Sigmoid attn_net-n_classes = 1
@@ -549,10 +547,16 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
     def relocate(self):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.conv1 = self.conv1.to(device)
-        self.conv2a = self.conv2a.to(device)
-        self.conv2b = self.conv2b.to(device)
-        self.conv3 = self.conv3.to(device)
+        # self.conv1 = self.conv1.to(device)
+        # self.conv2a = self.conv2a.to(device)
+        # self.conv2b = self.conv2b.to(device)
+        # self.conv3 = self.conv3.to(device)
+        
+        self.linear1 = self.linear1.to(device)
+        self.linear2a = self.linear2a.to(device)
+        self.linear2b = self.linear2b.to(device)
+        self.linear3 = self.linear3.to(device)
+
         self.dp_0 = self.dp_0.to(device)
         self.dp_a = self.dp_a.to(device)
         self.dp_b = self.dp_b.to(device)
@@ -580,6 +584,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         ## use linear
         h = h.float().unsqueeze(0)
+        print(h.shape)
+        exit()
         h = h.permute(0, 3, 1, 2)
         h = F.relu(self.dp_0(self.conv1(h)))
 
