@@ -467,7 +467,6 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.prior_mu = self.prior_mu.to(device)
         self.prior_logvar = self.prior_logvar.to(device)
 
-
     def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
         return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) -0.5
 
@@ -521,7 +520,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
 
         self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
-        self.gaus_smoothing = GaussianSmoothing(1, 3, 1)
+        self.gaus_smoothing = GaussianSmoothing(1, 5, 1)
         # self.gaus_smoothing_1 = GaussianSmoothing(1, 3, 1)
         # self.gaus_smoothing_2 = GaussianSmoothing(1, 7, 1)
         # self.gaus_smoothing_3 = GaussianSmoothing(1, 11, 1)
@@ -555,7 +554,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # self.gaus_smoothing_2 = self.gaus_smoothing_2.to(device)
         # self.gaus_smoothing_3 = self.gaus_smoothing_3.to(device)
 
-
         self.classifiers = self.classifiers.to(device)
 
     def forward(self, h, validation=False):
@@ -573,7 +571,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         logvar = params[:, 1:, :, :]
 
         # # no branch
-        mu = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
+        mu = F.pad(mu, (2, 2, 2, 2), mode='constant', value=0)
         mu = self.gaus_smoothing(mu)
 
 
