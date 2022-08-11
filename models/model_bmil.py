@@ -583,7 +583,10 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # logvar = params[:, 1:, :, :]
 
         ## use linear
+        shape = [h.shape[0], h.shape[1]]
         h = h.float().view(-1, 1024)
+        print(shape)
+        print(h.shape)
         h = F.relu(self.dp_0(self.linear1(h)))
 
         feat_a = self.dp_a(torch.sigmoid(self.linear2a(h)))
