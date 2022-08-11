@@ -297,6 +297,8 @@ class probabilistic_MIL_Bayes_vis(nn.Module):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK
 
+        print(h.shape)
+        exit()
         A, h = self.attention_net(h)
 
         # # [1] JUST Sigmoid attn_net-n_classes = 1
@@ -515,11 +517,17 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
 
-        self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
-        self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
-        self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
+        # self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
+        # self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
+        # self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
+        # self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
 
-        self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
+        ## use Linear
+        self.linear1 = nn.Linear(size[0], size[1])
+        self.linear2a = LinearVDO(size[1], size[2], ard_init=-1.)
+        self.linear2b = LinearVDO(size[1], size[2], ard_init=-1.)
+        self.linear3 = LinearVDO(size[2], 2, ard_init=-1.)
+
         self.gaus_smoothing = GaussianSmoothing(1, 5, 1)
         # self.gaus_smoothing_1 = GaussianSmoothing(1, 3, 1)
         # self.gaus_smoothing_2 = GaussianSmoothing(1, 7, 1)
@@ -558,6 +566,19 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
     def forward(self, h, validation=False):
         device = h.device
+        # h = h.float().unsqueeze(0)
+        # h = h.permute(0, 3, 1, 2)
+        # h = F.relu(self.dp_0(self.conv1(h)))
+
+        # feat_a = self.dp_a(torch.sigmoid(self.conv2a(h)))
+        # feat_b = self.dp_b(torch.tanh(self.conv2b(h)))
+        # feat = feat_a.mul(feat_b)
+        # params = self.conv3(feat)
+
+        # mu = params[:, :1, :, :]
+        # logvar = params[:, 1:, :, :]
+
+        ## use linear
         h = h.float().unsqueeze(0)
         h = h.permute(0, 3, 1, 2)
         h = F.relu(self.dp_0(self.conv1(h)))
@@ -574,7 +595,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         mu = F.pad(mu, (2, 2, 2, 2), mode='constant', value=0)
         mu = self.gaus_smoothing(mu)
 
-
         # # branch 1
         # mu1 = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
         # mu1 = self.gaus_smoothing_1(mu1)
@@ -585,7 +605,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # mu3 = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
         # mu3 = self.gaus_smoothing_3(mu3)
         # mu = mu1 + mu2 + mu3
-
 
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
