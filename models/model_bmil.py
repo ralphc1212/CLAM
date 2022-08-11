@@ -163,6 +163,7 @@ class GaussianSmoothing(nn.Module):
             filtered (torch.Tensor): Filtered output.
         """
         return self.conv(input, weight=self.weight, groups=self.groups, dilation=2)
+        # return self.conv(input, weight=self.weight, groups=self.groups)
 
 class probabilistic_MIL_Bayes(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
@@ -574,7 +575,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         logvar = params[:, 1:, :, :]
 
         # # no branch
-        mu = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
+        mu = F.pad(mu, (2, 2, 2, 2), mode='constant', value=0)
         mu = self.gaus_smoothing(mu)
 
         # # branch 1
