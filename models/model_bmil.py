@@ -609,9 +609,17 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # mu3 = self.gaus_smoothing_3(mu3)
         # mu = mu1 + mu2 + mu3
 
+        # gaus_samples = self.reparameterize(mu, logvar)
+        # A = F.sigmoid(gaus_samples)
+        # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+
+        # Gaussian smoothing afterwards
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
+        A = F.pad(A, (1, 1, 1, 1), mode='constant', value=0)
+        A = self.gaus_smoothing(A)
         M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+
 
         logits = self.classifiers(M)
 
