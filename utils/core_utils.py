@@ -343,8 +343,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         data, label = data.to(device), label.to(device)
 
         print(bayes_args)
-        if ('enc' or 'spvis') in bayes_args:
-            print('in')
+        if 'enc' in bayes_args or 'spvis' in bayes_args:
             logits, Y_prob, Y_hat, kl_div, _, _ = model(data, slide_label=label)
         else:
             logits, Y_prob, Y_hat, _, _ = model(data)
