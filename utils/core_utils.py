@@ -342,7 +342,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
     for batch_idx, (data, label) in enumerate(loader):
         data, label = data.to(device), label.to(device)
 
-        if 'enc' in bayes_args:
+        if ('enc' or 'spvis') in bayes_args:
             logits, Y_prob, Y_hat, kl_div, _, _ = model(data, slide_label=label)
         else:
             logits, Y_prob, Y_hat, _, _ = model(data)
@@ -351,11 +351,11 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         loss = loss_fn(logits, label)
 
         if bayes_args:
-            
+
             kl_model = bayes_args[0](model)
 
-            if 'enc' in bayes_args:
-                # loss += bayes_args[1] * kl_div[0]    
+            if ('enc' or 'spvis') in bayes_args:
+                # loss += bayes_args[1] * kl_div[0]
                 kl_data = kl_div[0]
                 loss += bayes_args[1] * kl_model + bayes_args[2] * kl_data
             else:
@@ -518,6 +518,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
             return True
 
     return False
+
 
 def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, writer = None, loss_fn = None, results_dir = None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")

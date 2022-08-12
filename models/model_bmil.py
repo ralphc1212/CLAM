@@ -162,8 +162,8 @@ class GaussianSmoothing(nn.Module):
         Returns:
             filtered (torch.Tensor): Filtered output.
         """
-        return self.conv(input, weight=self.weight, groups=self.groups, dilation=2)
-        # return self.conv(input, weight=self.weight, groups=self.groups)
+        # return self.conv(input, weight=self.weight, groups=self.groups, dilation=2)
+        return self.conv(input, weight=self.weight, groups=self.groups)
 
 class probabilistic_MIL_Bayes(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
@@ -522,7 +522,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
 
         self.gaus_smoothing = GaussianSmoothing(1, 3, 1)
-        # self.gaus_smoothing = GaussianSmoothing(1, 5, 1)
 
         # self.gaus_smoothing_1 = GaussianSmoothing(1, 3, 1)
         # self.gaus_smoothing_2 = GaussianSmoothing(1, 7, 1)
@@ -533,17 +532,26 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.dp_0 = nn.Dropout(0.25)
         self.dp_a = nn.Dropout(0.25)
         self.dp_b = nn.Dropout(0.25)
+        
+        self.prior_mu = torch.tensor([-5., 0.])
+        self.prior_logvar = torch.tensor([-1., 3.])
 
         initialize_weights(self)
         self.top_k = top_k
+
 
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
+
+    def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
+        return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) -0.5
+
+
     def relocate(self):
-        device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.conv1 = self.conv1.to(device)
         self.conv2a = self.conv2a.to(device)
         self.conv2b = self.conv2b.to(device)
@@ -560,7 +568,9 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         self.classifiers = self.classifiers.to(device)
 
-    def forward(self, h, validation=False):
+
+    def forward(self, h, slide_label=None, validation=False):
+
         device = h.device
         h = h.float().unsqueeze(0)
         h = h.permute(0, 3, 1, 2)
@@ -574,8 +584,15 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         mu = params[:, :1, :, :]
         logvar = params[:, 1:, :, :]
 
+        if not validation:
+            mu_pr = self.prior_mu[slide_label.item()].expand_as(*h.shape)
+            logvar_pr = self.prior_logvar[slide_label.item()]
+            kl_div = self.kl_logistic_normal(mu_pr, mu, logvar_pr, logvar)
+        else:
+            kl_div = None
+
         # # no branch
-        mu = F.pad(mu, (2, 2, 2, 2), mode='constant', value=0)
+        mu = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
         mu = self.gaus_smoothing(mu)
 
         # # branch 1
@@ -601,7 +618,10 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
         Y_prob = F.softmax(top_instance, dim = 1) 
 
-        return top_instance, Y_prob, Y_hat, y_probs, A.view((1,-1))
+        if not validation:
+            return top_instance, Y_prob, Y_hat, kl_div, y_probs, A.view((1,-1))
+        else:
+            return top_instance, Y_prob, Y_hat, y_probs, A.view((1,-1))
 
 class probabilistic_MIL_Bayes_convis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
