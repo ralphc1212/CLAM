@@ -585,8 +585,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         logvar = params[:, 1:, :, :]
 
         if not validation:
-            print(h.shape)
-            mu_pr = self.prior_mu[slide_label.item()].expand_as(*h.shape)
+            mu_pr = self.prior_mu[slide_label.item()].expand_as(mu)
             logvar_pr = self.prior_logvar[slide_label.item()]
             kl_div = self.kl_logistic_normal(mu_pr, mu, logvar_pr, logvar)
         else:
