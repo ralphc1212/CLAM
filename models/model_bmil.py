@@ -562,6 +562,9 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.dp_b = self.dp_b.to(device)
         self.gaus_smoothing = self.gaus_smoothing.to(device)
 
+        self.prior_mu = self.prior_mu.to(device)
+        self.prior_logvar = self.prior_logvar.to(device)
+
         # self.gaus_smoothing_1 = self.gaus_smoothing_1.to(device)
         # self.gaus_smoothing_2 = self.gaus_smoothing_2.to(device)
         # self.gaus_smoothing_3 = self.gaus_smoothing_3.to(device)
