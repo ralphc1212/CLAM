@@ -620,7 +620,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         A = self.gaus_smoothing(A)
         M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
-
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
