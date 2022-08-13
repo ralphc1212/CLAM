@@ -595,8 +595,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
             kl_div = None
 
         # # no branch
-        mu = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
-        mu = self.gaus_smoothing(mu)
+        # mu = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
+        # mu = self.gaus_smoothing(mu)
 
         # # branch 1
         # mu1 = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
