@@ -515,7 +515,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
         super(probabilistic_MIL_Bayes_spvis, self).__init__()
 
-        self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+        # self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         self.size_dict = {"small": [2048, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
 
@@ -598,8 +598,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
             kl_div = None
 
         # # no branch
-        # mu = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
-        # mu = self.gaus_smoothing(mu)
+        mu = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
+        mu = self.gaus_smoothing(mu)
 
         # # branch 1
         # mu1 = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
@@ -612,16 +612,17 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # mu3 = self.gaus_smoothing_3(mu3)
         # mu = mu1 + mu2 + mu3
 
-        # gaus_samples = self.reparameterize(mu, logvar)
-        # A = F.sigmoid(gaus_samples)
-        # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
-
-        # Gaussian smoothing afterwards
         gaus_samples = self.reparameterize(mu, logvar)
         A = F.sigmoid(gaus_samples)
-        A = F.pad(A, (1, 1, 1, 1), mode='constant', value=0)
-        A = self.gaus_smoothing(A)
         M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+
+        # Gaussian smoothing afterwards
+        # gaus_samples = self.reparameterize(mu, logvar)
+        # A = F.sigmoid(gaus_samples)
+        # A = F.pad(A, (1, 1, 1, 1), mode='constant', value=0)
+        # A = self.gaus_smoothing(A)
+        # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+
 
         logits = self.classifiers(M)
 
