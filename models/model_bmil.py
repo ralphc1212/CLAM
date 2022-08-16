@@ -165,6 +165,7 @@ class GaussianSmoothing(nn.Module):
         # return self.conv(input, weight=self.weight, groups=self.groups, dilation=2)
         return self.conv(input, weight=self.weight, groups=self.groups)
 
+
 class probabilistic_MIL_Bayes(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
         super(probabilistic_MIL_Bayes, self).__init__()
@@ -425,6 +426,7 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
         super(probabilistic_MIL_Bayes_enc, self).__init__()
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+
         size = self.size_dict[size_arg]
         first_transform = nn.Linear(size[0], size[1])
         fc1 = [first_transform, nn.ReLU()]
@@ -514,6 +516,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         super(probabilistic_MIL_Bayes_spvis, self).__init__()
 
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+        self.size_dict = {"small": [2048, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
 
         self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
@@ -547,7 +550,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
 
     def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
-        return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) -0.5
+        return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) - 0.5
 
 
     def relocate(self):
@@ -730,7 +733,6 @@ class probabilistic_MIL_Bayes_convis(nn.Module):
         # mu = self.conv3a1(feat) + self.conv3a2(feat) + self.conv3a3(feat)
         # logvar = self.conv3b1(feat) + self.conv3b2(feat) + self.conv3b3(feat)
 
-
         h = F.relu(torch.nn.functional.dropout(self.conv11(h), p=0.25) + torch.nn.functional.dropout(self.conv13(h),p=0.25))
 
         feat_a = F.sigmoid(self.conv2a1(h) + self.conv2a3(h))
@@ -782,5 +784,3 @@ bMIL_model_dict = {
                     'spvis': probabilistic_MIL_Bayes_spvis,
                     'convis': probabilistic_MIL_Bayes_convis,
 }
-
-
