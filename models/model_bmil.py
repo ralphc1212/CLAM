@@ -524,7 +524,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
         self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
 
-        self.gaus_smoothing = GaussianSmoothing(1, 3, 1)
+        self.gaus_smoothing = GaussianSmoothing(1, 11, 10)
 
         # self.gaus_smoothing_1 = GaussianSmoothing(1, 3, 1)
         # self.gaus_smoothing_2 = GaussianSmoothing(1, 7, 1)
@@ -535,7 +535,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.dp_0 = nn.Dropout(0.25)
         self.dp_a = nn.Dropout(0.25)
         self.dp_b = nn.Dropout(0.25)
-        
+
         self.prior_mu = torch.tensor([-5., 0.])
         self.prior_logvar = torch.tensor([-1., 3.])
 
@@ -574,7 +574,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
 
         self.classifiers = self.classifiers.to(device)
 
-
     def forward(self, h, slide_label=None, validation=False):
 
         device = h.device
@@ -598,7 +597,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
             kl_div = None
 
         # # no branch
-        mu = F.pad(mu, (1, 1, 1, 1), mode='constant', value=0)
+        mu = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
         mu = self.gaus_smoothing(mu)
 
         # # branch 1
