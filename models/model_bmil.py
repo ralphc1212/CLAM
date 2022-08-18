@@ -515,8 +515,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
         super(probabilistic_MIL_Bayes_spvis, self).__init__()
 
-        # self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
-        self.size_dict = {"small": [2048, 512, 256], "big": [1024, 512, 384]}
+        self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+        # self.size_dict = {"small": [2048, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
 
         self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
