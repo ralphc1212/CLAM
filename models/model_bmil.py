@@ -660,8 +660,8 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         self.kernel_size = 3
 
-        self.log_sigma2 = nn.Parameter(torch.randn(2), requires_grad=True)
-        self.message_param = nn.Parameter(torch.randn(1), requires_grad=True)
+        self.log_sigma2 = torch.randn(2)
+        self.message_param = torch.randn(1)
 
         self.meshgrids = self._make_mesh_grid()
 
@@ -741,8 +741,8 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         self.dp_b = self.dp_b.to(device)
         self.gaus_smoothing = self.gaus_smoothing.to(device)
 
-        self.log_sigma2 = self.log_sigma2.to(device)
-        self.message_param = self.message_param.to(device)
+        self.log_sigma2 = nn.Parameter(self.log_sigma2, requires_grad=True).to(device)
+        self.message_param = nn.Parameter(self.message_param, requires_grad=True).to(device)
         self.meshgrids = self.meshgrids.to(device)
 
         self.prior_mu = self.prior_mu.to(device)
