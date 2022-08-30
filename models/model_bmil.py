@@ -660,8 +660,8 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         self.kernel_size = 3
 
-        self.log_sigma2 = torch.randn(2)
-        self.message_param = torch.randn(1)
+        self.log_sigma2 = [torch.randn(1, requires_grad=True), torch.randn(1, requires_grad=True)]
+        self.message_param = torch.randn(1, requires_grad=True)
 
         self.meshgrids = self._make_mesh_grid()
 
@@ -711,14 +711,14 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
     def full_crf_learning(self, samples):
         # use a learnable Gaussian kernel
-        Q = (1. / torch.exp( - samples ).sum()) * torch.exp( - samples )
+        Q = (1. / torch.exp( samples ).sum()) * torch.exp( samples )
         unary = samples
 
         pad = int((self.kernel_size - 1) / 2)
         A = F.pad(samples, (pad, pad, pad, pad), mode='constant', value=0)
         W = self._compute_conv_param()
         A = Q * F.conv2d(A, weight=W) * self.message_param
-        A += unary
+        A = unary - A
         return A
 
     def crf_approx(self, params):
@@ -741,7 +741,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         self.dp_b = self.dp_b.to(device)
         self.gaus_smoothing = self.gaus_smoothing.to(device)
 
-        self.log_sigma2 = nn.Parameter(self.log_sigma2, requires_grad=True).to(device)
+        self.log_sigma2 = nn.ParameterList(self.log_sigma2).to(device)
         self.message_param = nn.Parameter(self.message_param, requires_grad=True).to(device)
         # self.meshgrids = self.meshgrids.cuda()
 
