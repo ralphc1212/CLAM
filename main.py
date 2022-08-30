@@ -27,7 +27,7 @@ import pandas as pd
 import numpy as np
 
 from torch import autograd
-# autograd.set_detect_anomaly(True)
+autograd.set_detect_anomaly(True)
 
 def main(args):
     # create results directory if necessary
