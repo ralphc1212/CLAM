@@ -660,7 +660,8 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         self.kernel_size = 3
 
-        self.log_sigma2 = nn.Parameter(torch.randn(2))
+        self.log_sigma2 = nn.Parameter(torch.randn(2), requires_grad=True)
+        self.message_param = nn.Parameter(torch.randn(1), requires_grad=True)
 
         self.meshgrids = self._make_mesh_grid()
 
@@ -693,7 +694,6 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
     def _compute_conv_param(self):
         kernel_size = [self.kernel_size] * 2
         kernel = 1
-
         for size, log_sigma2, mgrid in zip(kernel_size, self.log_sigma2, self.meshgrids):
             std = torch.exp(log_sigma2 / 2)
             mean = (size - 1) / 2
@@ -717,7 +717,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         pad = int((self.kernel_size - 1) / 2)
         A = F.pad(samples, (pad, pad, pad, pad), mode='constant', value=0)
         W = self._compute_conv_param()
-        A = Q * F.conv2d(A, weight=W)
+        A = Q * F.conv2d(A, weight=W) * self.message_param
         A += unary
         return A
 
