@@ -662,7 +662,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         self.log_sigma2 = nn.Parameter(torch.randn(2))
 
-        self.meshgrids = self._make_mesh_grid(kernel_size=self.kernel_size)
+        self.meshgrids = self._make_mesh_grid()
 
         self.dp_0 = nn.Dropout(0.25)
         self.dp_a = nn.Dropout(0.25)
