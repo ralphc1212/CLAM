@@ -741,6 +741,10 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         self.dp_b = self.dp_b.to(device)
         self.gaus_smoothing = self.gaus_smoothing.to(device)
 
+        self.log_sigma2 = self.log_sigma2.to(device)
+        self.message_param = self.message_param.to(device)
+        self.meshgrids = self.meshgrids.to(device)
+
         self.prior_mu = self.prior_mu.to(device)
         self.prior_logvar = self.prior_logvar.to(device)
 
