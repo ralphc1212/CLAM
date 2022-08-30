@@ -743,7 +743,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         self.log_sigma2 = nn.Parameter(self.log_sigma2, requires_grad=True).to(device)
         self.message_param = nn.Parameter(self.message_param, requires_grad=True).to(device)
-        self.meshgrids = self.meshgrids.to(device)
+        # self.meshgrids = self.meshgrids.to(device)
 
         self.prior_mu = self.prior_mu.to(device)
         self.prior_logvar = self.prior_logvar.to(device)
