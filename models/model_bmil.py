@@ -713,7 +713,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         Q = (1. / torch.exp( - samples ).sum()) * torch.exp( - samples )
         unary = samples
 
-        pad = (self.kernel_size - 1) / 2
+        pad = int((self.kernel_size - 1) / 2)
         A = F.pad(samples, (pad, pad, pad, pad), mode='constant', value=0)
         W = self._compute_conv_param()
         A = Q * F.conv2d(A, weight=W)
