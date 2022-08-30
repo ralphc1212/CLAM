@@ -452,7 +452,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
         self.prior_mu = torch.tensor([-5., 0.])
-        self.prior_logvar = torch.tensor([-1., 3.])
+        # self.prior_logvar = torch.tensor([-1., 3.])
+        self.prior_logvar = torch.tensor([-1., 5.])
 
         initialize_weights(self)
         self.top_k = top_k
@@ -518,13 +519,13 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         # self.size_dict = {"small": [2048, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
-
+ 
         self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
         self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
         self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
         self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
 
-        self.gaus_smoothing = GaussianSmoothing(1, 11, 10)
+        self.gaus_smoothing = GaussianSmoothing(1, 3, 1)
 
         # self.gaus_smoothing_1 = GaussianSmoothing(1, 3, 1)
         # self.gaus_smoothing_2 = GaussianSmoothing(1, 7, 1)
@@ -547,7 +548,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
-
 
     def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
         return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) - 0.5
@@ -622,6 +622,176 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         # A = self.gaus_smoothing(A)
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
+        logits = self.classifiers(M)
+
+        y_probs = F.softmax(logits, dim = 1)
+        top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
+        top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
+        Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
+        Y_prob = F.softmax(top_instance, dim = 1) 
+
+        if not validation:
+            return top_instance, Y_prob, Y_hat, kl_div, y_probs, A.view((1,-1))
+        else:
+            return top_instance, Y_prob, Y_hat, y_probs, A.view((1,-1))
+
+
+
+class probabilistic_MIL_Bayes_crf(nn.Module):
+    def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
+        super(probabilistic_MIL_Bayes_crf, self).__init__()
+
+        self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
+        # self.size_dict = {"small": [2048, 512, 256], "big": [1024, 512, 384]}
+        size = self.size_dict[size_arg]
+ 
+        self.conv1 = nn.Conv2d(size[0], size[1],  1, padding=0)
+        self.conv2a = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
+        self.conv2b = Conv2dVDO(size[1], size[2],  1, padding=0, ard_init=-1.)
+        self.conv3 = Conv2dVDO(size[2], 2,  1, padding=0, ard_init=-1.)
+
+        self.gaus_smoothing = GaussianSmoothing(1, 3, 1)
+
+        # self.gaus_smoothing_1 = GaussianSmoothing(1, 3, 1)
+        # self.gaus_smoothing_2 = GaussianSmoothing(1, 7, 1)
+        # self.gaus_smoothing_3 = GaussianSmoothing(1, 11, 1)
+
+        self.classifiers = LinearVDO(size[1], n_classes, ard_init=-6.)
+
+        self.kernel_size = 3
+
+        self.log_sigma2 = nn.Parameter(torch.randn(2))
+
+        self.meshgrids = self._make_mesh_grid(kernel_size=self.kernel_size)
+
+        self.dp_0 = nn.Dropout(0.25)
+        self.dp_a = nn.Dropout(0.25)
+        self.dp_b = nn.Dropout(0.25)
+
+        self.prior_mu = torch.tensor([-5., 0.])
+        self.prior_logvar = torch.tensor([-1., 3.])
+
+        initialize_weights(self)
+        self.top_k = top_k
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
+
+    def _make_mesh_grid(self):
+        kernel_size = [self.kernel_size] * 2
+
+        kernel = 1
+        meshgrids = torch.meshgrid(
+            [
+                torch.arange(size, dtype=torch.float32)
+                for size in kernel_size
+            ]
+        )
+        return meshgrids
+
+    def _compute_conv_param(self):
+        kernel_size = [self.kernel_size] * 2
+        for size, log_sigma2, mgrid in zip(kernel_size, self.log_sigma2, self.meshgrids):
+            std = torch.exp(log_sigma2 / 2)
+            mean = (size - 1) / 2
+            kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
+                      torch.exp(-((mgrid - mean) / std) ** 2 / 2)
+
+        # Make sure sum of values in gaussian kernel equals 1.
+        kernel = kernel / torch.sum(kernel)
+
+        # Reshape to depthwise convolutional weight
+        kernel = kernel.view(1, 1, *kernel.size())
+        # kernel = kernel.repeat(channels, *[1] * (kernel.dim() - 1))
+
+        return kernel
+
+    def full_crf_learning(self, samples):
+        # use a learnable Gaussian kernel
+        print(samples.shape)
+        unary = samples
+        exit()
+        # Q = F.softmax()
+        pad = (self.kernel_size - 1) / 2
+        A = F.pad(samples, (pad, pad, pad, pad), mode='constant', value=0)
+        W = self._compute_conv_param()
+        A = F.conv2d(A, weight=W)
+        A += unary + A
+        return A
+
+    def crf_approx(self, params):
+
+        return
+
+    def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
+        return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) - 0.5
+
+
+    def relocate(self):
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.conv1 = self.conv1.to(device)
+        self.conv2a = self.conv2a.to(device)
+        self.conv2b = self.conv2b.to(device)
+        self.conv3 = self.conv3.to(device)
+
+        self.dp_0 = self.dp_0.to(device)
+        self.dp_a = self.dp_a.to(device)
+        self.dp_b = self.dp_b.to(device)
+        self.gaus_smoothing = self.gaus_smoothing.to(device)
+
+        self.prior_mu = self.prior_mu.to(device)
+        self.prior_logvar = self.prior_logvar.to(device)
+
+        # self.gaus_smoothing_1 = self.gaus_smoothing_1.to(device)
+        # self.gaus_smoothing_2 = self.gaus_smoothing_2.to(device)
+        # self.gaus_smoothing_3 = self.gaus_smoothing_3.to(device)
+
+        self.classifiers = self.classifiers.to(device)
+
+    def forward(self, h, slide_label=None, validation=False):
+
+        device = h.device
+        h = h.float().unsqueeze(0)
+        h = h.permute(0, 3, 1, 2)
+        h = F.relu(self.dp_0(self.conv1(h)))
+
+        feat_a = self.dp_a(torch.sigmoid(self.conv2a(h)))
+        feat_b = self.dp_b(torch.tanh(self.conv2b(h)))
+        feat = feat_a.mul(feat_b)
+        params = self.conv3(feat)
+
+        mu = params[:, :1, :, :]
+        logvar = params[:, 1:, :, :]
+
+        if not validation:
+            mu_pr = self.prior_mu[slide_label.item()].expand_as(mu)
+            logvar_pr = self.prior_logvar[slide_label.item()]
+            kl_div = self.kl_logistic_normal(mu_pr, mu, logvar_pr, logvar)
+        else:
+            kl_div = None
+
+        # # # no branch
+        # mu = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
+        # mu = self.gaus_smoothing(mu)
+
+        # gaus_samples = self.reparameterize(mu, logvar)
+        # A = F.sigmoid(gaus_samples)
+        # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+
+        # Gaussian smoothing afterwards
+        nMCSamples = 4
+        A = 0
+        for i in range(nMCSamples):
+            gaus_samples = self.reparameterize(mu, logvar)
+            A = F.sigmoid(gaus_samples)
+            A += self.full_crf_learning(A)
+
+        A /= nMCSamples
+
+        # A = self.gaus_smoothing(A)
+        M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
         logits = self.classifiers(M)
 
@@ -635,6 +805,8 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
             return top_instance, Y_prob, Y_hat, kl_div, y_probs, A.view((1,-1))
         else:
             return top_instance, Y_prob, Y_hat, y_probs, A.view((1,-1))
+
+
 
 class probabilistic_MIL_Bayes_convis(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
@@ -783,4 +955,5 @@ bMIL_model_dict = {
                     'enc': probabilistic_MIL_Bayes_enc,
                     'spvis': probabilistic_MIL_Bayes_spvis,
                     'convis': probabilistic_MIL_Bayes_convis,
+                    'crf': probabilistic_MIL_Bayes_crf,
 }

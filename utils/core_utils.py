@@ -189,6 +189,8 @@ def train(datasets, cur, args):
             bayes_args.append('spvis')
         elif 'enc' in args.model_type.split('-'):
             bayes_args.append('enc')
+        elif 'crf' in args.model_type.split('-'):
+            bayes_args.append('crf')
     elif args.model_type == 'hmil':
         model = MIL_hattn(**model_dict)
     elif args.model_type == 'smil-D':
@@ -342,7 +344,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
     for batch_idx, (data, label) in enumerate(loader):
         data, label = data.to(device), label.to(device)
 
-        if 'enc' in bayes_args or 'spvis' in bayes_args:
+        if 'enc' in bayes_args or 'spvis' in bayes_args or 'crf' in bayes_args:
             logits, Y_prob, Y_hat, kl_div, _, _ = model(data, slide_label=label)
         else:
             logits, Y_prob, Y_hat, _, _ = model(data)
@@ -354,7 +356,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 
             kl_model = bayes_args[0](model)
 
-            if ('enc' or 'spvis') in bayes_args:
+            if ('enc' or 'spvis' or 'crf') in bayes_args:
                 # loss += bayes_args[1] * kl_div[0]
                 kl_data = kl_div[0]
                 loss += bayes_args[1] * kl_model + bayes_args[2] * kl_data
@@ -396,7 +398,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
              writer = None, loss_fn = None, results_dir=None,  bayes_args=None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args):
+    if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args or 'crf' in bayes_args):
         model.train()
     else:
         model.eval()
@@ -418,7 +420,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
         for batch_idx, (data, label) in enumerate(loader):
             data, label = data.to(device, non_blocking=True), label.to(device, non_blocking=True)
 
-            if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args):
+            if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args or 'crf' in bayes_args):
                 out_prob = 0
                 out_atten = 0
                 out_logits = 0
@@ -435,7 +437,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
 
                     Y_hats.append(Y_hat)
                     ens_prob.append(torch.sum(- Y_prob * torch.log(Y_prob)).item())
-                    if 'vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args:
+                    if 'vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args or 'crf' in bayes_args:
                         A = A.t()
                         A = torch.cat([A, 1 - A], dim = 1)
                         ens_atten.append((- A * torch.log(A)).sum(dim = 1).mean().item())
