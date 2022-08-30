@@ -698,7 +698,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
             std = torch.exp(log_sigma2 / 2)
             mean = (size - 1) / 2
             kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
-                      torch.exp(-((mgrid - mean) / std) ** 2 / 2)
+                      torch.exp(-((mgrid.to(mean.device) - mean) / std) ** 2 / 2)
 
         # Make sure sum of values in gaussian kernel equals 1.
         kernel = kernel / torch.sum(kernel)
