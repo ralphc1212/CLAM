@@ -785,12 +785,12 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
         # Gaussian smoothing afterwards
-        nMCSamples = 4
+        nMCSamples = 1
         A = 0
         for i in range(nMCSamples):
             gaus_samples = self.reparameterize(mu, logvar)
-            A = F.sigmoid(gaus_samples)
-            # A += self.full_crf_learning(A)
+            A_sample = F.sigmoid(gaus_samples)
+            A += self.full_crf_learning(A_sample)
 
         A /= nMCSamples
 
