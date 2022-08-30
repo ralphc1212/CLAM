@@ -790,7 +790,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         for i in range(nMCSamples):
             gaus_samples = self.reparameterize(mu, logvar)
             A = F.sigmoid(gaus_samples)
-            A += self.full_crf_learning(A)
+            # A += self.full_crf_learning(A)
 
         A /= nMCSamples
 
