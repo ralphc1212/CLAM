@@ -726,6 +726,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         W = self._compute_conv_param()
         A = F.conv2d(A.expand(self.num_channels, -1, -1, -1), weight=W) * self.message_param
         print(A.shape)
+        exit()
         A = unary + A
         return A
 
@@ -801,8 +802,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
             A += self.full_crf_learning(A_sample)
 
         A /= nMCSamples
-        print(h.shape)
-        print(A.shape)
+
         # A = self.gaus_smoothing(A)
         M = (A.mul(h)).sum(dim=(2, 3)) / A.sum()
 
