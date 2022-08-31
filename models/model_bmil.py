@@ -707,9 +707,6 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
             kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
                       torch.exp(-((_mgrid - mean) / std) ** 2 / 2)
 
-        print(kernel)
-
-        exit()
         # Make sure sum of values in gaussian kernel equals 1.
         kernel = kernel / torch.sum(kernel)
 
@@ -727,6 +724,9 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         pad = int((self.kernel_size - 1) / 2)
         A = F.pad(samples, (pad, pad, pad, pad), mode='constant', value=0)
         W = self._compute_conv_param()
+        print(A.shape)
+        print(W.shape)
+        exit()
         A = F.conv2d(A, weight=W) * self.message_param
         A = unary + A
         return A
@@ -795,7 +795,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
         # Gaussian smoothing afterwards
-        nMCSamples = 16
+        nMCSamples = 4
         A = 0
         for i in range(nMCSamples):
             gaus_samples = self.reparameterize(mu, logvar)
