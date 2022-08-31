@@ -660,7 +660,9 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         self.kernel_size = 3
 
-        self.log_sigma2 = [nn.Parameter(torch.randn(1, requires_grad=True)), nn.Parameter(torch.randn(1, requires_grad=True))]
+        self.num_channels = 16
+
+        self.log_sigma2 = [nn.Parameter(torch.randn(self.num_channels, requires_grad=True)), nn.Parameter(torch.randn(self.num_channels, requires_grad=True))]
         self.message_param = torch.randn(1, requires_grad=True)
 
         self.meshgrids = self._make_mesh_grid()
@@ -700,12 +702,15 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
             kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
                       torch.exp(-((mgrid - mean) / std) ** 2 / 2)
 
+        print(kernel.shape)
+
+        exit()
         # Make sure sum of values in gaussian kernel equals 1.
         kernel = kernel / torch.sum(kernel)
 
         # Reshape to depthwise convolutional weight
         kernel = kernel.view(1, 1, *kernel.size())
-        # kernel = kernel.repeat(channels, *[1] * (kernel.dim() - 1))
+        # kernel = kernel.repeat(16, *[1] * (kernel.dim() - 1))
 
         return kernel
 
@@ -795,7 +800,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         A /= nMCSamples
 
         # A = self.gaus_smoothing(A)
-        M = A.mul(h).sum(dim=(2, 3)) / A.sum()
+        M = (A.mul(h)).sum(dim=(2, 3)) / A.sum()
 
         logits = self.classifiers(M)
 
