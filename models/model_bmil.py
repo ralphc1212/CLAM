@@ -697,12 +697,15 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         kernel_size = [self.kernel_size] * 2
         kernel = 1
         for size, log_sigma2, mgrid in zip(kernel_size, self.log_sigma2, self.meshgrids):
-            std = torch.exp(log_sigma2 / 2)
+            std = torch.exp(log_sigma2 / 2).unsqueeze()
             mean = (size - 1) / 2
             # print(std.shape)
             # print(mgrid.unsqueeze(0).shape)
             _mgrid = mgrid.view(1, 1, *mgrid.size())
             _mgrid = _mgrid.repeat(16, *[1] * (_mgrid.dim() - 1))
+            print(_mgrid.shape)
+            print(mean.shape)
+            print(std.shape)
             kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
                       torch.exp(-((_mgrid - mean) / std) ** 2 / 2)
 
