@@ -785,7 +785,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
         # Gaussian smoothing afterwards
-        nMCSamples = 4
+        nMCSamples = 16
         A = 0
         for i in range(nMCSamples):
             gaus_samples = self.reparameterize(mu, logvar)
@@ -809,7 +809,6 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
             return top_instance, Y_prob, Y_hat, kl_div, y_probs, A.view((1,-1))
         else:
             return top_instance, Y_prob, Y_hat, y_probs, A.view((1,-1))
-
 
 
 class probabilistic_MIL_Bayes_convis(nn.Module):
