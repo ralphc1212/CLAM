@@ -662,7 +662,8 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         self.num_channels = 16
 
-        self.log_sigma2 = [nn.Parameter(torch.randn(self.num_channels, requires_grad=True)), nn.Parameter(torch.randn(self.num_channels, requires_grad=True))]
+        self.log_sigma2 = [nn.Parameter(torch.randn((self.num_channels, 1, 1, 1), requires_grad=True)),
+         nn.Parameter(torch.randn((self.num_channels, 1, 1, 1), requires_grad=True))]
         self.message_param = torch.randn(1, requires_grad=True)
 
         self.meshgrids = self._make_mesh_grid()
@@ -703,9 +704,6 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
             # print(mgrid.unsqueeze(0).shape)
             _mgrid = mgrid.view(1, 1, *mgrid.size())
             _mgrid = _mgrid.repeat(16, *[1] * (_mgrid.dim() - 1))
-            print(_mgrid.shape)
-            # print(mean.shape)
-            print(std.shape)
             kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
                       torch.exp(-((_mgrid - mean) / std) ** 2 / 2)
 
