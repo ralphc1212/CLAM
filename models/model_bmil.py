@@ -704,7 +704,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
             _mgrid = mgrid.view(1, 1, *mgrid.size())
             _mgrid = _mgrid.repeat(16, *[1] * (_mgrid.dim() - 1))
             print(_mgrid.shape)
-            print(mean.shape)
+            # print(mean.shape)
             print(std.shape)
             kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
                       torch.exp(-((_mgrid - mean) / std) ** 2 / 2)
