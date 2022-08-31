@@ -707,10 +707,8 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
             kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
                       torch.exp(-((_mgrid - mean) / std) ** 2 / 2)
 
-        print(torch.sum(kernel, dim=(2,3), keepdim=True))
-        exit()
         # Make sure sum of values in gaussian kernel equals 1.
-        kernel = kernel / torch.sum(kernel)
+        kernel = kernel / torch.sum(kernel, dim=(2,3), keepdim=True)
 
         # Reshape to depthwise convolutional weight
         # kernel = kernel.view(1, 1, *kernel.size())
