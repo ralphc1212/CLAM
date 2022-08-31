@@ -707,7 +707,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
             kernel *= 1 / (std * math.sqrt(2 * math.pi)) * \
                       torch.exp(-((_mgrid - mean) / std) ** 2 / 2)
 
-        print(kernel.shape)
+        print(kernel)
 
         exit()
         # Make sure sum of values in gaussian kernel equals 1.
