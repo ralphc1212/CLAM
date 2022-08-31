@@ -725,6 +725,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         A = F.pad(samples, (pad, pad, pad, pad), mode='constant', value=0)
         W = self._compute_conv_param()
         A = F.conv2d(A.expand(self.num_channels, -1, -1, -1), weight=W) * self.message_param
+        print(A.shape)
         A = unary + A
         return A
 
