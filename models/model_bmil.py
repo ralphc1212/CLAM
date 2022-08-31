@@ -662,8 +662,8 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         self.num_channels = 16
 
-        self.log_sigma2 = [nn.Parameter(torch.randn((self.num_channels, 1, 1, 1), requires_grad=True)),
-         nn.Parameter(torch.randn((self.num_channels, 1, 1, 1), requires_grad=True))]
+        self.log_sigma2 = [nn.Parameter(torch.randn((1, self.num_channels, 1, 1), requires_grad=True)),
+         nn.Parameter(torch.randn((1, self.num_channels, 1, 1), requires_grad=True))]
         self.message_param = torch.randn(1, requires_grad=True)
 
         self.meshgrids = self._make_mesh_grid()
