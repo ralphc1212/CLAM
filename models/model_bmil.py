@@ -452,8 +452,8 @@ class probabilistic_MIL_Bayes_enc(nn.Module):
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
         self.prior_mu = torch.tensor([-5., 0.])
-        # self.prior_logvar = torch.tensor([-1., 3.])
-        self.prior_logvar = torch.tensor([-1., 5.])
+        self.prior_logvar = torch.tensor([-1., 1.])
+        # self.prior_logvar = torch.tensor([-1., 5.])
 
         initialize_weights(self)
         self.top_k = top_k
