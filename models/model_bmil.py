@@ -716,22 +716,31 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         return kernel
 
+
     def full_crf_learning(self, samples):
         # use a learnable Gaussian kernel
-        # Q = (1. / torch.exp( samples ).sum()) * torch.exp( samples )
-        unary = samples
+
+        # add normalization 1
+        Q = (1. / torch.exp( samples ).sum()) * torch.exp( samples )
+
+        unary = Q
 
         pad = int((self.kernel_size - 1) / 2)
-        A = F.pad(samples, (pad, pad, pad, pad), mode='constant', value=0)
+        A = F.pad(Q, (pad, pad, pad, pad), mode='constant', value=0)
         W = self._compute_conv_param()
         A = F.conv2d(A.expand(-1, self.num_channels, -1, -1), weight=W) * self.message_param
 
         A = unary + A
+
+        # add normalization
+
         return A
+
 
     def crf_approx(self, params):
 
         return
+
 
     def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
         return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) - 0.5
