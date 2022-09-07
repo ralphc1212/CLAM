@@ -732,7 +732,8 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         A = unary + A
 
-        # add normalization
+        # add normalization 2
+        A = (1. / torch.exp(A).sum()) * torch.exp(A)
 
         return A
 
