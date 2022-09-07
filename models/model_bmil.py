@@ -737,10 +737,6 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         return A
 
-    # def crf_approx(self, params):
-
-    #     return
-
 
     def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
         return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) - 0.5
@@ -786,22 +782,14 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         mu = params[:, :1, :, :]
         logvar = params[:, 1:, :, :]
 
-        if not validation:
-            mu_pr = self.prior_mu[slide_label.item()].expand_as(mu)
-            logvar_pr = self.prior_logvar[slide_label.item()]
-            kl_div = self.kl_logistic_normal(mu_pr, mu, logvar_pr, logvar)
-        else:
-            kl_div = None
+        # KL on mu
+        # if not validation:
+        #     mu_pr = self.prior_mu[slide_label.item()].expand_as(mu)
+        #     logvar_pr = self.prior_logvar[slide_label.item()]
+        #     kl_div = self.kl_logistic_normal(mu_pr, mu, logvar_pr, logvar)
+        # else:
+        #     kl_div = None
 
-        # # # no branch
-        # mu = F.pad(mu, (5, 5, 5, 5), mode='constant', value=0)
-        # mu = self.gaus_smoothing(mu)
-
-        # gaus_samples = self.reparameterize(mu, logvar)
-        # A = F.sigmoid(gaus_samples)
-        # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
-
-        # Gaussian smoothing afterwards
         # full CRF
         # nMCSamples = 16
         # A = 0
@@ -813,6 +801,14 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         # A /= nMCSamples
 
         smooth_mu = self.crf_learning(mu)
+        # KL on smooth mu
+        if not validation:
+            mu_pr = self.prior_mu[slide_label.item()].expand_as(smooth_mu)
+            logvar_pr = self.prior_logvar[slide_label.item()]
+            kl_div = self.kl_logistic_normal(mu_pr, smooth_mu, logvar_pr, logvar)
+        else:
+            kl_div = None
+
         gaus_samples = self.reparameterize(smooth_mu, logvar)
         A = F.sigmoid(gaus_samples)
 
