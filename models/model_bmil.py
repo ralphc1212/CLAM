@@ -660,7 +660,7 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         self.kernel_size = 3
 
-        self.num_channels = 4
+        self.num_channels = 1
 
         self.log_sigma2 = [nn.Parameter(torch.randn((1, self.num_channels, 1, 1), requires_grad=True)),
          nn.Parameter(torch.randn((1, self.num_channels, 1, 1), requires_grad=True))]
