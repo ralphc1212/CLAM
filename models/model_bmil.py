@@ -721,9 +721,9 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         # use a learnable Gaussian kernel
 
         # add normalization 1
-        Q = (1. / torch.exp(samples).sum()) * torch.exp(samples)
+        unary = samples
 
-        unary = Q
+        Q = (1. / torch.exp(samples).sum()) * torch.exp(samples)
 
         pad = int((self.kernel_size - 1) / 2)
         A = F.pad(Q, (pad, pad, pad, pad), mode='constant', value=0)
