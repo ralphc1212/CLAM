@@ -717,13 +717,13 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         return kernel
 
 
-    def full_crf_learning(self, samples):
+    def crf_learning(self, crf_in):
         # use a learnable Gaussian kernel
 
         # add normalization 1
-        unary = samples
+        unary = crf_in
 
-        Q = (1. / torch.exp(samples).sum()) * torch.exp(samples)
+        Q = (1. / torch.exp(crf_in).sum()) * torch.exp(crf_in)
 
         pad = int((self.kernel_size - 1) / 2)
         A = F.pad(Q, (pad, pad, pad, pad), mode='constant', value=0)
@@ -737,10 +737,9 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
 
         return A
 
+    # def crf_approx(self, params):
 
-    def crf_approx(self, params):
-
-        return
+    #     return
 
 
     def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
@@ -803,14 +802,19 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         # M = A.mul(h).sum(dim=(2, 3)) / A.sum()
 
         # Gaussian smoothing afterwards
-        nMCSamples = 16
-        A = 0
-        for i in range(nMCSamples):
-            gaus_samples = self.reparameterize(mu, logvar)
-            A_sample = F.sigmoid(gaus_samples)
-            A += self.full_crf_learning(A_sample)
+        # full CRF
+        # nMCSamples = 16
+        # A = 0
+        # for i in range(nMCSamples):
+        #     gaus_samples = self.reparameterize(mu, logvar)
+        #     A_sample = F.sigmoid(gaus_samples)
+        #     A += self.crf_learning(A_sample)
 
-        A /= nMCSamples
+        # A /= nMCSamples
+
+        smooth_mu = self.crf_learning(mu)
+        gaus_samples = self.reparameterize(smooth_mu, logvar)
+        A = F.sigmoid(gaus_samples)
 
         # A = self.gaus_smoothing(A)
         M = (A.mul(h)).sum(dim=(2, 3)) / A.sum()
