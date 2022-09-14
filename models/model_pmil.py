@@ -245,9 +245,12 @@ class probabilistic_MIL_nothing(nn.Module):
 
         A = torch.transpose(A, 1, 0)  # KxN
 
-        A = F.softmax(A, dim=1)  # softmax over N
+        # A = F.softmax(A, dim=1)  # softmax over N
+        # M = torch.mm(A, h)
 
-        M = torch.mm(A, h)
+        A = F.sigmoid(A)
+        M = torch.mm(A, h) / A.sum()
+
         logits = self.classifiers(M)
 
         y_probs = F.softmax(logits, dim = 1)
@@ -300,7 +303,6 @@ class probabilistic_MIL_vanilla(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-
 
     def forward(self, h, return_features=False):
         device = h.device

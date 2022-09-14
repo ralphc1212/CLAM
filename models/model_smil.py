@@ -25,9 +25,9 @@ class Attn_Net(nn.Module):
             self.module.append(nn.Dropout(0.25))
 
         self.module.append(nn.Linear(D, n_classes))
-        
+
         self.module = nn.Sequential(*self.module)
-    
+
     def forward(self, x):
         return self.module(x), x # N x n_classes
 

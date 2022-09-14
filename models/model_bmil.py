@@ -549,6 +549,7 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         eps = torch.randn_like(std)
         return mu + eps * std
 
+
     def kl_logistic_normal(self, mu_pr, mu_pos, logvar_pr, logvar_pos):
         return (logvar_pr - logvar_pos) / 2. + (logvar_pos ** 2 + (mu_pr - mu_pos) ** 2) / (2. * logvar_pr ** 2) - 0.5
 
@@ -634,7 +635,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
             return top_instance, Y_prob, Y_hat, kl_div, y_probs, A.view((1,-1))
         else:
             return top_instance, Y_prob, Y_hat, y_probs, A.view((1,-1))
-
 
 
 class probabilistic_MIL_Bayes_crf(nn.Module):
