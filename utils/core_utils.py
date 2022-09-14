@@ -507,8 +507,9 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
         writer.add_scalar('val/error', val_error, epoch)
 
     print('\nVal Set, val_loss: {:.4f}, val_error: {:.4f}, auc: {:.4f}'.format(val_loss, val_error, auc))
-    print('\nVal Set, slide_model_unc: {:.4f}, attn_model_unc: {:.4f}, slide_data_unc: {:.4f}, attn_data_unc: {:.4f}'
-        .format(slide_model_uncertainty, attention_model_uncertainty, slide_data_uncertainty, attention_data_uncertainty))
+    if bayes_args:
+        print('\nVal Set, slide_model_unc: {:.4f}, attn_model_unc: {:.4f}, slide_data_unc: {:.4f}, attn_data_unc: {:.4f}'
+            .format(slide_model_uncertainty, attention_model_uncertainty, slide_data_uncertainty, attention_data_uncertainty))
 
     for i in range(n_classes):
         acc, correct, count = acc_logger.get_summary(i)
