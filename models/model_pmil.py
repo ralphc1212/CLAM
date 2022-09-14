@@ -249,7 +249,8 @@ class probabilistic_MIL_nothing(nn.Module):
         # M = torch.mm(A, h)
 
         A = F.sigmoid(A)
-        M = torch.mm(A, h) / A.sum()
+        # M = torch.mm(A, h) / A.sum()
+        M = torch.mm(A, h)
 
         logits = self.classifiers(M)
 
