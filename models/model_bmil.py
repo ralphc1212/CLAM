@@ -168,7 +168,7 @@ def regularisation(self) -> Tensor:
     for module in filter(lambda x: isinstance(x, ConcreteDropout), self.modules()):
         total_regularisation += module.regularisation
 
-    return total_regularisation
+    return total_regularisation[0]
 
 class Attn_Net_Gated_CD(nn.Module):
     def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
