@@ -50,13 +50,14 @@ class Attn_Net_Gated(nn.Module):
         self.attention_c = dense_baens(4, D, n_classes)
 
     def forward(self, x):
+        x_ = x
         x = x.unsqueeze(0)
         x = x.expand(self.N, x.shape[1], x.shape[2])
         a = self.attention_a(x)
         b = self.attention_b(x)
         A = a.mul(b)
         A = self.attention_c(A)  # N x n_classes
-        return A, x
+        return A.sum(0), x_
 
 
 class MIL_fc_baens(nn.Module):
@@ -93,9 +94,7 @@ class MIL_fc_baens(nn.Module):
         #*-*# A, h = self.attention_net(h)  # NxK        
 
         A, h = self.attention_net(h)
-        print(A.shape)
-        print(h.shape)
-        exit()
+
         A = torch.transpose(A, 1, 0)  # KxN
 
         # A = F.softmax(A, dim=1)  # softmax over N
