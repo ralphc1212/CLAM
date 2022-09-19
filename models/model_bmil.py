@@ -179,6 +179,9 @@ class Attn_Net_Gated_CD(nn.Module):
         # b = self.attention_b(x)
         b = self.cd2(x, self.attention_b)
         A = a.mul(b)
+        print(a.shape)
+        print(b.shape)
+        print(self.attention_c.weight.shape)
         # A = self.attention_c(A)  # N x n_classes
         A = self.cd3(x, self.attention_c)
         return A, x
