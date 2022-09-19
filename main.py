@@ -124,6 +124,8 @@ parser.add_argument('--B', type=int, default=8, help='numbr of positive/negative
 args = parser.parse_args()
 device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+15995, 512
+
 def seed_torch(seed=7):
     import random
     random.seed(seed)

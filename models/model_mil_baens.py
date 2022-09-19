@@ -50,8 +50,8 @@ class Attn_Net_Gated(nn.Module):
         self.attention_c = dense_baens(4, D, n_classes)
 
     def forward(self, x):
-        print(x.shape)
-
+        x = x.unsqueeze(0)
+        x = x.expand(self.N, x[1], x[2])
         a = self.attention_a(x)
         b = self.attention_b(x)
         A = a.mul(b)
