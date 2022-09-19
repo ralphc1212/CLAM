@@ -11,7 +11,7 @@ from models.model_mlp import MIL_mlp
 from models.model_mil_baens import MIL_fc_baens
 from models.model_pmil import pMIL_model_dict
 from models.model_bmil import bMIL_model_dict
-from models.model_bmil import probabilistic_MIL_Bayes, get_ard_reg_vdo
+from models.model_bmil import probabilistic_MIL_Bayes, get_ard_reg_vdo, concrete_regulariser
 from models.model_hattn import MIL_hattn
 from models.model_smil import MIL_dirichlet
 
@@ -191,6 +191,9 @@ def train(datasets, cur, args):
             bayes_args.append('enc')
         elif 'crf' in args.model_type.split('-'):
             bayes_args.append('crf')
+        elif 'CD' in args.model_type.split('-'):
+            bayes_args[0] = concrete_regulariser
+            bayes_args.append('CD')
     elif args.model_type == 'hmil':
         model = MIL_hattn(**model_dict)
     elif args.model_type == 'smil-D':
@@ -354,10 +357,15 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits, label)
+        nll = loss.item()
 
         if bayes_args:
 
-            kl_model = bayes_args[0](model)
+            if 'CD' in bayes_args:
+                model = bayes_args[0](modle)
+                kl_model = model.regularisation()
+            else:
+                kl_model = bayes_args[0](model)
 
             if ('enc' or 'spvis' or 'crf') in bayes_args:
                 # loss += bayes_args[1] * kl_div[0]
@@ -370,7 +378,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 
         train_loss += loss_value
         if (batch_idx + 1) % 20 == 0:
-            print('batch {}, loss: {:.4f}, label: {}, bag_size: {}'.format(batch_idx, loss_value, label.item(), data.size(0)))
+            print('batch {}, loss: {:.4f}, nnl: {:.4f}, label: {}, bag_size: {}'.format(batch_idx, loss_value, nll, label.item(), data.size(0)))
             # print(model.state_dict()['attn_thres_r'])
 
         error = calculate_error(Y_hat, label)
@@ -506,7 +514,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
         writer.add_scalar('val/auc', auc, epoch)
         writer.add_scalar('val/error', val_error, epoch)
 
-    print('\nVal Set, val_loss: {:.4f}, val_error: {:.4f}, auc: {:.4f}'.format(val_loss, val_error, auc))
+    print('\nVal Set, val_loss (nll): {:.4f}, val_error: {:.4f}, auc: {:.4f}'.format(val_loss, val_error, auc))
     if bayes_args:
         print('\nVal Set, slide_model_unc: {:.4f}, attn_model_unc: {:.4f}, slide_data_unc: {:.4f}, attn_data_unc: {:.4f}'
             .format(slide_model_uncertainty, attention_model_uncertainty, slide_data_uncertainty, attention_data_uncertainty))

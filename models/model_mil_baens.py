@@ -4,7 +4,6 @@ import torch.nn.functional as F
 from utils.utils import initialize_weights
 import numpy as np
 
-
 class dense_baens(nn.Module):
     def __init__(self, N=5, D1=3, D2=2):
         super(dense_baens, self).__init__()

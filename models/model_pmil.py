@@ -207,6 +207,37 @@ class Attn_Net_Gated(nn.Module):
         A = self.attention_c(A)  # N x n_classes
         return A, x
 
+# Concrete dropout
+class Attn_Net_Gated_CD(nn.Module):
+    def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
+        super(Attn_Net_Gated_CD, self).__init__()
+        self.attention_a = [
+            nn.Linear(L, D),
+            nn.Tanh()]
+
+        self.attention_b = [nn.Linear(L, D),
+                            nn.Sigmoid()]
+
+        w = 1e-6
+        d = 1e-3
+        self.cd1 = ConcreteDropout(weight_regulariser=w, dropout_regulariser=d)
+        self.cd2 = ConcreteDropout(weight_regulariser=w, dropout_regulariser=d)
+        self.cd3 = ConcreteDropout(weight_regulariser=w, dropout_regulariser=d)
+
+        self.attention_a = nn.Sequential(*self.attention_a)
+        self.attention_b = nn.Sequential(*self.attention_b)
+
+        self.attention_c = nn.Linear(D, n_classes)
+
+    def forward(self, x):
+        # a = self.attention_a(x)
+        a = self.cd1(x, self.attention_a)
+        # b = self.attention_b(x)
+        b = self.cd2(x, self.attention_b)
+        A = a.mul(b)
+        # A = self.attention_c(A)  # N x n_classes
+        A = self.cd3(x, self.attention_c)
+        return A, x
 
 class probabilistic_MIL_nothing(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
@@ -249,8 +280,8 @@ class probabilistic_MIL_nothing(nn.Module):
         # M = torch.mm(A, h)
 
         A = F.sigmoid(A)
-        # M = torch.mm(A, h) / A.sum()
-        M = torch.mm(A, h)
+        M = torch.mm(A, h) / A.sum()
+        # M = torch.mm(A, h)
 
         logits = self.classifiers(M)
 
@@ -357,9 +388,11 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
         self.cd1 = ConcreteDropout(weight_regulariser=w, dropout_regulariser=d)
 
         if gate:
-            self.attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            self.attention_net = Attn_Net_Gated_CD(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
         else:
             self.attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+
+        self.cd2 = ConcreteDropout(weight_regulariser=w, dropout_regulariser=d)
 
         self.classifiers = nn.Linear(size[1], n_classes)
         self.n_classes = n_classes
@@ -377,6 +410,7 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
         self.temperature = self.temperature.to(device)
         self.fc = self.fc.to(device)
         self.cd1 = self.cd1.to(device)
+        self.cd2 = self.cd2.to(device)
 
     def forward(self, h, return_features=False):
         device = h.device
@@ -387,11 +421,13 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
 
         A = torch.transpose(A, 1, 0)  # KxN
 
-        A = F.softmax(A, dim=1)  # softmax over N
+        # A = F.softmax(A, dim=1)  # softmax over N
+        # M = torch.mm(A, h)  # KxL
 
-        M = torch.mm(A, h)  # KxL
+        A = F.sigmoid(A)
+        M = torch.mm(A, h) / A.sum()
 
-        logits = self.classifiers(M)
+        logits = self.cd2(M, self.classifiers)
 
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
@@ -404,6 +440,7 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
             top_features = torch.index_select(h, dim=0, index=top_instance_idx)
             results_dict.update({'features': top_features})
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
+
 
 pMIL_model_dict = {
                     'N': probabilistic_MIL_nothing,
