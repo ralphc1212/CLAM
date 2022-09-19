@@ -117,40 +117,58 @@ class ConcreteDropout(nn.Module):
 
         return x
 
-def concrete_regulariser(model: nn.Module) -> nn.Module:
+# def concrete_regulariser(model: nn.Module) -> nn.Module:
 
-    """Adds ConcreteDropout regularisation functionality to a nn.Module.
-    Parameters
-    ----------
-    model : nn.Module
-        Model for which to calculate the ConcreteDropout regularisation.
+#     """Adds ConcreteDropout regularisation functionality to a nn.Module.
+#     Parameters
+#     ----------
+#     model : nn.Module
+#         Model for which to calculate the ConcreteDropout regularisation.
+#     Returns
+#     -------
+#     model : nn.Module
+#         Model with additional functionality.
+#     """
+
+#     def regularisation(self) -> Tensor:
+
+#         """Calculates ConcreteDropout regularisation for each module.
+#         The total ConcreteDropout can be calculated by iterating through
+#         each module in the model and accumulating the regularisation for
+#         each compatible layer.
+#         Returns
+#         -------
+#         Tensor
+#             Total ConcreteDropout regularisation.
+#         """
+
+#         total_regularisation = 0
+#         for module in filter(lambda x: isinstance(x, ConcreteDropout), self.modules()):
+#             total_regularisation += module.regularisation
+
+#         return total_regularisation
+
+#     setattr(model, 'regularisation', regularisation)
+
+#     return model
+
+def regularisation(self) -> Tensor:
+
+    """Calculates ConcreteDropout regularisation for each module.
+    The total ConcreteDropout can be calculated by iterating through
+    each module in the model and accumulating the regularisation for
+    each compatible layer.
     Returns
     -------
-    model : nn.Module
-        Model with additional functionality.
+    Tensor
+        Total ConcreteDropout regularisation.
     """
 
-    def regularisation(self) -> Tensor:
+    total_regularisation = 0
+    for module in filter(lambda x: isinstance(x, ConcreteDropout), self.modules()):
+        total_regularisation += module.regularisation
 
-        """Calculates ConcreteDropout regularisation for each module.
-        The total ConcreteDropout can be calculated by iterating through
-        each module in the model and accumulating the regularisation for
-        each compatible layer.
-        Returns
-        -------
-        Tensor
-            Total ConcreteDropout regularisation.
-        """
-
-        total_regularisation = 0
-        for module in filter(lambda x: isinstance(x, ConcreteDropout), self.modules()):
-            total_regularisation += module.regularisation
-
-        return total_regularisation
-
-    setattr(model, 'regularisation', regularisation)
-
-    return model
+    return total_regularisation
 
 class Attn_Net_Gated_CD(nn.Module):
     def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
