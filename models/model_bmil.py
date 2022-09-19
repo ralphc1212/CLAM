@@ -266,7 +266,6 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
             results_dict.update({'features': top_features})
         return top_instance, Y_prob, Y_hat, y_probs, results_dict
 
-
 """
 Attention Network without Gating (2 fc layers)
 args:
@@ -311,6 +310,7 @@ class Attn_Net_Gated(nn.Module):
 
         self.attention_b = [LinearVDO(L, D, ard_init=-1.),
                             nn.Sigmoid()]
+
         if dropout:
             self.attention_a.append(nn.Dropout(0.25))
             self.attention_b.append(nn.Dropout(0.25))
