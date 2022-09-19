@@ -58,6 +58,7 @@ class Attn_Net_Gated(nn.Module):
         A = self.attention_c(A)  # N x n_classes
         return A, x
 
+
 class MIL_fc_baens(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, n_classes=2, top_k=1):
         super(MIL_fc_baens, self).__init__()
@@ -92,7 +93,9 @@ class MIL_fc_baens(nn.Module):
         #*-*# A, h = self.attention_net(h)  # NxK        
 
         A, h = self.attention_net(h)
-
+        print(A.shape)
+        print(h.shape)
+        exit()
         A = torch.transpose(A, 1, 0)  # KxN
 
         # A = F.softmax(A, dim=1)  # softmax over N
