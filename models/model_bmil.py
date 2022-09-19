@@ -237,7 +237,7 @@ class probabilistic_MIL_concrete_dropout(nn.Module):
         self.cd1 = self.cd1.to(device)
         self.cd2 = self.cd2.to(device)
 
-    def forward(self, h, return_features=False):
+    def forward(self, h, return_features=False, validation=False):
         device = h.device
         #*-*# A, h = self.attention_net(h)  # NxK
 

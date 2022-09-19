@@ -272,7 +272,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
     model.train()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
     inst_logger = Accuracy_Logger(n_classes=n_classes)
-    
+
     train_loss = 0.
     train_error = 0.
     train_inst_loss = 0.
