@@ -51,7 +51,7 @@ class Attn_Net_Gated(nn.Module):
 
     def forward(self, x):
         x = x.unsqueeze(0)
-        x = x.expand(self.N, x[1], x[2])
+        x = x.expand(self.N, x.shape[1], x.shape[2])
         a = self.attention_a(x)
         b = self.attention_b(x)
         A = a.mul(b)
