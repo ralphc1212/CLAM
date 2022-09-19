@@ -362,7 +362,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         if bayes_args:
 
             if 'CD' in bayes_args:
-                model = bayes_args[0](modle)
+                model = bayes_args[0](model)
                 kl_model = model.regularisation()
             else:
                 kl_model = bayes_args[0](model)
