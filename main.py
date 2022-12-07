@@ -124,7 +124,6 @@ parser.add_argument('--B', type=int, default=8, help='numbr of positive/negative
 args = parser.parse_args()
 device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-15995, 512
 
 def seed_torch(seed=7):
     import random
@@ -169,12 +168,12 @@ print('\nLoad Dataset')
 if args.task == 'task_1_tumor_vs_normal':
     args.n_classes=2
     dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/all_cases.csv',
-                            data_dir= os.path.join(args.data_root_dir, ''),
+                            data_dir = os.path.join(args.data_root_dir, ''),
                             shuffle = False, 
                             seed = args.seed, 
                             print_info = True,
                             label_dict = {'normal':0, 'tumor':1},
-                            patient_strat=False,
+                            patient_strat = False,
                             ignore=[])
     if 'convis' in args.model_type or 'spvis' in args.model_type or 'crf' in args.model_type:
         dataset.load_from_h5(True)
@@ -187,7 +186,7 @@ elif args.task == 'task_2_tumor_subtyping':
                             seed = args.seed, 
                             print_info = True,
                             label_dict = {'subtype_1':0, 'subtype_2':1, 'subtype_3':2},
-                            patient_strat= False,
+                            patient_strat = False,
                             ignore=[])
 
     if args.model_type in ['clam_sb', 'clam_mb']:

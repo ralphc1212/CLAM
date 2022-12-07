@@ -798,7 +798,6 @@ class probabilistic_MIL_Bayes_spvis(nn.Module):
         initialize_weights(self)
         self.top_k = top_k
 
-
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
@@ -970,7 +969,6 @@ class probabilistic_MIL_Bayes_crf(nn.Module):
         # kernel = kernel.repeat(16, *[1] * (kernel.dim() - 1))
 
         return kernel
-
 
     def crf_learning(self, crf_in):
         # use a learnable Gaussian kernel

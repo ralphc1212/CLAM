@@ -108,7 +108,7 @@ class CLAM_SB(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.instance_classifiers = self.instance_classifiers.to(device)
-    
+
     @staticmethod
     def create_positive_targets(length, device):
         return torch.full((length, ), 1, device=device).long()

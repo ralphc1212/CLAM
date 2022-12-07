@@ -142,7 +142,7 @@ def train(datasets, cur, args):
     
     if args.model_size is not None and args.model_type != 'mil':
         model_dict.update({"size_arg": args.model_size})
-    
+
     bayes_args = None
 
     if args.model_type in ['clam_sb', 'clam_mb']:
@@ -425,13 +425,16 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
 
     with torch.no_grad():
         for batch_idx, (data, label) in enumerate(loader):
+
             data, label = data.to(device, non_blocking=True), label.to(device, non_blocking=True)
 
             if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args or 'crf' in bayes_args):
+
                 out_prob = 0
                 out_atten = 0
                 out_logits = 0
-                # EXTRACT DATA UNCERTAINTY: vis_data = 0 
+
+                # EXTRACT DATA UNCERTAINTY: vis_data = 0
 
                 Y_hats = []
                 ens_prob = []
@@ -455,6 +458,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                 out_prob /= N_SAMPLES
                 out_atten /= N_SAMPLES
                 out_logits /= N_SAMPLES
+
                 # EXTRACT DATA UNCERTAINTY: vis_data /= N_SAMPLES
                 # vis_data size: [number of patches, 1]
 
@@ -478,6 +482,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                 attention_data_uncertainty.append(ens_atten)
 
             else:
+
                 logits, Y_prob, Y_hat, _, _ = model(data)
 
             acc_logger.log(Y_hat, label)
