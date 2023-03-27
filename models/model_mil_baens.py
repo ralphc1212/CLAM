@@ -193,6 +193,9 @@ class MIL_fc_baens_wpr(nn.Module):
         # Add the residue back to the latents
         quantized_latents = latents + (quantized_latents - latents).detach()
 
+        print(quantized_latents.shape)
+        exit()
+        
         return
 
     def forward(self, h, return_features=False, slide_label=None, validation=False):

@@ -8,7 +8,7 @@ from models.model_clam import CLAM_MB, CLAM_SB
 from models.model_msa import MIL_msa
 from models.model_mlp import MIL_mlp 
 # from models.model_pmil import probabilistic_MIL
-from models.model_mil_baens import MIL_fc_baens
+from models.model_mil_baens import MIL_fc_baens, MIL_fc_baens_wpr
 from models.model_pmil import pMIL_model_dict
 from models.model_bmil import bMIL_model_dict
 from models.model_bmil import probabilistic_MIL_Bayes, get_ard_reg_vdo, regularisation
@@ -198,6 +198,10 @@ def train(datasets, cur, args):
         model = MIL_hattn(**model_dict)
     elif args.model_type == 'smil-D':
         model = MIL_dirichlet(**model_dict)
+    elif args.model_type == 'vqmil':
+        bayes_args = [get_ard_reg_vdo, 1e-8, 1e-6]
+        model = MIL_fc_baens_wpr(**model_dict)
+        bayes_args.append('vqmil')
     else:
         raise NotImplementedError
 
@@ -348,7 +352,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         data, label = data.to(device), label.to(device)
 
         if bayes_args:
-            if 'enc' in bayes_args or 'spvis' in bayes_args or 'crf' in bayes_args:
+            if 'enc' in bayes_args or 'spvis' in bayes_args or 'crf' in bayes_args or 'vqmil' in bayes_args:
                 logits, Y_prob, Y_hat, kl_div, _, _ = model(data, slide_label=label)
             else:
                 logits, Y_prob, Y_hat, _, _ = model(data)
@@ -367,6 +371,9 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
                 # loss += bayes_args[1] * kl_div[0]
                 kl_data = kl_div[0]
                 loss += bayes_args[1] * kl_model + bayes_args[2] * kl_data
+            elif 'vqmil' in bayes_args:
+                reg_vq = kl_div[0]
+                loss += bayes_args[1] * reg_vq
             else:
                 loss += bayes_args[1] * kl_model
 
@@ -405,7 +412,7 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
 def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
              writer = None, loss_fn = None, results_dir=None,  bayes_args=None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args or 'crf' in bayes_args):
+    if bayes_args and ('vis' in bayes_args or 'spvis' in bayes_args or 'enc' in bayes_args or 'crf' in bayes_args or 'vqmil' in bayes_args):
         model.train()
     else:
         model.eval()

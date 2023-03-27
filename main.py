@@ -105,7 +105,7 @@ parser.add_argument('--bag_loss', type=str, choices=['svm', 'ce'], default='ce',
 parser.add_argument('--model_type', type=str, choices=['clam_sb', 'clam_mb', 'mil', 'msa', 'pmil-V', 
                                                         'pmil-C', 'pmil-N', 
                                                         'bmil-A', 'bmil-CD', 'bmil-F', 'bmil-vis', 'bmil-convis', 'bmil-spvis',
-                                                        'bmil-enc', 'bmil-crf', 'mil_baens', 'hmil', 'smil-D'],
+                                                        'bmil-enc', 'bmil-crf', 'mil_baens', 'hmil', 'smil-D', 'vqmil'],
                     default='clam_sb', help='type of model (default: clam_sb, clam w/ single attention branch)')
 parser.add_argument('--exp_code', type=str, help='experiment code for saving results')
 parser.add_argument('--weighted_sample', action='store_true', default=False, help='enable weighted sampling')
