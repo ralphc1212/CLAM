@@ -170,7 +170,7 @@ class MIL_fc_baens_wpr(nn.Module):
     # def MMD(self):
     #     pass
 
-    def vector_quantization(slide_embedding):
+    def vector_quantization(self, slide_embedding):
         dist = torch.sum(slide_embedding ** 2, dim=1, keep_dim=True) + \
                torch.sum(self.code_book.weight ** 2, dim=1) + \
                2 * torch.matmul(slide_embedding, self.code_book.weight.t())
@@ -179,7 +179,7 @@ class MIL_fc_baens_wpr(nn.Module):
 
         device = slide_embedding.device
         encoding_one_hot = torch.zeros(encoding_inds.size(0), self.K, device=device)
-        encoding_one_hot.scatter_(1, encoding_inds, 1)  # [BHW x K]
+        encoding_one_hot.scatter_(1, encoding_inds, 1 )  # [BHW x K]
 
         quantized_latents = torch.matmul(encoding_one_hot, self.embedding.weight)  # [BHW, D]
         quantized_latents = quantized_latents.view(latents_shape)  # [B x H x W x D]
