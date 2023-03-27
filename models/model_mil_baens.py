@@ -212,7 +212,7 @@ class MIL_fc_baens_wpr(nn.Module):
         A = F.sigmoid(A)
         M = torch.mm(A, h) / A.sum()
 
-        vq_loss, M_code = vector_quantization(M)
+        vq_loss, M_code = self.vector_quantization(M)
 
         # M = torch.mm(A, h)
 
