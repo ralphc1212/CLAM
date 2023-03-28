@@ -189,13 +189,13 @@ class MIL_fc_baens_wpr(nn.Module):
         quantized_latents = quantized_latents.view(latents_shape)  # [B x H x W x D]
 
         # Compute the VQ Losses
-        commitment_loss = F.mse_loss(quantized_latents.detach(), latents)
-        embedding_loss = F.mse_loss(quantized_latents, latents.detach())
+        commitment_loss = F.mse_loss(quantized_latents.detach(), slide_embedding)
+        embedding_loss = F.mse_loss(quantized_latents, slide_embedding.detach())
 
         vq_loss = commitment_loss * self.beta + embedding_loss
 
         # Add the residue back to the latents
-        quantized_latents = latents + (quantized_latents - latents).detach()
+        quantized_latents = slide_embedding + (quantized_latents - slide_embedding).detach()
 
         print(quantized_latents.shape)
         exit()
