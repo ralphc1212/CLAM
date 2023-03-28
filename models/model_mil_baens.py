@@ -200,7 +200,7 @@ class MIL_fc_baens_wpr(nn.Module):
         quantized_latents = slide_embedding + (quantized_latents - slide_embedding).detach()
 
         print(quantized_latents.shape)
-        print(quantized_latnets)
+        print(quantized_latents)
         exit()
 
         return
