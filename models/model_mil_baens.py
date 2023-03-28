@@ -183,7 +183,7 @@ class MIL_fc_baens_wpr(nn.Module):
         encoding_one_hot = torch.zeros(encoding_inds.size(0), self.codebook_size, device=device)
         encoding_one_hot.scatter_(1, encoding_inds, 1 )  # [BHW x K]
 
-        quantized_latents = torch.matmul(encoding_one_hot, self.embedding.weight)  # [BHW, D]
+        quantized_latents = torch.matmul(encoding_one_hot, self.code_book.weight)  # [BHW, D]
         quantized_latents = quantized_latents.view(latents_shape)  # [B x H x W x D]
 
         # Compute the VQ Losses
