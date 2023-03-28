@@ -148,6 +148,8 @@ class MIL_fc_baens_wpr(nn.Module):
 
         self.codebook_size = 256
 
+        self.beta = 0.25
+        
         # self.code_book = nn.Parameter(torch.randn(codebook_size, size[1]))
         self.code_book = nn.Embedding(self.codebook_size, size[1])
 
@@ -174,7 +176,7 @@ class MIL_fc_baens_wpr(nn.Module):
     def vector_quantization(self, slide_embedding):
 
         latents_shape = slide_embedding.shape
-        
+
         dist = torch.sum(slide_embedding ** 2, dim=1, keepdim=True) + \
                torch.sum(self.code_book.weight ** 2, dim=1) + \
                2 * torch.matmul(slide_embedding, self.code_book.weight.t())
