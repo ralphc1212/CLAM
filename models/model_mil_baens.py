@@ -174,7 +174,7 @@ class MIL_fc_baens_wpr(nn.Module):
         print(slide_embedding.shape)
         print(self.code_book.weight.shape)
 
-        dist = torch.sum(slide_embedding ** 2, dim=1, keep_dim=True) + \
+        dist = torch.sum(slide_embedding ** 2, dim=1, keepdim=True) + \
                torch.sum(self.code_book.weight ** 2, dim=1) + \
                2 * torch.matmul(slide_embedding, self.code_book.weight.t())
 
