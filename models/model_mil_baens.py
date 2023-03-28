@@ -146,10 +146,10 @@ class MIL_fc_baens_wpr(nn.Module):
         self.num_samples = 16
         self.temperature = torch.tensor([1.0])
 
-        codebook_size = 256
+        self.codebook_size = 256
 
         # self.code_book = nn.Parameter(torch.randn(codebook_size, size[1]))
-        self.code_book = nn.Embedding(codebook_size, size[1])
+        self.code_book = nn.Embedding(self.codebook_size, size[1])
 
         initialize_weights(self)
         self.top_k=top_k
@@ -160,7 +160,7 @@ class MIL_fc_baens_wpr(nn.Module):
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
         self.code_book = self.code_book.to(device)
-        
+
     # def prior(self):
     #     # how to encode doctor knowledge?
     #     pass
@@ -173,7 +173,6 @@ class MIL_fc_baens_wpr(nn.Module):
 
     def vector_quantization(self, slide_embedding):
 
-
         dist = torch.sum(slide_embedding ** 2, dim=1, keepdim=True) + \
                torch.sum(self.code_book.weight ** 2, dim=1) + \
                2 * torch.matmul(slide_embedding, self.code_book.weight.t())
@@ -181,7 +180,7 @@ class MIL_fc_baens_wpr(nn.Module):
         encoding_inds = torch.argmin(dist, dim=1).unsqueeze(1)
 
         device = slide_embedding.device
-        encoding_one_hot = torch.zeros(encoding_inds.size(0), self.K, device=device)
+        encoding_one_hot = torch.zeros(encoding_inds.size(0), self.codebook_size, device=device)
         encoding_one_hot.scatter_(1, encoding_inds, 1 )  # [BHW x K]
 
         quantized_latents = torch.matmul(encoding_one_hot, self.embedding.weight)  # [BHW, D]
