@@ -159,7 +159,8 @@ class MIL_fc_baens_wpr(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.temperature = self.temperature.to(device)
-
+        self.code_book = self.code_book.to(device)
+        
     # def prior(self):
     #     # how to encode doctor knowledge?
     #     pass
@@ -171,8 +172,7 @@ class MIL_fc_baens_wpr(nn.Module):
     #     pass
 
     def vector_quantization(self, slide_embedding):
-        print(slide_embedding.shape)
-        print(self.code_book.weight.shape)
+
 
         dist = torch.sum(slide_embedding ** 2, dim=1, keepdim=True) + \
                torch.sum(self.code_book.weight ** 2, dim=1) + \
