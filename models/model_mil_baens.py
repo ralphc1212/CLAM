@@ -149,7 +149,7 @@ class MIL_fc_baens_wpr(nn.Module):
         self.codebook_size = 256
 
         self.beta = 0.25
-        
+
         # self.code_book = nn.Parameter(torch.randn(codebook_size, size[1]))
         self.code_book = nn.Embedding(self.codebook_size, size[1])
 
@@ -200,6 +200,7 @@ class MIL_fc_baens_wpr(nn.Module):
         quantized_latents = slide_embedding + (quantized_latents - slide_embedding).detach()
 
         print(quantized_latents.shape)
+        print(quantized_latnets)
         exit()
 
         return
