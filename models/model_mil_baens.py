@@ -172,7 +172,7 @@ class MIL_fc_baens_wpr(nn.Module):
 
     def vector_quantization(self, slide_embedding):
         print(slide_embedding.shape)
-        print(self.code_book.shape)
+        print(self.code_book.weight.shape)
 
         dist = torch.sum(slide_embedding ** 2, dim=1, keep_dim=True) + \
                torch.sum(self.code_book.weight ** 2, dim=1) + \
