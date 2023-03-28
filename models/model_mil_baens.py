@@ -171,6 +171,9 @@ class MIL_fc_baens_wpr(nn.Module):
     #     pass
 
     def vector_quantization(self, slide_embedding):
+        print(slide_embedding.shape)
+        print(self.code_book.shape)
+
         dist = torch.sum(slide_embedding ** 2, dim=1, keep_dim=True) + \
                torch.sum(self.code_book.weight ** 2, dim=1) + \
                2 * torch.matmul(slide_embedding, self.code_book.weight.t())
@@ -195,7 +198,7 @@ class MIL_fc_baens_wpr(nn.Module):
 
         print(quantized_latents.shape)
         exit()
-        
+
         return
 
     def forward(self, h, return_features=False, slide_label=None, validation=False):
