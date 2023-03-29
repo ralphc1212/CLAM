@@ -199,11 +199,7 @@ class MIL_fc_baens_wpr(nn.Module):
         # Add the residue back to the latents
         quantized_latents = slide_embedding + (quantized_latents - slide_embedding).detach()
 
-        print(quantized_latents.shape)
-        print(quantized_latents)
-        exit()
-
-        return
+        return vq_loss, quantized_latents
 
     def forward(self, h, return_features=False, slide_label=None, validation=False):
         device = h.device
@@ -237,7 +233,7 @@ class MIL_fc_baens_wpr(nn.Module):
             results_dict.update({'features': top_features})
 
         if not validation:
-            return top_instance, Y_prob, Y_hat, kl_div, y_probs, A
+            return top_instance, Y_prob, Y_hat, vq_loss, y_probs, A
         else:
             return top_instance, Y_prob, Y_hat, y_probs, A
 
