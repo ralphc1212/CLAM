@@ -488,9 +488,13 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
                 attention_model_uncertainty.append(out_ens_atten - ens_atten)
                 attention_data_uncertainty.append(ens_atten)
 
+            elif bayes_args and ('vqmil' in bayes_args):
+
+                logits, Y_prob, Y_hat, _, _ = model(data, validation=True)
+            
             else:
 
-                logits, Y_prob, Y_hat, _, _ = model(data)
+                logits, Y_prob, Y_hat, _, _ = model(data, validation=True)
 
             acc_logger.log(Y_hat, label)
 
