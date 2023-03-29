@@ -233,7 +233,7 @@ class MIL_fc_baens_wpr(nn.Module):
             results_dict.update({'features': top_features})
 
         if not validation:
-            return top_instance, Y_prob, Y_hat, vq_loss, y_probs, A
+            return top_instance, Y_prob, Y_hat, [vq_loss], y_probs, A
         else:
             return top_instance, Y_prob, Y_hat, y_probs, A
 
