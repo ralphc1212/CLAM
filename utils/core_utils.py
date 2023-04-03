@@ -491,10 +491,10 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None,
             elif bayes_args and ('vqmil' in bayes_args):
 
                 logits, Y_prob, Y_hat, _, _ = model(data, validation=True)
-            
+
             else:
 
-                logits, Y_prob, Y_hat, _, _ = model(data, validation=True)
+                logits, Y_prob, Y_hat, _, _ = model(data)
 
             acc_logger.log(Y_hat, label)
 
@@ -611,7 +611,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
         for i in range(2):
             acc, correct, count = inst_logger.get_summary(i)
             print('class {} clustering acc {}: correct {}/{}'.format(i, acc, correct, count))
-    
+
     if writer:
         writer.add_scalar('val/loss', val_loss, epoch)
         writer.add_scalar('val/auc', auc, epoch)
