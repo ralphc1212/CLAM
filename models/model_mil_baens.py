@@ -245,7 +245,8 @@ class MIL_fc_baens_wpr(nn.Module):
 
         # M = torch.mm(A, h)
 
-        logits = self.classifiers(M)
+        # logits = self.classifiers(M)
+        logits = self.classifiers(M_code)
 
         y_probs = F.softmax(logits, dim = 1)
         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
